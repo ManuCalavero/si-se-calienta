@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Si Se Calienta - Evolucion diaria 1976-2026</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Instrument+Serif:ital@0;1&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="bg-glow bg-glow-1"></div>
+    <div class="bg-glow bg-glow-2"></div>
+    <div class="bg-glow bg-glow-3"></div>
+
+    <main class="layout">
+      <section class="controls card fade-in">
+        <form id="query-form">
+          <label>
+            Estacion
+            <select id="station" required></select>
+          </label>
+
+          <label>
+            Fecha (por defecto, hoy)
+            <input id="date" type="date" required />
+          </label>
+
+          <button type="submit">
+            <span class="btn-label">Ver evolucion</span>
+            <span class="btn-spinner" aria-hidden="true"></span>
+          </button>
+
+          <p id="selection-summary" class="selection-summary"></p>
+        </form>
+        <p class="hint">Rango fijo: 1976-2026</p>
+      </section>
+
+    <div class="status-row fade-in delay-3">
+        <span id="status-spinner" class="spinner hidden" aria-hidden="true"></span>
+        <p id="status" class="status"></p>
+      </div>
+      <section class="chart-card card fade-in delay-1">
+        <h2 id="chart-title">Evolucion anual</h2>
+        <div class="chart-wrap">
+          <canvas id="chart"></canvas>
+        </div>
+      </section>
+
+      <section class="summary-grid fade-in delay-2" id="summary"></section>
+
+      <section class="table-card card fade-in delay-3">
+        <div class="table-head">
+          <h2>Detalle por ano</h2>
+          <p id="table-caption"></p>
+        </div>
+        <div class="table-wrap">
+          <table id="results-table">
+            <thead>
+              <tr>
+                <th>Ano</th>
+                <th>T. Max (C)</th>
+                <th>T. Min (C)</th>
+                <th>T. Media (C)</th>
+                <th>Precipitacion (mm)</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+    
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
