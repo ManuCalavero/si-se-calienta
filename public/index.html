@@ -10,6 +10,12 @@
       href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Instrument+Serif:ital@0;1&display=swap"
       rel="stylesheet"
     />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+    />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
@@ -19,12 +25,21 @@
 
     <main class="layout">
       <section class="controls card fade-in">
-        <form id="query-form">
-          <label>
-            Estacion
-            <select id="station" required></select>
-          </label>
+        <section class="station-picker" aria-label="Seleccion de estacion en mapa">
+          <div id="stations-map" class="stations-map" role="application" aria-label="Mapa de estaciones"></div>
+        </section>
 
+        
+      </section>
+
+      <div style="flex: 1; padding:24px;">
+
+        <div class="station-picker-head">
+          <p class="station-picker-label">Estacion seleccionada</p>
+          <p id="selected-station" class="selected-station">Haz clic en un marcador del mapa</p>
+        </div>
+
+    <form id="query-form">
           <label>
             Fecha (por defecto, hoy)
             <input id="date" type="date" required />
@@ -38,8 +53,6 @@
           <p id="selection-summary" class="selection-summary"></p>
         </form>
         <p class="hint">Rango fijo: 1976-2026</p>
-      </section>
-
     <div class="status-row fade-in delay-3">
         <span id="status-spinner" class="spinner hidden" aria-hidden="true"></span>
         <p id="status" class="status"></p>
@@ -55,8 +68,7 @@
 
       <section class="table-card card fade-in delay-3">
         <div class="table-head">
-          <h2>Detalle por ano</h2>
-          <p id="table-caption"></p>
+          <h2>Detalle por año</h2>
         </div>
         <div class="table-wrap">
           <table id="results-table">
@@ -73,11 +85,16 @@
           </table>
         </div>
       </section>
-
+      </div>
     
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin=""
+    ></script>
     <script src="app.js"></script>
   </body>
 </html>

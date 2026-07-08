@@ -46,8 +46,28 @@ npm run dev
 ## Endpoints
 
 - `GET /api/stations` devuelve inventario de estaciones.
-- `GET /api/evolution?station=XXXX&month=MM&day=DD` devuelve la serie 1976-2026.
-- `GET /api/evolution?station=XXXX&month=MM&day=DD&refresh=1` fuerza recarga desde AEMET (sin usar cache).
+- `GET /api/evolution?station=XXXX&month=MM&day=DD` devuelve la serie 1976-2026 (modo sincronico).
+- `GET /api/evolution/jobs/enqueue?station=XXXX&month=MM&day=DD` encola la consulta y devuelve `jobId`.
+- `GET /api/evolution/jobs/:jobId` devuelve estado/progreso del trabajo encolado.
+- `GET /api/evolution?station=XXXX&month=MM&day=DD&refresh=1&refreshSecret=TU_SECRETO` fuerza recarga desde AEMET (sin usar cache).
+
+## Seguridad (variables opcionales)
+
+- `FETCH_TIMEOUT_MS`: timeout para llamadas HTTP salientes a AEMET (por defecto `12000`).
+- `REFRESH_SECRET`: secreto requerido para permitir `refresh=1` en `/api/evolution`.
+
+## Cola de consultas (variables opcionales)
+
+- `EVOLUTION_QUEUE_CONCURRENCY`: numero de trabajos simultaneos de evolucion (recomendado `1`).
+- `EVOLUTION_PER_YEAR_DELAY_MS`: espera entre anos para suavizar cuota de AEMET.
+- `EVOLUTION_RETRY_ROUND_COOLDOWN_MS`: pausa antes de reintentar anos fallidos.
+- `EVOLUTION_JOB_RETENTION_MINUTES`: minutos que se conserva el estado de trabajos completados/fallidos.
+
+## Rate limits de evolucion (variables opcionales)
+
+- `EVOLUTION_SYNC_LIMIT_PER_MIN`: limite por minuto para `GET /api/evolution` (consulta pesada sincronica).
+- `EVOLUTION_ENQUEUE_LIMIT_PER_MIN`: limite por minuto para `GET /api/evolution/jobs/enqueue`.
+- `EVOLUTION_STATUS_LIMIT_PER_MIN`: limite por minuto para `GET /api/evolution/jobs/:jobId` (polling de estado).
 
 ## Cache local
 
