@@ -421,13 +421,36 @@ function updateSelectionSummary(stationLabel, day, month, yearsWithAnyData) {
   chartTitle.textContent = `Evolucion anual para ${prettyDate}`;
 }
 
+async function parseApiResponse(response) {
+  const contentType = String(response.headers.get("content-type") || "").toLowerCase();
+
+  if (contentType.includes("application/json")) {
+    try {
+      return await response.json();
+    } catch (_error) {
+      return null;
+    }
+  }
+
+  const text = await response.text();
+  return {
+    error: text || "Respuesta no JSON recibida del servidor",
+    rawText: text,
+  };
+}
+
 async function loadStations() {
   setStatus("Cargando estaciones...");
   const response = await fetch("/api/stations");
-  const rawStations = await response.json();
+  const rawStations = await parseApiResponse(response);
 
   if (!response.ok) {
-    throw new Error(rawStations.error || "No se pudieron cargar estaciones");
+    const reason = rawStations && rawStations.error ? rawStations.error : "No se pudieron cargar estaciones";
+    throw new Error(reason);
+  }
+
+  if (!Array.isArray(rawStations)) {
+    throw new Error("La API de estaciones devolvio un formato inesperado");
   }
 
   stations = rawStations
@@ -452,10 +475,11 @@ async function loadStations() {
 async function fetchEvolution(station, month, day) {
   const params = new URLSearchParams({ station, month, day });
   const response = await fetch(`/api/evolution/jobs/enqueue?${params.toString()}`);
-  const payload = await response.json();
+  const payload = await parseApiResponse(response);
 
   if (!response.ok) {
-    throw new Error(payload.error || "Error consultando evolucion");
+    const reason = payload && payload.error ? payload.error : "Error consultando evolucion";
+    throw new Error(reason);
   }
 
   if (payload && payload.status === "done" && payload.result) {
@@ -481,10 +505,11 @@ async function waitForEvolutionJob(jobId, jobToken) {
     }
 
     const response = await fetch(`/api/evolution/jobs/${encodeURIComponent(jobId)}`);
-    const payload = await response.json();
+    const payload = await parseApiResponse(response);
 
     if (!response.ok) {
-      throw new Error(payload.error || "Error consultando el estado del trabajo");
+      const reason = payload && payload.error ? payload.error : "Error consultando el estado del trabajo";
+      throw new Error(reason);
     }
 
     if (payload.status === "queued") {
