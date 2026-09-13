@@ -141,10 +141,30 @@ function initializeMap() {
     zoomControl: true,
   }).setView([40.35, -3.65], 6);
 
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+  const osmTileUrl = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
+  const cartoTileUrl = "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png";
+
+  const primaryTiles = L.tileLayer(osmTileUrl, {
     maxZoom: 19,
+    referrerPolicy: "strict-origin-when-cross-origin",
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-  }).addTo(map);
+  });
+
+  const fallbackTiles = L.tileLayer(cartoTileUrl, {
+    maxZoom: 19,
+    subdomains: "abcd",
+    attribution:
+      '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+  });
+
+  primaryTiles.on("tileerror", function () {
+    if (!map.hasLayer(fallbackTiles)) {
+      map.removeLayer(primaryTiles);
+      fallbackTiles.addTo(map);
+    }
+  });
+
+  primaryTiles.addTo(map);
 
   mapMarkersLayer = L.layerGroup().addTo(map);
 }
