@@ -316,9 +316,33 @@ async function readEvolutionCache(station, month, day) {
       return null;
     }
 
+    const payload = cached.payload;
+    if (!payload || !Array.isArray(payload.data)) return null;
+
+    const currentYear = new Date().getFullYear();
+    if (payload.endYear < currentYear) {
+      return null;
+    }
+
+    const todayISO = new Date().toISOString().slice(0, 10);
+    const targetDateISO = `${currentYear}-${month}-${day}`;
+
+    if (targetDateISO <= todayISO) {
+      const currentYearRow = payload.data.find((row) => row.year === currentYear);
+      if (
+        !currentYearRow ||
+        (currentYearRow.tmax === null &&
+          currentYearRow.tmin === null &&
+          currentYearRow.tmed === null &&
+          currentYearRow.prec === null)
+      ) {
+        return null;
+      }
+    }
+
     return {
       createdAt,
-      payload: cached.payload,
+      payload,
     };
   } catch (_error) {
     return null;
@@ -366,7 +390,7 @@ async function fetchDailyClimateRow({ station, month, day, year }) {
   };
 }
 
-async function buildEvolutionPayload({ station, month, day, startYear = 1976, endYear = 2026, onProgress }) {
+async function buildEvolutionPayload({ station, month, day, startYear = 1976, endYear = new Date().getFullYear(), onProgress }) {
   const byYear = new Map();
   const failedYears = [];
   const firstPassFailedYears = [];
@@ -527,7 +551,7 @@ function consumeEvolutionQueue() {
   }
 }
 
-function enqueueEvolutionJob({ station, month, day, forceRefresh, startYear = 1976, endYear = 2026 }) {
+function enqueueEvolutionJob({ station, month, day, forceRefresh, startYear = 1976, endYear = new Date().getFullYear() }) {
   pruneOldEvolutionJobs();
   const key = buildEvolutionJobKey(station, month, day, forceRefresh);
   const existingJob = [...evolutionJobs.values()].find(
@@ -604,7 +628,7 @@ function parseEvolutionQuery(req) {
   const day = String(req.query.day || "").padStart(2, "0");
   const forceRefresh = String(req.query.refresh || "").trim() === "1";
   const startYear = 1976;
-  const endYear = 2026;
+  const endYear = new Date().getFullYear();
 
   if (!station) {
     throw safeApiError("Debes indicar una estacion", 400);
