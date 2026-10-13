@@ -2,13 +2,14 @@
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
-    <title>Si Se Calienta - Evolucion diaria 1976-2026</title>
+    <meta name="theme-color" content="#f3f5ea" />
+    <title>Si se calienta · ¿Hace más calor que antes?</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Instrument+Serif:ital@0;1&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&display=swap"
       rel="stylesheet"
     />
     <link
@@ -20,82 +21,172 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <div class="bg-glow bg-glow-1"></div>
-    <div class="bg-glow bg-glow-2"></div>
-    <div class="bg-glow bg-glow-3"></div>
+    <div id="map" class="map" role="application" aria-label="Mapa de estaciones de AEMET"></div>
 
-    <main class="layout">
-      <section class="controls card fade-in">
-        <section class="station-picker" aria-label="Seleccion de estacion en mapa">
-          <div id="stations-map" class="stations-map" role="application" aria-label="Mapa de estaciones"></div>
+    <header class="topbar glass">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <div class="brand-text">
+          <strong>Si se calienta</strong>
+          <span>Clima diario · AEMET</span>
+        </div>
+      </div>
+
+      <div class="search">
+        <svg class="search-icon" viewBox="0 0 20 20" aria-hidden="true"><circle cx="9" cy="9" r="6" /><path d="m14 14 4 4" /></svg>
+        <input
+          id="search-input"
+          type="search"
+          placeholder="Busca tu ciudad"
+          autocomplete="off"
+          spellcheck="false"
+          role="combobox"
+          aria-autocomplete="list"
+          aria-expanded="false"
+          aria-controls="search-results"
+          aria-label="Buscar estación"
+        />
+        <kbd class="search-kbd" aria-hidden="true">⌘K</kbd>
+        <ul id="search-results" class="search-results glass" role="listbox" hidden></ul>
+      </div>
+
+      <label class="date-field">
+        <span>Día</span>
+        <input id="date" type="date" required />
+      </label>
+
+      <div id="background-download" class="bg-pill" role="status" hidden>
+        <span class="bg-pill-dot" aria-hidden="true"></span>
+        <span id="background-download-text"></span>
+      </div>
+    </header>
+
+    <section id="welcome" class="welcome glass">
+      <p class="eyebrow">Datos diarios de AEMET desde 1920</p>
+      <img
+        class="welcome-image"
+        src="img/bienvenida.jpg"
+        width="800"
+        height="446"
+        alt="Ilustración: un niño ante colinas verdes y un adulto en el mismo paisaje, ya seco y labrado bajo un cielo rosado"
+      />
+      <h1>¿Hace más calor que antes?</h1>
+      <p class="welcome-text">
+        Elige una estación y descubre cómo ha cambiado un mismo día del año desde que hay registros.
+      </p>
+      <div class="welcome-actions">
+        <button id="locate-btn" class="btn btn-primary" type="button">Usar mi ubicación</button>
+        <button id="focus-search-btn" class="btn btn-ghost" type="button">Buscar estación</button>
+      </div>
+      <ul class="legend">
+        <li><span class="legend-dot is-cached"></span>Descargada · respuesta instantánea</li>
+        <li><span class="legend-dot"></span>Sin descargar · 2–3 min la primera vez</li>
+      </ul>
+    </section>
+
+    <aside id="panel" class="panel glass" aria-labelledby="panel-title" hidden>
+      <button id="sheet-handle" class="sheet-handle" type="button" aria-label="Ampliar panel"><span></span></button>
+
+      <header class="panel-header">
+        <div class="panel-heading">
+          <p id="panel-eyebrow" class="eyebrow"></p>
+          <h2 id="panel-title"></h2>
+          <p id="panel-sub" class="panel-sub"></p>
+        </div>
+        <div class="panel-actions">
+          <span id="verdict" class="chip chip-neutral">Analizando…</span>
+          <button id="expand-btn" class="icon-btn" type="button" aria-label="Ampliar análisis" aria-expanded="false">
+            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M12 3h5v5M8 17H3v-5M17 3l-6 6M3 17l6-6" /></svg>
+          </button>
+          <button id="close-btn" class="icon-btn" type="button" aria-label="Cerrar panel">
+            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 5l10 10M15 5 5 15" /></svg>
+          </button>
+        </div>
+      </header>
+
+      <div id="panel-progress" class="panel-progress" hidden>
+        <div class="progress"><div id="progress-bar" class="progress-bar"></div></div>
+        <p id="status" class="status" aria-live="polite"></p>
+      </div>
+
+      <div id="panel-body" class="panel-body">
+        <p id="headline" class="headline"></p>
+
+        <section id="kpis" class="kpis" aria-label="Indicadores principales"></section>
+
+        <section class="card chart-card">
+          <div class="section-head">
+            <h3>Temperatura y lluvia <span class="hint">· media de ±7 días</span></h3>
+            <div id="series-toggles" class="series-toggles" role="group" aria-label="Series adicionales">
+              <button type="button" data-series="tmax" aria-pressed="true"><span class="swatch swatch-warm"></span>Máx.</button>
+              <button type="button" data-series="tmin" aria-pressed="true"><span class="swatch swatch-cool"></span>Mín.</button>
+              <button type="button" data-series="prec" aria-pressed="true"><span class="swatch swatch-rain"></span>Lluvia</button>
+            </div>
+          </div>
+          <div class="chart-wrap"><canvas id="chart" aria-label="Evolución de la temperatura media y la lluvia"></canvas></div>
         </section>
 
-        
-      </section>
+        <section class="card stripes-card" aria-label="Franjas climáticas">
+          <div class="section-head">
+            <h3>Franjas climáticas</h3>
+            <span class="hint">Cada barra es un año · azul más fresco, rojo más cálido que la media</span>
+          </div>
+          <div id="stripes" class="stripes"></div>
+          <div class="stripes-axis"><span id="stripes-start"></span><span id="stripes-end"></span></div>
+        </section>
 
-      <div style="flex: 3; padding:24px;">
+        <details class="card facts">
+          <summary>
+            <span>Estación y calidad de datos</span>
+            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m6 8 4 4 4-4" /></svg>
+          </summary>
+          <div class="facts-grid">
+            <div>
+              <h3>Estación</h3>
+              <dl id="station-facts" class="fact-list"></dl>
+            </div>
+            <div>
+              <h3>Calidad de datos</h3>
+              <dl id="quality-facts" class="fact-list"></dl>
+            </div>
+          </div>
+        </details>
 
-        <div class="station-picker-head">
-          <p class="station-picker-label">Estacion seleccionada</p>
-          <p id="selected-station" class="selected-station">Haz clic en un marcador del mapa</p>
-        </div>
-
-    <form id="query-form">
-          <label>
-            Fecha (por defecto, hoy)
-            <input id="date" type="date" required />
-          </label>
-
-          <button type="submit">
-            <span class="btn-label">Ver evolucion</span>
-            <span class="btn-spinner" aria-hidden="true"></span>
-          </button>
-
-          <p id="selection-summary" class="selection-summary"></p>
-        </form>
-        <p class="hint">Rango fijo: 1976-2026</p>
-    <div class="status-row fade-in delay-3">
-        <span id="status-spinner" class="spinner hidden" aria-hidden="true"></span>
-        <p id="status" class="status"></p>
+        <section id="detail" class="card detail">
+          <div class="section-head">
+            <h3>Detalle para analistas</h3>
+            <button id="csv-btn" class="btn btn-ghost btn-small" type="button">Descargar CSV</button>
+          </div>
+          <dl id="stats-facts" class="fact-list stats-grid"></dl>
+          <div class="table-wrap">
+            <table id="results-table">
+              <thead>
+                <tr>
+                  <th>Año</th>
+                  <th>T. media</th>
+                  <th>T. máx.</th>
+                  <th>T. mín.</th>
+                  <th>Lluvia</th>
+                  <th>Día: media</th>
+                  <th>Día: máx.</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </section>
       </div>
-      <section class="chart-card card fade-in delay-1">
-        <h2 id="chart-title">Evolucion anual</h2>
-        <div class="chart-wrap">
-          <canvas id="chart"></canvas>
-        </div>
-      </section>
+    </aside>
 
-      <section class="summary-grid fade-in delay-2" id="summary"></section>
-
-      <section class="table-card card fade-in delay-3">
-        <div class="table-head">
-          <h2>Detalle por año</h2>
-        </div>
-        <div class="table-wrap">
-          <table id="results-table">
-            <thead>
-              <tr>
-                <th>Ano</th>
-                <th>T. Max (C)</th>
-                <th>T. Min (C)</th>
-                <th>T. Media (C)</th>
-                <th>Precipitacion (mm)</th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-          </table>
-        </div>
-      </section>
-      </div>
-    
-    </main>
+    <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
     <script
       src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
       integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
       crossorigin=""
     ></script>
-    <script src="app.js"></script>
+    <script type="module" src="js/app.js"></script>
   </body>
 </html>

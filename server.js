@@ -9,38 +9,49 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const AEMET_API_KEY = process.env.AEMET_API_KEY;
 const AEMET_BASE = "https://opendata.aemet.es/opendata";
-const CACHE_DIR = path.join(__dirname, ".cache", "evolution");
-const STATIONS_CACHE_FILE = path.join(__dirname, ".cache", "stations_inventory.json");
-const CACHE_TTL_HOURS = Number(process.env.CACHE_TTL_HOURS || "720");
-const CACHE_TTL_MS =
-  Number.isFinite(CACHE_TTL_HOURS) && CACHE_TTL_HOURS > 0
-    ? CACHE_TTL_HOURS * 60 * 60 * 1000
-    : 720 * 60 * 60 * 1000;
+const STATION_CACHE_DIR = path.join(__dirname, ".cache", "stations");
+const STATIONS_CACHE_FILE = path.join(__dirname, ".cache", "stations_inventory_v2.json");
+const DAY_MS = 24 * 60 * 60 * 1000;
+const RECENT_DATA_TTL_HOURS = Number(process.env.RECENT_DATA_TTL_HOURS || "12");
+const RECENT_DATA_TTL_MS =
+  Number.isFinite(RECENT_DATA_TTL_HOURS) && RECENT_DATA_TTL_HOURS > 0 ? RECENT_DATA_TTL_HOURS * 60 * 60 * 1000 : 12 * 60 * 60 * 1000;
+// AEMET puede corregir los datos de las ultimas semanas; pasado este margen un bloque se considera definitivo.
+const CHUNK_FINAL_AFTER_DAYS = 30;
 const STATIONS_CACHE_TTL_HOURS = Number(process.env.STATIONS_CACHE_TTL_HOURS || "720");
 const STATIONS_CACHE_TTL_MS =
   Number.isFinite(STATIONS_CACHE_TTL_HOURS) && STATIONS_CACHE_TTL_HOURS > 0
     ? STATIONS_CACHE_TTL_HOURS * 60 * 60 * 1000
     : 720 * 60 * 60 * 1000;
-const FETCH_TIMEOUT_MS = Number(process.env.FETCH_TIMEOUT_MS || "12000");
+const FETCH_TIMEOUT_MS = Number(process.env.FETCH_TIMEOUT_MS || "20000");
 const MAX_STATION_ID_LENGTH = 16;
-const EVOLUTION_QUEUE_CONCURRENCY = Math.max(1, Number(process.env.EVOLUTION_QUEUE_CONCURRENCY || "1"));
+// Rango que se descarga en primer plano mientras se explora el historico completo.
+const DEFAULT_START_YEAR = 1976;
+// AEMET no tiene datos diarios anteriores a 1920.
+const MIN_HISTORY_YEAR = 1920;
+// Anos seguidos sin datos que se toleran (p. ej. guerra civil) antes de dar por encontrado el primer registro.
+const HISTORY_GAP_TOLERANCE_YEARS = 5;
+const WINDOW_HALF_DAYS = 7;
+const MIN_WINDOW_DAYS = 10;
 const EVOLUTION_JOB_RETENTION_MINUTES = Math.max(5, Number(process.env.EVOLUTION_JOB_RETENTION_MINUTES || "45"));
 const EVOLUTION_JOB_RETENTION_MS = EVOLUTION_JOB_RETENTION_MINUTES * 60 * 1000;
-const EVOLUTION_PER_YEAR_DELAY_MS = Math.max(300, Number(process.env.EVOLUTION_PER_YEAR_DELAY_MS || "1000"));
-const EVOLUTION_RETRY_ROUND_COOLDOWN_MS = Math.max(
-  1000,
-  Number(process.env.EVOLUTION_RETRY_ROUND_COOLDOWN_MS || "5000")
-);
+const AEMET_REQUEST_DELAY_MS = Math.max(300, Number(process.env.AEMET_REQUEST_DELAY_MS || "1000"));
+const AEMET_MAX_BACKOFF_MS = 30000;
 const EVOLUTION_SYNC_LIMIT_PER_MIN = Math.max(4, Number(process.env.EVOLUTION_SYNC_LIMIT_PER_MIN || "12"));
 const EVOLUTION_ENQUEUE_LIMIT_PER_MIN = Math.max(10, Number(process.env.EVOLUTION_ENQUEUE_LIMIT_PER_MIN || "40"));
 const EVOLUTION_STATUS_LIMIT_PER_MIN = Math.max(60, Number(process.env.EVOLUTION_STATUS_LIMIT_PER_MIN || "240"));
 
 const refreshSecret = String(process.env.REFRESH_SECRET || "").trim();
 const evolutionJobs = new Map();
-const evolutionQueue = [];
-const queuedJobIds = new Set();
-let activeEvolutionWorkers = 0;
 let evolutionJobSequence = 0;
+
+const chunkTasks = new Map();
+const pendingHighChunks = [];
+const pendingLowChunks = [];
+let runningChunkTask = null;
+let averageChunkMs = 3000;
+let aemetThrottledUntil = 0;
+
+const stationScans = new Map();
 
 if (!AEMET_API_KEY) {
   console.warn("AEMET_API_KEY no esta definida. Crea un archivo .env a partir de .env.example");
@@ -59,6 +70,8 @@ app.use(
         styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://unpkg.com"],
         fontSrc: ["'self'", "https://fonts.gstatic.com"],
         scriptSrc: ["'self'", "https://cdn.jsdelivr.net", "https://unpkg.com"],
+        // Safari aplica esta directiva tambien a http://localhost y rompe la carga de CSS/JS en local.
+        upgradeInsecureRequests: null,
       },
     },
     referrerPolicy: { policy: "strict-origin-when-cross-origin" },
@@ -98,8 +111,8 @@ const evolutionStatusLimiter = rateLimit({
   message: { error: "Demasiadas consultas de estado. Reduce la frecuencia de actualizacion." },
 });
 
-app.use(baseLimiter);
 app.use(express.static(path.join(__dirname, "public")));
+app.use(baseLimiter);
 
 function isValidStationId(station) {
   return /^[A-Z0-9_]+$/.test(station) && station.length > 0 && station.length <= MAX_STATION_ID_LENGTH;
@@ -123,18 +136,13 @@ function buildEvolutionJobKey(station, month, day, forceRefresh) {
 function pruneOldEvolutionJobs() {
   const now = Date.now();
   for (const [jobId, job] of evolutionJobs.entries()) {
-    if (job.status === "queued" || job.status === "running") {
+    if (job.status === "running") {
       continue;
     }
 
     const finishedAt = Number(job.finishedAt || 0);
-    if (finishedAt <= 0) {
-      continue;
-    }
-
-    if (now - finishedAt > EVOLUTION_JOB_RETENTION_MS) {
+    if (finishedAt > 0 && now - finishedAt > EVOLUTION_JOB_RETENTION_MS) {
       evolutionJobs.delete(jobId);
-      queuedJobIds.delete(jobId);
     }
   }
 }
@@ -167,63 +175,83 @@ function wait(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+function aemetHttpError(response, body, label) {
+  const error = new Error(`${label} (${response.status}): ${body}`);
+  error.status = response.status;
+  const retryAfter = Number(response.headers.get("retry-after"));
+  if (Number.isFinite(retryAfter) && retryAfter > 0) {
+    error.retryAfterMs = retryAfter * 1000;
+  }
+  return error;
+}
+
+// Los datos de AEMET vienen en ISO-8859-15; leerlos como UTF-8 rompe enes y tildes.
+async function readAemetJson(response) {
+  const contentType = String(response.headers.get("content-type") || "");
+  const charsetMatch = contentType.match(/charset=([^;]+)/i);
+  const charset = charsetMatch ? charsetMatch[1].trim().toLowerCase() : "utf-8";
+  const buffer = await response.arrayBuffer();
+  let text;
+  try {
+    text = new TextDecoder(charset).decode(buffer);
+  } catch (_error) {
+    text = new TextDecoder("latin1").decode(buffer);
+  }
+  return JSON.parse(text);
+}
+
 async function fetchAemetData(endpointPath) {
-  const firstStepUrl = buildAemetUrl(endpointPath);
-  const firstStepResponse = await fetch(firstStepUrl, { signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) });
+  const firstStepResponse = await fetch(buildAemetUrl(endpointPath), { signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) });
 
   if (!firstStepResponse.ok) {
-    const body = await firstStepResponse.text();
-    const error = new Error(`Error AEMET (${firstStepResponse.status}): ${body}`);
-    error.status = firstStepResponse.status;
-    const retryAfter = Number(firstStepResponse.headers.get("retry-after"));
-    if (Number.isFinite(retryAfter) && retryAfter > 0) {
-      error.retryAfterMs = retryAfter * 1000;
-    }
-    throw error;
+    throw aemetHttpError(firstStepResponse, await firstStepResponse.text(), "Error AEMET");
   }
 
   const firstStepJson = await firstStepResponse.json();
 
-  if (!firstStepJson.datos) {
-    throw new Error(firstStepJson.descripcion || "AEMET no devolvio URL de datos");
+  // AEMET responde HTTP 200 y pone el codigo real en "estado" (404 = sin datos, 429 = limite de peticiones).
+  const estado = Number(firstStepJson.estado);
+  if (estado === 404) {
+    return [];
   }
 
-  const dataResponse = await fetch(firstStepJson.datos, {
-    signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
-  });
-  if (!dataResponse.ok) {
-    const body = await dataResponse.text();
-    const error = new Error(`Error descargando datos AEMET (${dataResponse.status}): ${body}`);
-    error.status = dataResponse.status;
-    const retryAfter = Number(dataResponse.headers.get("retry-after"));
-    if (Number.isFinite(retryAfter) && retryAfter > 0) {
-      error.retryAfterMs = retryAfter * 1000;
-    }
+  if (!firstStepJson.datos) {
+    const error = new Error(firstStepJson.descripcion || "AEMET no devolvio URL de datos");
+    if (Number.isFinite(estado)) error.status = estado;
     throw error;
   }
 
-  return dataResponse.json();
+  const dataResponse = await fetch(firstStepJson.datos, { signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) });
+  if (!dataResponse.ok) {
+    throw aemetHttpError(dataResponse, await dataResponse.text(), "Error descargando datos AEMET");
+  }
+
+  return readAemetJson(dataResponse);
 }
 
-async function fetchAemetDataWithRetry(endpointPath, maxRetries = 8) {
-  let attempt = 0;
+function isRetryableAemetError(error) {
+  if (!error) return false;
+  if (error.status === 429 || error.status >= 500) return true;
+  if (/429/.test(error.message || "")) return true;
+  return !error.status;
+}
 
-  while (attempt <= maxRetries) {
+async function fetchAemetDataWithRetry(endpointPath, maxRetries = 5) {
+  for (let attempt = 0; ; attempt += 1) {
     try {
       return await fetchAemetData(endpointPath);
     } catch (error) {
-      const isRateLimited = error && (error.status === 429 || /429/.test(error.message || ""));
-      if (!isRateLimited || attempt === maxRetries) {
+      if (!isRetryableAemetError(error) || attempt >= maxRetries) {
         throw error;
       }
 
-      const backoffMs = error.retryAfterMs || 2000 * 2 ** attempt;
+      const backoffMs = Math.min(error.retryAfterMs || 2000 * 2 ** attempt, AEMET_MAX_BACKOFF_MS);
+      if (error.status === 429) {
+        aemetThrottledUntil = Math.max(aemetThrottledUntil, Date.now() + backoffMs);
+      }
       await wait(backoffMs);
-      attempt += 1;
     }
   }
-
-  throw new Error("No se pudo obtener respuesta de AEMET tras varios intentos");
 }
 
 function parseNumber(value) {
@@ -258,20 +286,15 @@ async function readStationsCache({ allowExpired = false } = {}) {
   }
 }
 
-async function writeStationsCache(payload) {
-  const tmpFile = `${STATIONS_CACHE_FILE}.tmp`;
-  await fs.mkdir(path.dirname(STATIONS_CACHE_FILE), { recursive: true });
-  const serialized = JSON.stringify(
-    {
-      createdAt: Date.now(),
-      payload,
-    },
-    null,
-    2
-  );
+async function writeJsonAtomic(filePath, value) {
+  const tmpFile = `${filePath}.${process.pid}.${Date.now()}.tmp`;
+  await fs.mkdir(path.dirname(filePath), { recursive: true });
+  await fs.writeFile(tmpFile, JSON.stringify(value), "utf8");
+  await fs.rename(tmpFile, filePath);
+}
 
-  await fs.writeFile(tmpFile, serialized, "utf8");
-  await fs.rename(tmpFile, STATIONS_CACHE_FILE);
+async function writeStationsCache(payload) {
+  await writeJsonAtomic(STATIONS_CACHE_FILE, { createdAt: Date.now(), payload });
 }
 
 function monthDayFromFecha(fecha) {
@@ -296,327 +319,485 @@ function isValidDateParts(year, month, day) {
   );
 }
 
-function buildCacheFilePath(station, month, day) {
-  const stationSafe = station.replace(/[^a-zA-Z0-9_-]/g, "_");
-  return path.join(CACHE_DIR, `${stationSafe}_${month}_${day}.json`);
+function todayISO() {
+  return new Date().toISOString().slice(0, 10);
 }
 
-async function readEvolutionCache(station, month, day) {
-  const cacheFile = buildCacheFilePath(station, month, day);
+function currentYear() {
+  return new Date().getUTCFullYear();
+}
 
+function stationDir(station) {
+  return path.join(STATION_CACHE_DIR, station.replace(/[^a-zA-Z0-9_-]/g, "_"));
+}
+
+// Un bloque = medio ano de una estacion; AEMET no admite rangos de mas de 6 meses por peticion.
+function halfOfMonth(month) {
+  return Number(month) <= 6 ? 1 : 2;
+}
+
+function chunkRange(year, half) {
+  return half === 1 ? [`${year}-01-01`, `${year}-06-30`] : [`${year}-07-01`, `${year}-12-31`];
+}
+
+function chunkKey(station, year, half) {
+  return `${station}_${year}_H${half}`;
+}
+
+function chunkFilePath(station, year, half) {
+  return path.join(stationDir(station), `${year}-H${half}.json`);
+}
+
+function chunkHasStarted(year, half) {
+  return chunkRange(year, half)[0] <= todayISO();
+}
+
+function isChunkUsable(chunk, year, half) {
+  const endMs = Date.parse(`${chunkRange(year, half)[1]}T23:59:59Z`);
+  const isFinal = chunk.fetchedAt - endMs > CHUNK_FINAL_AFTER_DAYS * DAY_MS;
+  return isFinal || Date.now() - chunk.fetchedAt < RECENT_DATA_TTL_MS;
+}
+
+async function readChunk(station, year, half) {
   try {
-    const raw = await fs.readFile(cacheFile, "utf8");
-    const cached = JSON.parse(raw);
-    if (!cached || typeof cached !== "object") return null;
-
-    const createdAt = Number(cached.createdAt || 0);
-    if (!Number.isFinite(createdAt) || createdAt <= 0) return null;
-
-    if (Date.now() - createdAt > CACHE_TTL_MS) {
-      return null;
-    }
-
-    const payload = cached.payload;
-    if (!payload || !Array.isArray(payload.data)) return null;
-
-    const currentYear = new Date().getFullYear();
-    if (payload.endYear < currentYear) {
-      return null;
-    }
-
-    const todayISO = new Date().toISOString().slice(0, 10);
-    const targetDateISO = `${currentYear}-${month}-${day}`;
-
-    if (targetDateISO <= todayISO) {
-      const currentYearRow = payload.data.find((row) => row.year === currentYear);
-      if (
-        !currentYearRow ||
-        (currentYearRow.tmax === null &&
-          currentYearRow.tmin === null &&
-          currentYearRow.tmed === null &&
-          currentYearRow.prec === null)
-      ) {
-        return null;
-      }
-    }
-
-    return {
-      createdAt,
-      payload,
-    };
+    const cached = JSON.parse(await fs.readFile(chunkFilePath(station, year, half), "utf8"));
+    if (!cached || !Number.isFinite(cached.fetchedAt) || !cached.rows || typeof cached.rows !== "object") return null;
+    return cached;
   } catch (_error) {
     return null;
   }
 }
 
-async function writeEvolutionCache(station, month, day, payload) {
-  const cacheFile = buildCacheFilePath(station, month, day);
-  const tmpFile = `${cacheFile}.tmp`;
-
-  await fs.mkdir(CACHE_DIR, { recursive: true });
-  const serialized = JSON.stringify(
-    {
-      createdAt: Date.now(),
-      payload,
-    },
-    null,
-    2
-  );
-
-  await fs.writeFile(tmpFile, serialized, "utf8");
-  await fs.rename(tmpFile, cacheFile);
+async function readUsableChunk(station, year, half) {
+  const chunk = await readChunk(station, year, half);
+  return chunk && isChunkUsable(chunk, year, half) ? chunk : null;
 }
 
-async function fetchDailyClimateRow({ station, month, day, year }) {
-  const startDate = `${year}-${month}-${day}T00:00:00UTC`;
-  const endDate = `${year}-${month}-${day}T23:59:59UTC`;
-  const endpointPath = `/api/valores/climatologicos/diarios/datos/fechaini/${startDate}/fechafin/${endDate}/estacion/${encodeURIComponent(station)}`;
-  const rawData = await fetchAemetDataWithRetry(endpointPath, 8);
+async function downloadChunk(station, year, half) {
+  const [start, end] = chunkRange(year, half);
+  const today = todayISO();
+  const clampedEnd = end > today ? today : end;
+  const endpointPath = `/api/valores/climatologicos/diarios/datos/fechaini/${start}T00:00:00UTC/fechafin/${clampedEnd}T23:59:59UTC/estacion/${encodeURIComponent(station)}`;
+  const rawData = await fetchAemetDataWithRetry(endpointPath);
 
-  if (!Array.isArray(rawData) || rawData.length === 0) {
-    return null;
+  const rows = {};
+  for (const item of Array.isArray(rawData) ? rawData : []) {
+    const monthDay = monthDayFromFecha(item.fecha);
+    if (!monthDay) continue;
+    rows[monthDay] = {
+      tmax: parseNumber(item.tmax),
+      tmin: parseNumber(item.tmin),
+      tmed: parseNumber(item.tmed),
+      prec: parseNumber(item.prec),
+    };
   }
 
-  const row = rawData.find((item) => monthDayFromFecha(item.fecha) === `${month}-${day}`) || rawData[0];
-  if (!row) {
-    return null;
-  }
-
-  return {
-    tmax: parseNumber(row.tmax),
-    tmin: parseNumber(row.tmin),
-    tmed: parseNumber(row.tmed),
-    prec: parseNumber(row.prec),
-  };
-}
-
-async function buildEvolutionPayload({ station, month, day, startYear = 1976, endYear = new Date().getFullYear(), onProgress }) {
-  const byYear = new Map();
-  const failedYears = [];
-  const firstPassFailedYears = [];
-
-  const validYears = [];
-  for (let year = startYear; year <= endYear; year += 1) {
-    if (isValidDateParts(year, month, day)) {
-      validYears.push(year);
-    }
-  }
-
-  for (let index = 0; index < validYears.length; index += 1) {
-    const year = validYears[index];
-    try {
-      const parsed = await fetchDailyClimateRow({ station, month, day, year });
-      if (parsed) {
-        byYear.set(year, {
-          year,
-          ...parsed,
-        });
-      }
-    } catch (error) {
-      firstPassFailedYears.push({
-        year,
-        reason: error && error.status ? `HTTP ${error.status}` : "request_failed",
-      });
-    }
-
-    if (typeof onProgress === "function") {
-      onProgress({
-        completed: index + 1,
-        total: validYears.length,
-        yearsWithAnyData: byYear.size,
-        failedYearsCount: firstPassFailedYears.length,
-      });
-    }
-
-    await wait(EVOLUTION_PER_YEAR_DELAY_MS);
-  }
-
-  if (firstPassFailedYears.length > 0) {
-    await wait(EVOLUTION_RETRY_ROUND_COOLDOWN_MS);
-    for (const failed of firstPassFailedYears) {
-      try {
-        const parsed = await fetchDailyClimateRow({ station, month, day, year: failed.year });
-        if (parsed) {
-          byYear.set(failed.year, {
-            year: failed.year,
-            ...parsed,
-          });
-        }
-      } catch (error) {
-        failedYears.push({
-          year: failed.year,
-          reason: error && error.status ? `HTTP ${error.status}` : failed.reason,
-        });
-      }
-      await wait(EVOLUTION_PER_YEAR_DELAY_MS);
-    }
-  }
-
-  const series = [];
-  for (let year = startYear; year <= endYear; year += 1) {
-    series.push(
-      byYear.get(year) || {
-        year,
-        tmax: null,
-        tmin: null,
-        tmed: null,
-        prec: null,
-      }
-    );
-  }
-
-  const yearsWithAnyData = series.filter(
-    (row) => row.tmax !== null || row.tmin !== null || row.tmed !== null || row.prec !== null
-  ).length;
-
-  return {
-    station,
-    month,
-    day,
-    startYear,
-    endYear,
-    totalYears: series.length,
-    yearsWithAnyData,
-    failedYears,
-    data: series,
-    cache: {
-      hit: false,
-      ttlHours: CACHE_TTL_MS / (1000 * 60 * 60),
-    },
-  };
-}
-
-async function processEvolutionJob(job) {
-  job.status = "running";
-  job.startedAt = Date.now();
-
+  const chunk = { fetchedAt: Date.now(), rows };
   try {
-    const payload = await buildEvolutionPayload({
-      station: job.station,
-      month: job.month,
-      day: job.day,
-      startYear: job.startYear,
-      endYear: job.endYear,
-      onProgress: (progress) => {
-        job.progress = {
-          completed: progress.completed,
-          total: progress.total,
-          yearsWithAnyData: progress.yearsWithAnyData,
-          failedYearsCount: progress.failedYearsCount,
-        };
-      },
-    });
+    await writeJsonAtomic(chunkFilePath(station, year, half), chunk);
+  } catch (error) {
+    logServerError("chunk.cache", error);
+  }
+  return chunk;
+}
+
+function requestChunk(station, year, half, priority) {
+  const key = chunkKey(station, year, half);
+  const existing = chunkTasks.get(key);
+  if (existing) {
+    if (priority === "high" && existing.priority === "low" && existing.status === "pending") {
+      pendingLowChunks.splice(pendingLowChunks.indexOf(existing), 1);
+      pendingHighChunks.push(existing);
+      existing.priority = "high";
+    }
+    return existing;
+  }
+
+  const task = { key, station, year, half, priority, status: "pending" };
+  task.promise = new Promise((resolve, reject) => {
+    task.resolve = resolve;
+    task.reject = reject;
+  });
+  task.promise.catch(() => {});
+
+  chunkTasks.set(key, task);
+  (priority === "high" ? pendingHighChunks : pendingLowChunks).push(task);
+  runChunkWorker();
+  return task;
+}
+
+async function getChunk(station, year, half, priority) {
+  const cached = await readUsableChunk(station, year, half);
+  return cached || requestChunk(station, year, half, priority).promise;
+}
+
+// Un unico trabajador secuencial: la cuota de AEMET es por clave, asi que paralelizar solo provoca 429.
+async function runChunkWorker() {
+  if (runningChunkTask) return;
+
+  while (pendingHighChunks.length > 0 || pendingLowChunks.length > 0) {
+    const task = pendingHighChunks.shift() || pendingLowChunks.shift();
+    runningChunkTask = task;
+    task.status = "running";
+    const startedAt = Date.now();
 
     try {
-      await writeEvolutionCache(job.station, job.month, job.day, payload);
-    } catch (_cacheError) {
-      // Si la cache falla, el trabajo sigue considerandose completado.
+      const chunk = await downloadChunk(task.station, task.year, task.half);
+      task.status = "done";
+      task.resolve(chunk);
+    } catch (error) {
+      logServerError(`chunk ${task.key}`, error);
+      task.status = "failed";
+      task.reject(error);
+    } finally {
+      chunkTasks.delete(task.key);
     }
 
-    job.result = payload;
-    job.status = "done";
-  } catch (error) {
-    logServerError("evolution.job", error);
-    job.error = "No se pudo completar la consulta en segundo plano";
-    job.status = "failed";
-  } finally {
-    job.finishedAt = Date.now();
-    queuedJobIds.delete(job.id);
+    await wait(AEMET_REQUEST_DELAY_MS);
+    averageChunkMs = averageChunkMs * 0.8 + (Date.now() - startedAt) * 0.2;
+  }
+
+  runningChunkTask = null;
+}
+
+function throttleRemainingMs() {
+  return Math.max(0, aemetThrottledUntil - Date.now());
+}
+
+function metaFilePath(station) {
+  return path.join(stationDir(station), "meta.json");
+}
+
+async function readStationMeta(station) {
+  try {
+    const meta = JSON.parse(await fs.readFile(metaFilePath(station), "utf8"));
+    return meta && meta.historyComplete ? meta : null;
+  } catch (_error) {
+    return null;
   }
 }
 
-function consumeEvolutionQueue() {
-  while (activeEvolutionWorkers < EVOLUTION_QUEUE_CONCURRENCY && evolutionQueue.length > 0) {
-    const nextJobId = evolutionQueue.shift();
-    if (!nextJobId) {
-      continue;
+// Recorre la estacion hacia atras desde el ano actual hasta encontrar su primer registro.
+async function scanStationHistory(station) {
+  const state = stationScans.get(station);
+  let foundData = false;
+  let emptyStreak = 0;
+  let firstYear = null;
+  let lastYear = null;
+
+  for (let year = currentYear(); year >= MIN_HISTORY_YEAR; year -= 1) {
+    state.year = year;
+    const halves = [1, 2].filter((half) => chunkHasStarted(year, half));
+    const chunks = await Promise.all(halves.map((half) => getChunk(station, year, half, "low")));
+    const hasData = chunks.some((chunk) => Object.keys(chunk.rows).length > 0);
+
+    if (hasData) {
+      foundData = true;
+      emptyStreak = 0;
+      firstYear = year;
+      if (lastYear === null) lastYear = year;
+    } else if (foundData) {
+      emptyStreak += 1;
     }
 
-    const job = evolutionJobs.get(nextJobId);
-    if (!job || job.status !== "queued") {
-      queuedJobIds.delete(nextJobId);
-      continue;
-    }
+    if (foundData && emptyStreak >= HISTORY_GAP_TOLERANCE_YEARS) break;
+    if (!foundData && year <= DEFAULT_START_YEAR) break;
+  }
 
-    activeEvolutionWorkers += 1;
-    processEvolutionJob(job)
-      .catch((error) => {
-        logServerError("evolution.queue", error);
+  await writeJsonAtomic(metaFilePath(station), {
+    historyComplete: true,
+    firstYear,
+    lastYear,
+    scannedAt: Date.now(),
+  });
+}
+
+function ensureStationScan(station) {
+  if (stationScans.has(station)) return;
+  stationScans.set(station, { year: currentYear(), startedAt: Date.now() });
+
+  readStationMeta(station)
+    .then((meta) => (meta ? null : scanStationHistory(station)))
+    .catch((error) => logServerError(`scan ${station}`, error))
+    .finally(() => stationScans.delete(station));
+}
+
+function getBackgroundDownloads() {
+  return [...stationScans.entries()].map(([station, state]) => {
+    const yearsToBaseline = Math.max(0, state.year - DEFAULT_START_YEAR);
+    return {
+      station,
+      year: state.year,
+      searchingOlder: state.year < DEFAULT_START_YEAR,
+      etaSeconds: Math.ceil((yearsToBaseline * 2 * averageChunkMs + throttleRemainingMs()) / 1000),
+    };
+  });
+}
+
+async function listCachedStations() {
+  let entries = [];
+  try {
+    entries = await fs.readdir(STATION_CACHE_DIR, { withFileTypes: true });
+  } catch (_error) {
+    return [];
+  }
+
+  const stations = await Promise.all(
+    entries
+      .filter((entry) => entry.isDirectory())
+      .map(async (entry) => {
+        const meta = await readStationMeta(entry.name);
+        return {
+          station: entry.name,
+          historyComplete: Boolean(meta),
+          firstYear: meta ? meta.firstYear : null,
+          lastYear: meta ? meta.lastYear : null,
+        };
       })
-      .finally(() => {
-        activeEvolutionWorkers = Math.max(0, activeEvolutionWorkers - 1);
-        pruneOldEvolutionJobs();
-        consumeEvolutionQueue();
-      });
-  }
+  );
+  return stations;
 }
 
-function enqueueEvolutionJob({ station, month, day, forceRefresh, startYear = 1976, endYear = new Date().getFullYear() }) {
-  pruneOldEvolutionJobs();
-  const key = buildEvolutionJobKey(station, month, day, forceRefresh);
-  const existingJob = [...evolutionJobs.values()].find(
-    (job) => job.key === key && (job.status === "queued" || job.status === "running")
+function shiftDays(year, month, day, offset) {
+  const date = new Date(Date.UTC(year, Number(month) - 1, Number(day) + offset));
+  const iso = date.toISOString().slice(0, 10);
+  return {
+    iso,
+    year: date.getUTCFullYear(),
+    half: date.getUTCMonth() < 6 ? 1 : 2,
+    monthDay: iso.slice(5),
+  };
+}
+
+// Para el 29 de febrero en anos no bisiestos la ventana se centra en el 1 de marzo.
+function windowDays(year, month, day) {
+  const days = [];
+  for (let offset = -WINDOW_HALF_DAYS; offset <= WINDOW_HALF_DAYS; offset += 1) {
+    days.push(shiftDays(year, month, day, offset));
+  }
+  return days;
+}
+
+function neededChunksForYear(year, month, day) {
+  const today = todayISO();
+  const needed = new Map();
+  for (const date of windowDays(year, month, day)) {
+    if (date.iso > today) continue;
+    needed.set(`${date.year}_H${date.half}`, { year: date.year, half: date.half });
+  }
+  return [...needed.values()];
+}
+
+function meanOf(values) {
+  return values.length ? values.reduce((acc, value) => acc + value, 0) / values.length : null;
+}
+
+function round1(value) {
+  return value === null ? null : Math.round(value * 10) / 10;
+}
+
+function computeYearRow(year, month, day, chunkMap) {
+  const today = todayISO();
+  const samples = { tmax: [], tmin: [], tmed: [], prec: [] };
+  let daysWithData = 0;
+
+  for (const date of windowDays(year, month, day)) {
+    if (date.iso > today) continue;
+    const chunk = chunkMap.get(`${date.year}_H${date.half}`);
+    const row = chunk && chunk.rows[date.monthDay];
+    if (!row) continue;
+    daysWithData += 1;
+    for (const field of Object.keys(samples)) {
+      if (row[field] !== null && row[field] !== undefined) samples[field].push(row[field]);
+    }
+  }
+
+  const windowValue = (field) => (samples[field].length >= MIN_WINDOW_DAYS ? round1(meanOf(samples[field])) : null);
+
+  let exactDay = null;
+  if (isValidDateParts(year, month, day)) {
+    const chunk = chunkMap.get(`${year}_H${halfOfMonth(month)}`);
+    const row = chunk && chunk.rows[`${month}-${day}`];
+    if (row) exactDay = { tmax: row.tmax, tmin: row.tmin, tmed: row.tmed, prec: row.prec };
+  }
+
+  return {
+    year,
+    tmax: windowValue("tmax"),
+    tmin: windowValue("tmin"),
+    tmed: windowValue("tmed"),
+    prec: samples.prec.length >= MIN_WINDOW_DAYS ? Math.round(meanOf(samples.prec) * 100) / 100 : null,
+    daysWithData,
+    day: exactDay,
+  };
+}
+
+function rowHasData(row) {
+  return row.tmax !== null || row.tmin !== null || row.tmed !== null || row.prec !== null;
+}
+
+function buildSeries(job) {
+  const data = [];
+  for (let year = job.startYear; year <= job.endYear; year += 1) {
+    data.push(computeYearRow(year, job.month, job.day, job.chunkMap));
+  }
+  return { data, yearsWithAnyData: data.filter(rowHasData).length };
+}
+
+async function planEvolution({ station, month, day, forceRefresh }) {
+  const meta = await readStationMeta(station);
+  const startYear = meta && meta.firstYear ? meta.firstYear : DEFAULT_START_YEAR;
+  const endYear = currentYear();
+  const neededByKey = new Map();
+
+  for (let year = startYear; year <= endYear; year += 1) {
+    for (const chunkRef of neededChunksForYear(year, month, day)) {
+      neededByKey.set(`${chunkRef.year}_H${chunkRef.half}`, chunkRef);
+    }
+  }
+
+  const chunkMap = new Map();
+  const missing = [];
+  await Promise.all(
+    [...neededByKey.entries()].map(async ([key, { year, half }]) => {
+      const chunk = forceRefresh ? null : await readUsableChunk(station, year, half);
+      if (chunk) chunkMap.set(key, chunk);
+      else missing.push({ key, year, half });
+    })
   );
 
+  missing.sort((a, b) => b.year - a.year || b.half - a.half);
+  return { meta, startYear, endYear, chunkMap, missing };
+}
+
+function buildEvolutionResult(job, cacheHit) {
+  const { data, yearsWithAnyData } = buildSeries(job);
+  return {
+    station: job.station,
+    month: job.month,
+    day: job.day,
+    startYear: job.startYear,
+    endYear: job.endYear,
+    windowHalfDays: WINDOW_HALF_DAYS,
+    totalYears: data.length,
+    yearsWithAnyData,
+    failedYears: [...new Set(job.failedChunks.map((chunk) => chunk.year))].sort((a, b) => a - b),
+    history: {
+      complete: Boolean(job.meta),
+      firstYear: job.meta ? job.meta.firstYear : null,
+      lastYear: job.meta ? job.meta.lastYear : null,
+      scanning: stationScans.has(job.station),
+    },
+    data,
+    cache: { hit: cacheHit },
+  };
+}
+
+function startEvolutionJob(params, plan) {
+  pruneOldEvolutionJobs();
+  const key = buildEvolutionJobKey(params.station, params.month, params.day, params.forceRefresh);
+  const existingJob = [...evolutionJobs.values()].find((job) => job.key === key && job.status === "running");
   if (existingJob) {
     return existingJob;
   }
 
-  const jobId = createEvolutionJobId();
   const job = {
-    id: jobId,
+    id: createEvolutionJobId(),
     key,
-    station,
-    month,
-    day,
-    forceRefresh,
-    startYear,
-    endYear,
-    status: "queued",
+    ...params,
+    meta: plan.meta,
+    startYear: plan.startYear,
+    endYear: plan.endYear,
+    status: "running",
     createdAt: Date.now(),
-    startedAt: null,
     finishedAt: null,
-    progress: {
-      completed: 0,
-      total: endYear - startYear + 1,
-      yearsWithAnyData: 0,
-      failedYearsCount: 0,
-    },
+    chunkMap: plan.chunkMap,
+    failedChunks: [],
+    progress: { completed: 0, total: plan.missing.length },
+    tasks: plan.missing.map((chunkRef) => ({
+      ...chunkRef,
+      task: requestChunk(params.station, chunkRef.year, chunkRef.half, "high"),
+    })),
     result: null,
     error: null,
   };
 
-  evolutionJobs.set(jobId, job);
-  if (!queuedJobIds.has(jobId)) {
-    queuedJobIds.add(jobId);
-    evolutionQueue.push(jobId);
-  }
+  job.done = Promise.all(
+    job.tasks.map(({ key: mapKey, year, half, task }) =>
+      task.promise
+        .then(
+          (chunk) => {
+            job.chunkMap.set(mapKey, chunk);
+          },
+          () => {
+            job.failedChunks.push({ year, half });
+          }
+        )
+        .finally(() => {
+          job.progress.completed += 1;
+        })
+    )
+  )
+    .then(() => {
+      if (!job.meta) ensureStationScan(job.station);
+      job.result = buildEvolutionResult(job, false);
+      job.status = "done";
+    })
+    .catch((error) => {
+      logServerError("evolution.job", error);
+      job.error = "No se pudo completar la consulta en segundo plano";
+      job.status = "failed";
+    })
+    .finally(() => {
+      job.finishedAt = Date.now();
+    });
 
-  consumeEvolutionQueue();
+  evolutionJobs.set(job.id, job);
   return job;
 }
 
+function estimateJobWait(job) {
+  const ownPending = new Set(
+    job.tasks.map(({ task }) => task).filter((task) => task.status === "pending" || task.status === "running")
+  );
+  if (ownPending.size === 0) {
+    return { etaMs: 0, chunksAhead: 0 };
+  }
+
+  let lastIndex = -1;
+  pendingHighChunks.forEach((task, index) => {
+    if (ownPending.has(task)) lastIndex = index;
+  });
+
+  const remaining = lastIndex + 1 + (runningChunkTask ? 1 : 0);
+  return {
+    etaMs: remaining * averageChunkMs + throttleRemainingMs(),
+    chunksAhead: Math.max(0, remaining - ownPending.size),
+  };
+}
+
 function getEvolutionJobSnapshot(job) {
-  const queuePosition =
-    job.status === "queued" ? Math.max(1, evolutionQueue.findIndex((id) => id === job.id) + 1) : 0;
-  const completed = Number(job.progress && job.progress.completed ? job.progress.completed : 0);
-  const total = Number(job.progress && job.progress.total ? job.progress.total : 0);
-  const percent = total > 0 ? Math.min(100, Math.round((completed / total) * 100)) : 0;
+  const { completed, total } = job.progress;
+  const isRunning = job.status === "running";
+  const { etaMs, chunksAhead } = isRunning ? estimateJobWait(job) : { etaMs: 0, chunksAhead: 0 };
+  const partial = isRunning ? buildSeries(job) : null;
 
   return {
     jobId: job.id,
     status: job.status,
     createdAt: job.createdAt,
-    startedAt: job.startedAt,
     finishedAt: job.finishedAt,
-    queuePosition,
     progress: {
       completed,
       total,
-      percent,
-      yearsWithAnyData: Number(job.progress && job.progress.yearsWithAnyData ? job.progress.yearsWithAnyData : 0),
-      failedYearsCount: Number(job.progress && job.progress.failedYearsCount ? job.progress.failedYearsCount : 0),
+      percent: total > 0 ? Math.min(100, Math.round((completed / total) * 100)) : 100,
+      etaSeconds: Math.ceil(etaMs / 1000),
+      chunksAhead,
+      throttledSeconds: Math.ceil(throttleRemainingMs() / 1000),
+      yearsWithAnyData: partial ? partial.yearsWithAnyData : 0,
+      failedChunksCount: job.failedChunks.length,
     },
+    partial: partial ? { startYear: job.startYear, endYear: job.endYear, data: partial.data } : undefined,
     result: job.status === "done" ? job.result : undefined,
     error: job.status === "failed" ? job.error : undefined,
   };
@@ -627,8 +808,6 @@ function parseEvolutionQuery(req) {
   const month = String(req.query.month || "").padStart(2, "0");
   const day = String(req.query.day || "").padStart(2, "0");
   const forceRefresh = String(req.query.refresh || "").trim() === "1";
-  const startYear = 1976;
-  const endYear = new Date().getFullYear();
 
   if (!station) {
     throw safeApiError("Debes indicar una estacion", 400);
@@ -653,14 +832,18 @@ function parseEvolutionQuery(req) {
     }
   }
 
-  return {
-    station,
-    month,
-    day,
-    forceRefresh,
-    startYear,
-    endYear,
-  };
+  return { station, month, day, forceRefresh };
+}
+
+async function buildCachedResultIfComplete(params) {
+  const plan = await planEvolution(params);
+  if (plan.missing.length > 0) {
+    return { plan, result: null };
+  }
+
+  if (!plan.meta) ensureStationScan(params.station);
+  const job = { ...params, meta: plan.meta, startYear: plan.startYear, endYear: plan.endYear, chunkMap: plan.chunkMap, failedChunks: [] };
+  return { plan, result: buildEvolutionResult(job, true) };
 }
 
 app.get("/api/stations", async (_req, res) => {
@@ -708,6 +891,15 @@ app.get("/api/stations", async (_req, res) => {
   }
 });
 
+app.get("/api/stations/cached", async (_req, res) => {
+  try {
+    res.json({ stations: await listCachedStations() });
+  } catch (error) {
+    logServerError("api.stations.cached", error);
+    res.status(500).json({ error: "Error listando estaciones descargadas" });
+  }
+});
+
 app.get("/api/evolution/jobs/enqueue", evolutionEnqueueLimiter, async (req, res) => {
   try {
     if (!AEMET_API_KEY) {
@@ -715,33 +907,13 @@ app.get("/api/evolution/jobs/enqueue", evolutionEnqueueLimiter, async (req, res)
     }
 
     const params = parseEvolutionQuery(req);
-
-    if (!params.forceRefresh) {
-      const cached = await readEvolutionCache(params.station, params.month, params.day);
-      if (cached && cached.payload) {
-        return res.json({
-          status: "done",
-          fromCache: true,
-          result: {
-            ...cached.payload,
-            cache: {
-              hit: true,
-              createdAt: cached.createdAt,
-              ttlHours: CACHE_TTL_MS / (1000 * 60 * 60),
-            },
-          },
-        });
-      }
+    const { plan, result } = await buildCachedResultIfComplete(params);
+    if (result) {
+      return res.json({ status: "done", fromCache: true, result });
     }
 
-    const job = enqueueEvolutionJob(params);
-    const snapshot = getEvolutionJobSnapshot(job);
-    return res.status(202).json({
-      status: snapshot.status,
-      jobId: snapshot.jobId,
-      queuePosition: snapshot.queuePosition,
-      progress: snapshot.progress,
-    });
+    const job = startEvolutionJob(params, plan);
+    return res.status(202).json(getEvolutionJobSnapshot(job));
   } catch (error) {
     logServerError("api.evolution.enqueue", error);
     const statusCode = Number.isInteger(error && error.statusCode) ? error.statusCode : 500;
@@ -772,43 +944,28 @@ app.get("/api/evolution/jobs/:jobId", evolutionStatusLimiter, (req, res) => {
   }
 });
 
+app.get("/api/background", evolutionStatusLimiter, (_req, res) => {
+  res.json({ downloads: getBackgroundDownloads() });
+});
+
 app.get("/api/evolution", evolutionLimiter, async (req, res) => {
   try {
     if (!AEMET_API_KEY) {
       return res.status(500).json({ error: "Falta configurar AEMET_API_KEY en .env" });
     }
 
-    const { station, month, day, forceRefresh, startYear, endYear } = parseEvolutionQuery(req);
-
-    if (!forceRefresh) {
-      const cached = await readEvolutionCache(station, month, day);
-      if (cached && cached.payload) {
-        return res.json({
-          ...cached.payload,
-          cache: {
-            hit: true,
-            createdAt: cached.createdAt,
-            ttlHours: CACHE_TTL_MS / (1000 * 60 * 60),
-          },
-        });
-      }
+    const params = parseEvolutionQuery(req);
+    const { plan, result } = await buildCachedResultIfComplete(params);
+    if (result) {
+      return res.json(result);
     }
 
-    const responsePayload = await buildEvolutionPayload({
-      station,
-      month,
-      day,
-      startYear,
-      endYear,
-    });
-
-    try {
-      await writeEvolutionCache(station, month, day, responsePayload);
-    } catch (_cacheError) {
-      // Si la cache falla, la API sigue devolviendo datos normalmente.
+    const job = startEvolutionJob(params, plan);
+    await job.done;
+    if (job.status !== "done") {
+      throw new Error(job.error || "Error consultando evolucion");
     }
-
-    res.json(responsePayload);
+    res.json(job.result);
   } catch (error) {
     logServerError("api.evolution", error);
     const statusCode = Number.isInteger(error && error.statusCode) ? error.statusCode : 500;
