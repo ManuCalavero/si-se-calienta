@@ -9,8 +9,10 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const AEMET_API_KEY = process.env.AEMET_API_KEY;
 const AEMET_BASE = "https://opendata.aemet.es/opendata";
-const STATION_CACHE_DIR = path.join(__dirname, ".cache", "stations");
-const STATIONS_CACHE_FILE = path.join(__dirname, ".cache", "stations_inventory_v2.json");
+// En produccion CACHE_DIR debe apuntar a un volumen persistente; el disco de la aplicacion suele borrarse en cada despliegue/reinicio.
+const CACHE_DIR = process.env.CACHE_DIR ? path.resolve(process.env.CACHE_DIR) : path.join(__dirname, ".cache");
+const STATION_CACHE_DIR = path.join(CACHE_DIR, "stations");
+const STATIONS_CACHE_FILE = path.join(CACHE_DIR, "stations_inventory_v2.json");
 const DAY_MS = 24 * 60 * 60 * 1000;
 const RECENT_DATA_TTL_HOURS = Number(process.env.RECENT_DATA_TTL_HOURS || "12");
 const RECENT_DATA_TTL_MS =

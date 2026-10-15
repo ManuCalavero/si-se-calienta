@@ -70,6 +70,7 @@ npm run dev
 
 ## Caché local
 
+- La caché se guarda en `.cache/` por defecto. Se puede cambiar con `CACHE_DIR`. **En producción debe apuntar a un disco/volumen persistente**: si el disco del servicio es efímero (Render, Railway, Heroku, Fly sin volumen…), la caché se borra en cada despliegue o reinicio y las estaciones dejan de aparecer en verde.
 - AEMET solo admite rangos de 6 meses por petición, así que los datos se guardan en bloques de medio año por estación: `.cache/stations/<estacion>/<año>-H1.json` (enero-junio) y `-H2.json` (julio-diciembre).
 - La primera consulta de una estación descarga desde 1976 los bloques que necesita ese día (unas 50 peticiones, 2-3 minutos), mostrando progreso, tiempo estimado y resultados parciales.
 - Después, en segundo plano, se recorre la estación hacia atrás hasta encontrar su primer registro: se para tras 5 años seguidos sin datos, o en 1920. El resultado se guarda en `.cache/stations/<estacion>/meta.json` y, a partir de ahí, cualquier fecha de esa estación responde al instante con el histórico completo.
