@@ -4,6 +4,7 @@ const helmet = require("helmet");
 const { rateLimit } = require("express-rate-limit");
 const path = require("path");
 const fs = require("fs/promises");
+const { MongoClient } = require("mongodb");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -57,6 +58,35 @@ const stationScans = new Map();
 
 if (!AEMET_API_KEY) {
   console.warn("AEMET_API_KEY no esta definida. Crea un archivo .env a partir de .env.example");
+}
+
+// La web solo lee de Atlas (usuario de solo lectura); los datos los sube scripts/upload-to-mongo.js.
+const MONGODB_URI_READ = process.env.MONGODB_URI_READ;
+const MONGODB_DB = process.env.MONGODB_DB || "si_se_calienta";
+let mongoDbPromise = null;
+
+function getMongoDb() {
+  if (!MONGODB_URI_READ) return null;
+  if (!mongoDbPromise) {
+    const client = new MongoClient(MONGODB_URI_READ, { serverSelectionTimeoutMS: 5000 });
+    mongoDbPromise = client.connect().then(() => client.db(MONGODB_DB));
+    // Si la conexion falla, el siguiente intento vuelve a probar en vez de quedarse con el error.
+    mongoDbPromise.catch(() => {
+      mongoDbPromise = null;
+    });
+  }
+  return mongoDbPromise;
+}
+
+async function findInMongo(collection, id) {
+  const dbPromise = getMongoDb();
+  if (!dbPromise) return null;
+  try {
+    return await (await dbPromise).collection(collection).findOne({ _id: id });
+  } catch (error) {
+    logServerError(`mongo.${collection}`, error);
+    return null;
+  }
 }
 
 app.disable("x-powered-by");
@@ -371,6 +401,10 @@ async function readChunk(station, year, half) {
 }
 
 async function readUsableChunk(station, year, half) {
+  // Lo que esta en Atlas lo mantiene al dia la tarea diaria, asi que se da por bueno sin mirar su antiguedad.
+  const stored = await findInMongo("chunks", chunkKey(station, year, half));
+  if (stored && stored.rows) return { fetchedAt: stored.fetchedAt, rows: stored.rows };
+
   const chunk = await readChunk(station, year, half);
   return chunk && isChunkUsable(chunk, year, half) ? chunk : null;
 }
@@ -471,6 +505,9 @@ function metaFilePath(station) {
 }
 
 async function readStationMeta(station) {
+  const stored = await findInMongo("station_meta", station);
+  if (stored && stored.historyComplete) return stored;
+
   try {
     const meta = JSON.parse(await fs.readFile(metaFilePath(station), "utf8"));
     return meta && meta.historyComplete ? meta : null;
@@ -852,6 +889,11 @@ app.get("/api/stations", async (_req, res) => {
   try {
     if (!AEMET_API_KEY) {
       return res.status(500).json({ error: "Falta configurar AEMET_API_KEY en .env" });
+    }
+
+    const stored = await findInMongo("inventory", "stations");
+    if (stored && Array.isArray(stored.payload) && stored.payload.length > 0) {
+      return res.json(stored.payload);
     }
 
     const warmCache = await readStationsCache();
