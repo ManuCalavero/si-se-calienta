@@ -79,9 +79,10 @@ function getMongoDb() {
 }
 
 async function findInMongo(collection, id) {
-  const dbPromise = getMongoDb();
-  if (!dbPromise) return null;
   try {
+    // Dentro del try: una URI mal escrita lanza al crear el cliente y no debe tumbar la peticion.
+    const dbPromise = getMongoDb();
+    if (!dbPromise) return null;
     return await (await dbPromise).collection(collection).findOne({ _id: id });
   } catch (error) {
     logServerError(`mongo.${collection}`, error);
