@@ -894,6 +894,8 @@ app.get("/api/stations", async (_req, res) => {
 
     const stored = await findInMongo("inventory", "stations");
     if (stored && Array.isArray(stored.payload) && stored.payload.length > 0) {
+      // El inventario casi no cambia: la CDN de Vercel lo sirve un dia sin llegar al servidor.
+      res.set("Cache-Control", "public, s-maxage=86400, stale-while-revalidate=604800");
       return res.json(stored.payload);
     }
 
