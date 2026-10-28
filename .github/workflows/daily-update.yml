@@ -1,0 +1,30 @@
+name: Actualizacion diaria AEMET
+
+on:
+  schedule:
+    # 06:30 UTC = 07:30 en invierno / 08:30 en verano (hora peninsular).
+    - cron: "30 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: daily-update
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --omit=dev
+      - run: node scripts/daily-update.js
+        env:
+          AEMET_API_KEY: ${{ secrets.AEMET_API_KEY }}
+          MONGODB_URI_WRITE: ${{ secrets.MONGODB_URI_WRITE }}
