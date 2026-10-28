@@ -574,7 +574,37 @@ function getBackgroundDownloads() {
   });
 }
 
+function toCachedStation(station, meta) {
+  return {
+    station,
+    historyComplete: Boolean(meta),
+    firstYear: meta ? meta.firstYear : null,
+    lastYear: meta ? meta.lastYear : null,
+  };
+}
+
+async function listMongoStations() {
+  try {
+    const dbPromise = getMongoDb();
+    if (!dbPromise) return [];
+    const metas = await (await dbPromise).collection("station_meta").find({ historyComplete: true }).toArray();
+    return metas.map((meta) => toCachedStation(meta._id, meta));
+  } catch (error) {
+    logServerError("mongo.station_meta", error);
+    return [];
+  }
+}
+
+// En Vercel no hay disco: las estaciones con datos son las de Atlas, mas las descargadas en local si las hay.
 async function listCachedStations() {
+  const byId = new Map((await listMongoStations()).map((item) => [item.station, item]));
+  for (const item of await listLocalStations()) {
+    if (!byId.has(item.station)) byId.set(item.station, item);
+  }
+  return [...byId.values()];
+}
+
+async function listLocalStations() {
   let entries = [];
   try {
     entries = await fs.readdir(STATION_CACHE_DIR, { withFileTypes: true });
@@ -585,15 +615,7 @@ async function listCachedStations() {
   const stations = await Promise.all(
     entries
       .filter((entry) => entry.isDirectory())
-      .map(async (entry) => {
-        const meta = await readStationMeta(entry.name);
-        return {
-          station: entry.name,
-          historyComplete: Boolean(meta),
-          firstYear: meta ? meta.firstYear : null,
-          lastYear: meta ? meta.lastYear : null,
-        };
-      })
+      .map(async (entry) => toCachedStation(entry.name, await readStationMeta(entry.name)))
   );
   return stations;
 }
