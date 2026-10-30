@@ -1,7 +1,9 @@
 import { analyze } from "./stats.js";
-import { anomalyColor, formatDuration, formatNumber, formatSigned, prettyDay, titleCase } from "./format.js";
-import { anomalyScale, renderTemperatureChart, resizeCharts, setSeriesVisibility } from "./charts.js";
-import { clearSelection, createMap, focusStation, setStations, updateCached } from "./map.js";
+import { anomalyColor, formatDuration, formatNumber, formatSigned, monthName, prettyDay, titleCase } from "./format.js";
+import { anomalyScale, highlightYear, onChartHover, renderTemperatureChart, resizeCharts, setSeriesVisibility } from "./charts.js";
+import { clearSelection, createMap, focusStation, resetView, setStations, updateCached } from "./map.js";
+import { canvasToBlob, drawShareCard, shareCaption, shareFileName } from "./share.js";
+import { BMC_USERNAME, COFFEE_EUROS, LINKS, MONTHLY_COSTS, QUICK_PICKS } from "./config.js";
 
 const $ = (id) => document.getElementById(id);
 
@@ -10,11 +12,20 @@ const els = {
   searchInput: $("search-input"),
   searchResults: $("search-results"),
   dateInput: $("date"),
+  dayLabel: $("day-label"),
+  dayText: $("day-text"),
+  prevDay: $("prev-day"),
+  nextDay: $("next-day"),
+  todayBtn: $("today-btn"),
+  aboutBtn: $("about-btn"),
   backgroundPill: $("background-download"),
   backgroundText: $("background-download-text"),
-  welcome: $("welcome"),
+  home: $("home"),
+  backBtn: $("back-btn"),
+  quickPicks: $("quick-picks"),
+  dock: $("dock"),
+  dockLocate: $("dock-locate"),
   locateBtn: $("locate-btn"),
-  focusSearchBtn: $("focus-search-btn"),
   panel: $("panel"),
   panelBody: $("panel-body"),
   sheetHandle: $("sheet-handle"),
@@ -22,23 +33,50 @@ const els = {
   title: $("panel-title"),
   sub: $("panel-sub"),
   verdict: $("verdict"),
+  rigorBtn: $("rigor-btn"),
+  rigorPop: $("rigor-pop"),
+  rigorWindow: $("rigor-window"),
   expandBtn: $("expand-btn"),
-  closeBtn: $("close-btn"),
+  tabSummaryBtn: $("tab-btn-summary"),
+  tabTableBtn: $("tab-btn-table"),
+  tabSummary: $("tab-summary"),
+  tabTable: $("tab-table"),
+  tabTableCount: $("tab-table-count"),
   progressBox: $("panel-progress"),
   progressBar: $("progress-bar"),
   status: $("status"),
+  hero: document.querySelector(".hero"),
   headline: $("headline"),
+  subline: $("subline"),
   kpis: $("kpis"),
+  modeToggle: document.querySelector(".chart-card .segmented"),
+  chartNote: $("chart-note"),
   stripes: $("stripes"),
   stripesStart: $("stripes-start"),
   stripesEnd: $("stripes-end"),
+  stripesHover: $("stripes-hover"),
   chart: $("chart"),
   seriesToggles: $("series-toggles"),
   stationFacts: $("station-facts"),
   qualityFacts: $("quality-facts"),
   statsFacts: $("stats-facts"),
+  tableCaption: $("table-caption"),
   tableBody: document.querySelector("#results-table tbody"),
   csvBtn: $("csv-btn"),
+  shareBtn: $("share-btn"),
+  shareCta: $("share-cta"),
+  shareDialog: $("share-dialog"),
+  shareClose: $("share-close"),
+  shareCanvas: $("share-canvas"),
+  shareFormats: document.querySelector(".share-formats"),
+  shareNative: $("share-native"),
+  shareDownload: $("share-download"),
+  shareCopy: $("share-copy"),
+  donateTotal: $("donate-total"),
+  costBar: $("cost-bar"),
+  costList: $("cost-list"),
+  bmcLink: $("bmc-link"),
+  donateEq: $("donate-equivalence"),
   toast: $("toast"),
 };
 
@@ -52,18 +90,31 @@ const state = {
   result: null,
   analysis: null,
   jobToken: "",
+  mode: "window",
+  direction: 0,
+  tab: "summary",
+  shareFormat: "square",
   visibility: { tmax: true, tmin: true, prec: true },
   scanningStations: new Set(),
   searchMatches: [],
   searchIndex: -1,
 };
 
+// Resultados ya vistos por estación y día: volver a un día es instantáneo.
+const resultCache = new Map();
+const prefetching = new Set();
+const RESULT_CACHE_LIMIT = 60;
+// Año bisiesto de referencia para poder navegar también por el 29 de febrero.
+const REF_YEAR = 2024;
+
 let audioContext = null;
 let toastTimer = 0;
 let backgroundTimer = 0;
+let loadTimer = 0;
 
 const isMobile = () => window.matchMedia("(max-width: 760px)").matches;
 const reducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const pad = (value) => String(value).padStart(2, "0");
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 // ---------- Datos de estaciones ----------
@@ -123,6 +174,7 @@ async function refreshCached() {
   }
 }
 
+
 // ---------- Sonido y avisos ----------
 
 // Safari y Chrome solo permiten audio si el contexto se crea/reanuda durante un gesto del usuario.
@@ -160,6 +212,7 @@ function playChime(isError = false) {
   }
 }
 
+
 function showToast(text, isError = false) {
   els.toast.textContent = text;
   els.toast.classList.toggle("toast-error", isError);
@@ -167,7 +220,227 @@ function showToast(text, isError = false) {
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => {
     els.toast.hidden = true;
-  }, 8000);
+  }, 6000);
+}
+
+// ---------- Fecha ----------
+
+function dateFromState() {
+  return new Date(REF_YEAR, Number(state.month) - 1, Number(state.day));
+}
+
+function todayParts() {
+  const today = new Date();
+  return { month: pad(today.getMonth() + 1), day: pad(today.getDate()) };
+}
+
+function isToday() {
+  const today = todayParts();
+  return today.month === state.month && today.day === state.day;
+}
+
+function shortDay(month, day) {
+  return `${Number(day)} ${monthName(month).slice(0, 3)}`;
+}
+
+function windowText(month, day) {
+  const center = new Date(REF_YEAR, Number(month) - 1, Number(day));
+  const from = new Date(center);
+  from.setDate(center.getDate() - 7);
+  const to = new Date(center);
+  to.setDate(center.getDate() + 7);
+  return `del ${shortDay(pad(from.getMonth() + 1), from.getDate())} al ${shortDay(pad(to.getMonth() + 1), to.getDate())}`;
+}
+
+function renderDayNav() {
+  const long = prettyDay(state.month, state.day);
+  const text = document.createElement("span");
+  text.className = "day-text-inner";
+  const longEl = document.createElement("span");
+  longEl.className = "day-long";
+  longEl.textContent = long;
+  const shortEl = document.createElement("span");
+  shortEl.className = "day-short";
+  shortEl.textContent = shortDay(state.month, state.day);
+  text.append(longEl, shortEl);
+
+  // Con pulsaciones rápidas solo se anima la última salida; las anteriores se retiran ya.
+  while (els.dayText.children.length > 1) els.dayText.firstElementChild.remove();
+  const previous = els.dayText.lastElementChild;
+  if (previous && state.direction && !reducedMotion()) {
+    previous.classList.add(state.direction > 0 ? "leave-next" : "leave-prev");
+    text.classList.add(state.direction > 0 ? "enter-next" : "enter-prev");
+    els.dayText.appendChild(text);
+    setTimeout(() => previous.remove(), 260);
+  } else {
+    els.dayText.replaceChildren(text);
+  }
+
+  const today = isToday();
+  els.todayBtn.classList.toggle("is-today", today);
+  els.todayBtn.disabled = today;
+  els.todayBtn.setAttribute("aria-label", today ? "Estás viendo el día de hoy" : "Volver a hoy");
+  els.dayLabel.setAttribute("aria-label", `Elegir día. Ahora: ${long}${today ? ", hoy" : ""}`);
+  els.dateInput.value = `${REF_YEAR}-${state.month}-${state.day}`;
+}
+
+function setDay(month, day, direction = 0) {
+  if (month === state.month && day === state.day) return;
+  state.month = month;
+  state.day = day;
+  state.direction = direction;
+  renderDayNav();
+  updateUrl();
+  if (state.selectedId) {
+    unlockAudio();
+    scheduleLoad();
+  }
+}
+
+function shiftDay(delta) {
+  const date = dateFromState();
+  date.setDate(date.getDate() + delta);
+  setDay(pad(date.getMonth() + 1), pad(date.getDate()), delta);
+}
+
+function goToday() {
+  const today = todayParts();
+  const target = new Date(REF_YEAR, Number(today.month) - 1, Number(today.day));
+  setDay(today.month, today.day, Math.sign(target - dateFromState()));
+}
+
+function openDatePicker() {
+  if (typeof els.dateInput.showPicker === "function") {
+    try {
+      els.dateInput.showPicker();
+      return;
+    } catch (_error) {
+      // Algunos navegadores lo bloquean fuera de un gesto; se cae al foco.
+    }
+  }
+  els.dateInput.focus();
+  els.dateInput.click();
+}
+
+// ---------- Bienvenida y llamada a la acción ----------
+
+// El inicio tiene tres estados que comparten los mismos nodos (marca, buscador y día):
+//   "home"    · tarjeta abierta con la explicación (body.welcome-open)
+//   "station" · barra compacta con «Volver» y el panel de resultado (body.has-selection)
+//   "compact" · solo la barra, en móvil, mientras se explora el mapa
+// Los cambios de estado pasan por morph(), que los anima con View Transitions cuando hay soporte.
+
+function viewState() {
+  if (document.body.classList.contains("has-selection")) return "station";
+  return document.body.classList.contains("welcome-open") ? "home" : "compact";
+}
+
+let morphing = null;
+
+function morph(update) {
+  if (!document.startViewTransition || reducedMotion() || document.hidden) {
+    update();
+    return;
+  }
+  if (morphing) morphing.skipTransition();
+  document.documentElement.classList.add("is-morphing");
+  morphing = document.startViewTransition(update);
+  const done = morphing;
+  done.finished.finally(() => {
+    if (morphing !== done) return;
+    morphing = null;
+    document.documentElement.classList.remove("is-morphing");
+  });
+}
+
+function applyViewState(next) {
+  document.body.classList.toggle("welcome-open", next === "home");
+  els.aboutBtn.setAttribute("aria-expanded", String(next === "home"));
+  // Volver solo existe para el teclado y los lectores cuando hay estación.
+  els.backBtn.tabIndex = next === "station" ? 0 : -1;
+  els.aboutBtn.tabIndex = next === "station" ? -1 : 0;
+  if (next === "home") els.home.scrollTop = 0;
+}
+
+function setViewState(next, { animate = true } = {}) {
+  if (viewState() === next) return;
+  if (animate) morph(() => applyViewState(next));
+  else applyViewState(next);
+}
+
+// «Volver» deja la app como al llegar: sin estación, con la tarjeta abierta y el mapa entero.
+function goHome() {
+  if (viewState() !== "station") return;
+  const focusBack = document.activeElement === els.backBtn;
+  morph(() => {
+    closePanel();
+    applyViewState("home");
+  });
+  resetView();
+  if (focusBack) requestAnimationFrame(() => els.aboutBtn.focus({ preventScroll: true }));
+}
+
+function renderQuickPicks() {
+  const picks = QUICK_PICKS.filter((pick) => state.byId.has(pick.id) && state.cached.has(pick.id)).slice(0, 5);
+  els.quickPicks.parentElement.hidden = picks.length === 0;
+  els.quickPicks.replaceChildren(
+    ...picks.map((pick) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "chip-btn";
+      button.dataset.id = pick.id;
+      const since = state.cached.get(pick.id).firstYear;
+      button.innerHTML = `<span></span>`;
+      button.firstChild.textContent = pick.label;
+      if (since) {
+        const small = document.createElement("small");
+        small.textContent = `desde ${since}`;
+        button.appendChild(small);
+      }
+      return button;
+    })
+  );
+}
+
+function applyLinks() {
+  for (const link of document.querySelectorAll("[data-link]")) {
+    const href = LINKS[link.dataset.link];
+    if (href) link.href = href;
+  }
+}
+
+function renderDonate() {
+  const total = MONTHLY_COSTS.reduce((acc, item) => acc + item.euros, 0);
+  els.donateTotal.textContent = `${formatNumber(total, 0)} € al mes`;
+  const tones = ["var(--accent)", "var(--rain)", "var(--warm)"];
+  els.costBar.replaceChildren(
+    ...MONTHLY_COSTS.map((item, index) => {
+      const segment = document.createElement("span");
+      segment.style.flexGrow = String(item.euros);
+      segment.style.background = tones[index % tones.length];
+      return segment;
+    })
+  );
+  els.costList.replaceChildren(
+    ...MONTHLY_COSTS.map((item, index) => {
+      const li = document.createElement("li");
+      const dot = document.createElement("span");
+      dot.className = "cost-dot";
+      dot.style.background = tones[index % tones.length];
+      const label = document.createElement("span");
+      label.textContent = item.label;
+      const detail = document.createElement("small");
+      detail.textContent = item.detail;
+      label.appendChild(detail);
+      const value = document.createElement("strong");
+      value.textContent = `${formatNumber(item.euros, 0)} €`;
+      li.append(dot, label, value);
+      return li;
+    })
+  );
+  const days = Math.floor(COFFEE_EUROS / (total / 30));
+  els.donateEq.textContent = `Un café de ${COFFEE_EUROS} € mantiene la web ${days === 1 ? "un día" : `unos ${days} días`}.`;
+  els.bmcLink.href = `https://www.buymeacoffee.com/${encodeURIComponent(BMC_USERNAME)}`;
 }
 
 // ---------- Panel ----------
@@ -176,15 +449,22 @@ function openPanel() {
   document.body.classList.add("has-selection");
   if (!els.panel.hidden && els.panel.classList.contains("open")) return;
   els.panel.hidden = false;
-  requestAnimationFrame(() => els.panel.classList.add("open"));
+  requestAnimationFrame(() => {
+    els.panel.classList.add("open");
+    placeTabIndicator();
+  });
 }
 
 function closePanel() {
   state.jobToken = "";
   state.selectedId = "";
+  state.result = null;
+  state.analysis = null;
+  clearTimeout(loadTimer);
   document.body.classList.remove("has-selection");
-  els.panel.classList.remove("open", "expanded");
+  els.panel.classList.remove("open", "expanded", "is-refreshing");
   els.expandBtn.setAttribute("aria-expanded", "false");
+  toggleRigor(false);
   clearSelection();
   updateUrl();
   setTimeout(() => {
@@ -207,6 +487,36 @@ function panelOffset() {
   return [Math.round((els.panel.offsetWidth + 24) / 2), 0];
 }
 
+function setTab(tab, { focus = false } = {}) {
+  state.tab = tab;
+  const isSummary = tab === "summary";
+  els.tabSummaryBtn.setAttribute("aria-selected", String(isSummary));
+  els.tabTableBtn.setAttribute("aria-selected", String(!isSummary));
+  els.tabSummaryBtn.tabIndex = isSummary ? 0 : -1;
+  els.tabTableBtn.tabIndex = isSummary ? -1 : 0;
+  els.tabSummary.hidden = !isSummary;
+  els.tabTable.hidden = isSummary;
+  els.panel.dataset.tab = tab;
+  els.panelBody.scrollTop = 0;
+  placeTabIndicator();
+  if (focus) (isSummary ? els.tabSummaryBtn : els.tabTableBtn).focus();
+  if (isSummary) requestAnimationFrame(resizeCharts);
+}
+
+function placeTabIndicator() {
+  const active = state.tab === "summary" ? els.tabSummaryBtn : els.tabTableBtn;
+  const indicator = document.querySelector(".tab-indicator");
+  if (!active.offsetWidth) return;
+  indicator.style.width = `${active.offsetWidth}px`;
+  indicator.style.transform = `translateX(${active.offsetLeft - els.tabSummaryBtn.offsetLeft}px)`;
+}
+
+function toggleRigor(force) {
+  const open = force ?? els.rigorPop.hidden;
+  els.rigorPop.hidden = !open;
+  els.rigorBtn.setAttribute("aria-expanded", String(open));
+}
+
 function setProgress(percent, message) {
   const active = percent !== null;
   els.progressBox.hidden = !active;
@@ -226,32 +536,48 @@ function describeProgress(progress) {
   if (Number(progress.completed || 0) === 0 && Number(progress.chunksAhead || 0) > 0) {
     return `En cola detrás de otras descargas · listo en ${eta}`;
   }
-  return `Descargando datos de AEMET · ${percent}% · quedan ${eta}`;
+  return `Descargando el histórico de AEMET por primera vez · ${percent}% · quedan ${eta}`;
 }
 
 // ---------- Render ----------
 
-function animateValue(element, target, format) {
-  if (reducedMotion() || target === null || !Number.isFinite(target)) {
+// Interpola desde el valor que ya se mostraba: al cambiar de día los números ruedan, no saltan.
+function tweenNumber(element, target, format, { from = null, duration = 620 } = {}) {
+  cancelAnimationFrame(element._raf || 0);
+  const start = from ?? element._value;
+  element._value = target;
+  if (reducedMotion() || target === null || !Number.isFinite(target) || start === null || start === undefined || !Number.isFinite(start)) {
     element.textContent = format(target);
     return;
   }
-  const start = performance.now();
-  const duration = 650;
+  const t0 = performance.now();
   const step = (now) => {
-    const t = Math.min(1, (now - start) / duration);
-    const eased = 1 - (1 - t) ** 3;
-    element.textContent = format(target * eased);
-    if (t < 1) requestAnimationFrame(step);
+    const t = Math.min(1, (now - t0) / duration);
+    const eased = 1 - (1 - t) ** 4;
+    element.textContent = format(start + (target - start) * eased);
+    if (t < 1) element._raf = requestAnimationFrame(step);
   };
-  requestAnimationFrame(step);
+  element._raf = requestAnimationFrame(step);
+}
+
+function nudge(element) {
+  if (reducedMotion() || !state.direction) return;
+  const name = state.direction > 0 ? "nudge-next" : "nudge-prev";
+  element.classList.remove("nudge-next", "nudge-prev");
+  void element.offsetWidth;
+  element.classList.add(name);
 }
 
 function renderHeader(station, analysis) {
   els.eyebrow.textContent = `Estación ${station.idema} · ${station.provinciaVisible}`;
   els.title.textContent = station.nombreVisible;
   const period = analysis && analysis.firstYear ? ` · ${analysis.firstYear}–${analysis.lastYear}` : "";
-  els.sub.textContent = `${prettyDay(state.month, state.day)} · media de 15 días${period}`;
+  const how = state.mode === "day" ? "solo ese día" : `media ${windowText(state.month, state.day)}`;
+  els.sub.textContent = `${prettyDay(state.month, state.day)} · ${how}${period}`;
+  els.rigorWindow.textContent =
+    state.mode === "day"
+      ? `Ahora ves el valor del ${prettyDay(state.month, state.day)} exacto. Un día suelto varía mucho de un año a otro: la media de ±7 días es más fiable.`
+      : `Cada punto es la media de 15 días (${windowText(state.month, state.day)}) para que un día raro no domine. Si quieres, cambia a “Día exacto”.`;
 }
 
 const VERDICTS = {
@@ -263,42 +589,73 @@ const VERDICTS = {
 
 function renderVerdict(analysis) {
   const verdict = VERDICTS[analysis.verdict];
+  const changed = els.verdict.textContent !== verdict.text;
   els.verdict.textContent = verdict.text;
   els.verdict.className = `chip ${verdict.className}`;
   els.verdict.title = analysis.trend
     ? "Tendencia clara si la pendiente es al menos el doble de su margen de error"
     : "Hacen falta al menos 10 años con datos";
+  if (changed && !reducedMotion()) {
+    void els.verdict.offsetWidth;
+    els.verdict.classList.add("chip-pop");
+  }
 }
 
 function renderHeadline(station, analysis) {
   const day = prettyDay(state.month, state.day);
+  els.headline.replaceChildren();
+  els.subline.textContent = "";
+
   if (!analysis.change) {
     els.headline.textContent = `Aún no hay suficientes años con datos para medir cómo ha cambiado el ${day} en ${station.nombreVisible}.`;
+    els.headline._delta = null;
     return;
   }
+
   const { delta, earlyRange, lateRange } = analysis.change;
-  const amount = `${formatNumber(Math.abs(delta))} °C`;
-  const direction = delta >= 0 ? "más cálido" : "más fresco";
-  const caveat =
-    analysis.verdict === "warming" || analysis.verdict === "cooling"
-      ? ""
-      : " Aun así, la tendencia no es clara: hay pocos años o mucha variación entre ellos.";
-  els.headline.textContent = `En ${station.nombreVisible}, el ${day} es ${amount} ${direction} en ${lateRange[0]}–${lateRange[1]} que en ${earlyRange[0]}–${earlyRange[1]}.${caveat}`;
+  const warm = delta >= 0;
+  const emphasis = document.createElement("span");
+  emphasis.className = `delta ${warm ? "is-warm" : "is-cool"}`;
+  const number = document.createElement("span");
+  number.className = "delta-num";
+  emphasis.append(number, ` °C más ${warm ? "cálido" : "fresco"}`);
+  els.headline.append(`El ${day} en ${station.nombreVisible} es `, emphasis, ` en ${lateRange[0]}–${lateRange[1]} que en ${earlyRange[0]}–${earlyRange[1]}.`);
+  tweenNumber(number, Math.abs(delta), (v) => formatNumber(v), { from: els.headline._delta ?? null });
+  els.headline._delta = Math.abs(delta);
+
+  const parts = [];
+  if (analysis.latest) {
+    const { year, rank, of } = analysis.latest;
+    if (rank === 1) parts.push(`${year} fue el año más cálido de los ${of} con datos en esta fecha.`);
+    else if (rank <= 10) parts.push(`${year} fue el ${rank}.º más cálido de ${of} años.`);
+    else parts.push(`${year} quedó en el puesto ${rank} de ${of}: no todos los años recientes son récord.`);
+  }
+  if (analysis.verdict !== "warming" && analysis.verdict !== "cooling") {
+    parts.push("La tendencia no es clara: hay pocos años o mucha variación entre ellos.");
+  }
+  els.subline.textContent = parts.join(" ");
 }
 
-function kpi(label, value, format, sub, tone = "") {
-  const card = document.createElement("article");
-  card.className = `kpi ${tone}`;
-  const labelEl = document.createElement("span");
-  labelEl.className = "kpi-label";
-  labelEl.textContent = label;
-  const valueEl = document.createElement("strong");
-  valueEl.className = "kpi-value";
-  const subEl = document.createElement("span");
-  subEl.className = "kpi-sub";
-  subEl.textContent = sub;
-  card.append(labelEl, valueEl, subEl);
-  return { card, valueEl, value, format };
+const KPI_DEFS = [
+  { key: "change", label: "Cambio" },
+  { key: "trend", label: "Tendencia" },
+  { key: "warmest", label: "Año más cálido" },
+  { key: "record", label: "Récord del día" },
+  { key: "rain", label: "Lluvia" },
+];
+
+function ensureKpis() {
+  if (els.kpis.children.length === KPI_DEFS.length) return;
+  els.kpis.replaceChildren(
+    ...KPI_DEFS.map((def) => {
+      const card = document.createElement("article");
+      card.className = "kpi";
+      card.dataset.key = def.key;
+      card.innerHTML = '<span class="kpi-label"></span><strong class="kpi-value">—</strong><span class="kpi-sub">&nbsp;</span>';
+      card.querySelector(".kpi-label").textContent = def.label;
+      return card;
+    })
+  );
 }
 
 function toneFor(value, threshold = 0.05) {
@@ -308,77 +665,117 @@ function toneFor(value, threshold = 0.05) {
   return "";
 }
 
-function renderKpis(analysis, animate) {
-  const { change, trend, record } = analysis;
-  const items = [
-    kpi(
-      "Cambio",
-      change ? change.delta : null,
-      (v) => (v === null ? "—" : `${formatSigned(v)} °C`),
-      change ? `${change.lateRange[0]}–${change.lateRange[1]} vs ${change.earlyRange[0]}–${change.earlyRange[1]}` : "Pocos años con datos",
-      toneFor(change && change.delta)
-    ),
-    kpi(
-      "Tendencia",
-      trend ? trend.slopePerDecade : null,
-      (v) => (v === null ? "—" : `${formatSigned(v, 2)} °C`),
-      trend ? `por década · ${trend.firstYear}–${trend.lastYear}` : "Mínimo 10 años",
-      toneFor(trend && trend.slopePerDecade, 0.02)
-    ),
-    kpi("Temp. media", analysis.meanTmed, (v) => (v === null ? "—" : `${formatNumber(v)} °C`), "Media de todos los años"),
-    kpi(
-      "Récord de calor",
-      record ? record.value : null,
-      (v) => (v === null ? "—" : `${formatNumber(v)} °C`),
-      record ? `Máxima del día exacto · ${record.year}` : "Sin datos"
-    ),
-    kpi("Lluvia", analysis.precipMean, (v) => (v === null ? "—" : `${formatNumber(v)} mm`), "Media diaria · ±7 días"),
-  ];
+function setKpi(key, { value, format, sub, tone = "", title = "" }) {
+  const card = els.kpis.querySelector(`[data-key="${key}"]`);
+  if (!card) return;
+  card.className = `kpi ${tone}`;
+  card.title = title;
+  tweenNumber(card.querySelector(".kpi-value"), value, format);
+  card.querySelector(".kpi-sub").textContent = sub;
+}
 
-  els.kpis.replaceChildren(...items.map((item) => item.card));
-  for (const item of items) {
-    if (animate) animateValue(item.valueEl, item.value, item.format);
-    else item.valueEl.textContent = item.format(item.value);
-  }
+const degrees = (v) => (v === null || v === undefined || !Number.isFinite(v) ? "—" : `${formatNumber(v)} °C`);
+
+function renderKpis(analysis) {
+  ensureKpis();
+  const { change, trend, record, warmest } = analysis;
+  setKpi("change", {
+    value: change ? change.delta : null,
+    format: (v) => (v === null ? "—" : `${formatSigned(v)} °C`),
+    sub: change ? `${change.lateRange[0]}–${change.lateRange[1]} vs ${change.earlyRange[0]}–${change.earlyRange[1]}` : "Pocos años con datos",
+    tone: toneFor(change && change.delta),
+    title: "Media de los últimos años frente a la de los primeros",
+  });
+  setKpi("trend", {
+    value: trend ? trend.slopePerDecade : null,
+    format: (v) => (v === null ? "—" : `${formatSigned(v, 2)} °C`),
+    sub: trend ? `por década · ${trend.firstYear}–${trend.lastYear}` : "Mínimo 10 años",
+    tone: toneFor(trend && trend.slopePerDecade, 0.02),
+    title: "Pendiente de la recta de tendencia",
+  });
+  setKpi("warmest", {
+    value: warmest ? warmest.year : null,
+    format: (v) => (v === null ? "—" : String(Math.round(v))),
+    sub: warmest ? `${degrees(warmest.tmed)} de media` : "Sin datos",
+    title: state.mode === "day" ? "Año con la media más alta ese día" : "Año con la media de ±7 días más alta",
+  });
+  setKpi("record", {
+    value: record ? record.value : null,
+    format: degrees,
+    sub: record ? `Máxima del día exacto · ${record.year}` : "Sin datos",
+    title: "Temperatura máxima registrada exactamente ese día",
+  });
+  setKpi("rain", {
+    value: analysis.precipMean,
+    format: (v) => (v === null ? "—" : `${formatNumber(v)} mm`),
+    sub: state.mode === "day" ? "Media de ese día" : "Media diaria · ±7 días",
+  });
 }
 
 function renderSkeleton() {
   els.headline.textContent = "";
+  els.headline._delta = null;
+  els.subline.textContent = "";
   els.verdict.textContent = "Analizando…";
   els.verdict.className = "chip chip-neutral";
-  const labels = ["Cambio", "Tendencia", "Temp. media", "Récord de calor", "Lluvia"];
-  els.kpis.replaceChildren(...labels.map((label) => kpi(label, null, () => "—", " ").card));
-  for (const value of els.kpis.querySelectorAll(".kpi-value")) value.textContent = "00,0 °C";
+  ensureKpis();
+  for (const value of els.kpis.querySelectorAll(".kpi-value")) {
+    cancelAnimationFrame(value._raf || 0);
+    value._value = null;
+    value.textContent = "00,0 °C";
+  }
+  for (const sub of els.kpis.querySelectorAll(".kpi-sub")) sub.innerHTML = "&nbsp;";
   els.stripes.replaceChildren();
   els.stationFacts.replaceChildren();
   els.qualityFacts.replaceChildren();
+  els.tableBody.replaceChildren();
+  els.tabTableCount.textContent = "";
 }
 
 function renderStripes(analysis) {
-  els.stripes.replaceChildren();
   if (!analysis.firstYear) {
+    els.stripes.replaceChildren();
     els.stripesStart.textContent = "";
     els.stripesEnd.textContent = "";
     return;
   }
 
   const scale = anomalyScale(analysis);
-  for (const row of analysis.complete) {
-    if (row.year < analysis.firstYear || row.year > analysis.lastYear) continue;
-    const stripe = document.createElement("span");
+  const rows = analysis.complete.filter((row) => row.year >= analysis.firstYear && row.year <= analysis.lastYear);
+  const reuse = els.stripes.children.length === rows.length && els.stripes.firstElementChild.dataset.year === String(rows[0].year);
+  if (!reuse) els.stripes.replaceChildren(...rows.map(() => document.createElement("span")));
+
+  // El cambio de color avanza como una ola en el sentido en que se ha movido el día.
+  const waveStep = reuse && !reducedMotion() ? Math.min(6, 280 / rows.length) : 0;
+  rows.forEach((row, index) => {
+    const stripe = els.stripes.children[index];
     const anomaly = analysis.anomalies.get(row.year);
     const color = anomalyColor(anomaly, scale);
-    if (color) {
-      stripe.style.background = color;
-      stripe.title = `${row.year}: ${formatSigned(anomaly)} °C respecto a la media`;
-    } else {
-      stripe.className = "stripe-missing";
-      stripe.title = `${row.year}: sin datos`;
-    }
-    els.stripes.appendChild(stripe);
-  }
+    const order = state.direction < 0 ? rows.length - 1 - index : index;
+    stripe.style.transitionDelay = `${Math.round(order * waveStep)}ms`;
+    stripe.dataset.year = String(row.year);
+    stripe.dataset.label = color ? `${row.year} · ${formatSigned(anomaly)} °C` : `${row.year} · sin datos`;
+    stripe.className = color ? "" : "stripe-missing";
+    stripe.style.backgroundColor = color || "";
+  });
   els.stripesStart.textContent = analysis.firstYear;
   els.stripesEnd.textContent = analysis.lastYear;
+}
+
+function markStripe(year) {
+  for (const stripe of els.stripes.querySelectorAll(".is-hot")) stripe.classList.remove("is-hot");
+  const stripe = year === null ? null : els.stripes.querySelector(`[data-year="${year}"]`);
+  if (stripe) stripe.classList.add("is-hot");
+  els.stripes.classList.toggle("has-hot", Boolean(stripe));
+  els.stripesHover.textContent = stripe ? stripe.dataset.label : "";
+}
+
+function stripeFromPointer(event) {
+  const rect = els.stripes.getBoundingClientRect();
+  const count = els.stripes.children.length;
+  if (!count) return null;
+  const index = Math.floor(((event.clientX - rect.left) / rect.width) * count);
+  return els.stripes.children[Math.max(0, Math.min(count - 1, index))];
 }
 
 function fact(list, label, value) {
@@ -407,7 +804,7 @@ function renderFacts(station, result, analysis) {
   const span = analysis.firstYear ? analysis.lastYear - analysis.firstYear + 1 : 0;
   fact(els.qualityFacts, "Años con dato", span ? `${analysis.valid.length} de ${span}` : "—");
   fact(els.qualityFacts, "Huecos", analysis.gaps.length ? analysis.gaps.join(", ") : "Ninguno");
-  fact(els.qualityFacts, "Cálculo", "Media de ±7 días (mín. 10 con dato)");
+  fact(els.qualityFacts, "Cálculo", state.mode === "day" ? "Valor del día exacto" : "Media de ±7 días (mín. 10 con dato)");
   fact(
     els.qualityFacts,
     "Histórico",
@@ -418,7 +815,7 @@ function renderFacts(station, result, analysis) {
   }
 }
 
-function renderDetail(analysis) {
+function renderStats(analysis) {
   const { trend, trendCommon, change } = analysis;
   els.statsFacts.replaceChildren();
   fact(
@@ -428,33 +825,89 @@ function renderDetail(analysis) {
   );
   fact(els.statsFacts, "R²", trend ? formatNumber(trend.r2, 2) : "—");
   fact(els.statsFacts, "Años usados", trend ? String(trend.n) : String(analysis.valid.length));
-  fact(
-    els.statsFacts,
-    "Tendencia 1976–hoy",
-    trendCommon ? `${formatSigned(trendCommon.slopePerDecade, 2)} °C/década` : "—"
-  );
+  fact(els.statsFacts, "Tendencia 1976–hoy", trendCommon ? `${formatSigned(trendCommon.slopePerDecade, 2)} °C/década` : "—");
   fact(
     els.statsFacts,
     "Medias comparadas",
     change ? `${formatNumber(change.earlyMean)} → ${formatNumber(change.lateMean)} °C (${change.size} años)` : "—"
   );
+}
 
-  const rows = [...analysis.rows].reverse();
+function hasAnyData(row) {
+  return row.tmed !== null || row.tmax !== null || row.tmin !== null || row.prec !== null;
+}
+
+// Tabla completa: todos los años desde el primero con dato, también los huecos, del más reciente al más antiguo.
+function renderTable(analysis) {
+  const firstIndex = analysis.rows.findIndex(hasAnyData);
+  const rows = firstIndex === -1 ? [] : analysis.rows.slice(firstIndex).reverse();
+  const scale = anomalyScale(analysis);
+  const lastComplete = analysis.complete.length ? analysis.complete[analysis.complete.length - 1].year : null;
+  let coldest = null;
+  for (const row of analysis.valid) if (!coldest || row.tmed < coldest.tmed) coldest = row;
+  const gapCount = rows.filter((row) => !hasAnyData(row)).length;
+
+  els.tabTableCount.textContent = rows.length ? String(rows.length) : "";
+  requestAnimationFrame(placeTabIndicator);
+  els.tableCaption.textContent = rows.length
+    ? `${rows.length} años · ${rows[rows.length - 1].year}–${rows[0].year} · ${gapCount ? `${gapCount} sin datos` : "sin huecos"} · ${
+        state.mode === "day" ? "día exacto" : "media ±7 días"
+      }`
+    : "Sin datos todavía";
+
   els.tableBody.replaceChildren(
     ...rows.map((row) => {
       const tr = document.createElement("tr");
-      const cells = [
-        String(row.year),
-        formatNumber(row.tmed),
-        formatNumber(row.tmax),
-        formatNumber(row.tmin),
-        formatNumber(row.prec, 2),
-        formatNumber(row.day ? row.day.tmed : null),
-        formatNumber(row.day ? row.day.tmax : null),
-      ];
-      for (const value of cells) {
+      const yearCell = document.createElement("th");
+      yearCell.scope = "row";
+      yearCell.textContent = String(row.year);
+      tr.appendChild(yearCell);
+
+      if (row.year > lastComplete) {
+        const tag = document.createElement("span");
+        tag.className = "row-tag";
+        tag.textContent = "en curso";
+        yearCell.appendChild(tag);
+        tr.classList.add("is-current");
+      } else if (analysis.warmest && row.year === analysis.warmest.year) {
+        tr.classList.add("is-warmest");
+      } else if (coldest && row.year === coldest.year) {
+        tr.classList.add("is-coldest");
+      }
+
+      if (!hasAnyData(row)) {
+        tr.classList.add("is-gap");
+        const td = document.createElement("td");
+        td.colSpan = 5;
+        td.textContent = row.year > lastComplete ? "Este día aún no tiene datos" : "Sin datos de AEMET";
+        tr.appendChild(td);
+        return tr;
+      }
+
+      const anomaly = analysis.anomalies.get(row.year);
+      const barCell = document.createElement("td");
+      barCell.className = "col-anomaly";
+      if (anomaly !== undefined) {
+        const bar = document.createElement("span");
+        bar.className = "anomaly";
+        const fill = document.createElement("i");
+        const share = Math.min(1, Math.abs(anomaly) / scale);
+        fill.style.width = `${share * 50}%`;
+        fill.style[anomaly >= 0 ? "left" : "right"] = "50%";
+        fill.style.background = anomalyColor(anomaly, scale);
+        const label = document.createElement("b");
+        label.textContent = formatSigned(anomaly);
+        bar.append(fill);
+        barCell.append(bar, label);
+      } else {
+        barCell.textContent = "—";
+      }
+      tr.appendChild(barCell);
+
+      for (const value of [formatNumber(row.tmed), formatNumber(row.tmax), formatNumber(row.tmin), row.prec === null ? "—" : `${formatNumber(row.prec)} mm`]) {
         const td = document.createElement("td");
         td.textContent = value;
+        if (value === "—") td.className = "is-missing";
         tr.appendChild(td);
       }
       return tr;
@@ -462,21 +915,34 @@ function renderDetail(analysis) {
   );
 }
 
+function renderChartNote() {
+  els.chartNote.textContent =
+    state.mode === "day"
+      ? `Cada punto es el ${prettyDay(state.month, state.day)} de un año. Línea discontinua: tendencia. Pasa el dedo o el ratón por el gráfico.`
+      : `Cada punto es la media ${windowText(state.month, state.day)} de un año. Línea discontinua: tendencia.`;
+}
+
 function renderResult(result, { partial = false } = {}) {
   const station = state.byId.get(state.selectedId);
   if (!station) return;
-  const analysis = analyze(result);
+  const analysis = analyze(result, state.mode);
   state.analysis = analysis;
 
   renderHeader(station, analysis);
   renderVerdict(analysis);
   renderHeadline(station, analysis);
-  renderKpis(analysis, !partial);
+  nudge(els.hero);
+  renderKpis(analysis);
   renderStripes(analysis);
   renderTemperatureChart(els.chart, analysis, state.visibility);
+  renderChartNote();
   renderFacts(station, result, analysis);
-  renderDetail(analysis);
+  renderStats(analysis);
+  renderTable(analysis);
   els.panelBody.classList.remove("is-loading");
+  els.shareBtn.disabled = partial;
+  els.shareCta.disabled = partial;
+  state.direction = 0;
 }
 
 function downloadCsv() {
@@ -507,10 +973,23 @@ function downloadCsv() {
   setTimeout(() => URL.revokeObjectURL(link.href), 1000);
 }
 
+
 // ---------- Consultas ----------
 
-async function enqueue(station) {
-  const params = new URLSearchParams({ station, month: state.month, day: state.day });
+function cacheKey(id, month, day) {
+  return `${id}|${month}-${day}`;
+}
+
+function rememberResult(result) {
+  if (!result || (Array.isArray(result.failedYears) && result.failedYears.length)) return;
+  const key = cacheKey(result.station, result.month, result.day);
+  resultCache.delete(key);
+  resultCache.set(key, result);
+  if (resultCache.size > RESULT_CACHE_LIMIT) resultCache.delete(resultCache.keys().next().value);
+}
+
+async function enqueue(station, month = state.month, day = state.day) {
+  const params = new URLSearchParams({ station, month, day });
   const response = await fetch(`/api/evolution/jobs/enqueue?${params}`);
   const payload = await response.json().catch(() => null);
   if (!response.ok) throw new Error((payload && payload.error) || "Error consultando AEMET");
@@ -535,16 +1014,66 @@ function showSnapshot(snapshot) {
   }
 }
 
-async function runQuery({ silent = false } = {}) {
+// Precarga el día anterior y el siguiente de estaciones ya descargadas: las flechas responden al instante.
+function prefetchNeighbors() {
+  const id = state.selectedId;
+  if (!id || !state.cached.has(id)) return;
+  for (const delta of [1, -1]) {
+    const date = dateFromState();
+    date.setDate(date.getDate() + delta);
+    const month = pad(date.getMonth() + 1);
+    const day = pad(date.getDate());
+    const key = cacheKey(id, month, day);
+    if (resultCache.has(key) || prefetching.has(key)) continue;
+    prefetching.add(key);
+    enqueue(id, month, day)
+      .then((payload) => {
+        if (payload.status === "done") rememberResult(payload.result);
+      })
+      .catch(() => {})
+      .finally(() => prefetching.delete(key));
+  }
+}
+
+function setRefreshing(active) {
+  els.panel.classList.toggle("is-refreshing", active);
+}
+
+// Al cambiar de día no se vacía el panel: si el resultado está en memoria se anima al momento;
+// si no, se espera un instante por si el usuario sigue pulsando las flechas.
+function scheduleLoad() {
+  clearTimeout(loadTimer);
+  const cached = resultCache.get(cacheKey(state.selectedId, state.month, state.day));
+  if (cached && state.result) {
+    state.jobToken = `cache_${Date.now()}`;
+    setRefreshing(false);
+    setProgress(null);
+    state.result = cached;
+    renderResult(cached);
+    prefetchNeighbors();
+    return;
+  }
+  if (!state.result) {
+    runQuery();
+    return;
+  }
+  setRefreshing(true);
+  loadTimer = setTimeout(() => runQuery({ mode: "transition" }), 220);
+}
+
+async function runQuery({ mode = "fresh" } = {}) {
   const station = state.byId.get(state.selectedId);
   if (!station) return null;
 
   const token = `${Date.now()}_${station.idema}_${state.month}_${state.day}`;
   state.jobToken = token;
-  if (!silent) {
+  if (mode === "fresh") {
     state.result = null;
+    state.analysis = null;
     renderHeader(station, null);
     renderSkeleton();
+    els.shareBtn.disabled = true;
+    els.shareCta.disabled = true;
     els.panelBody.classList.add("is-loading");
     setProgress(2, "Buscando datos…");
   }
@@ -559,7 +1088,9 @@ async function runQuery({ silent = false } = {}) {
     if (!result || state.jobToken !== token) return null;
 
     state.result = result;
+    rememberResult(result);
     setProgress(null);
+    setRefreshing(false);
     renderResult(result);
 
     if (payload.status !== "done") {
@@ -576,10 +1107,12 @@ async function runQuery({ silent = false } = {}) {
 
     refreshCached();
     refreshBackground();
+    prefetchNeighbors();
     return result;
   } catch (error) {
     if (state.jobToken === token) {
       setProgress(null);
+      setRefreshing(false);
       els.panelBody.classList.remove("is-loading");
       showToast(error.message || "Error inesperado", true);
     }
@@ -592,8 +1125,15 @@ function selectStation(stationId, { userGesture = true } = {}) {
   if (!station) return;
   if (userGesture) unlockAudio();
   state.selectedId = station.idema;
+  state.direction = 0;
   closeSearch();
-  openPanel();
+  const reveal = () => {
+    applyViewState("station");
+    openPanel();
+    setTab("summary");
+  };
+  if (viewState() === "station" || !userGesture) reveal();
+  else morph(reveal);
   updateUrl();
   requestAnimationFrame(() => focusStation(station, panelOffset()));
   runQuery();
@@ -633,9 +1173,10 @@ async function refreshBackground() {
   backgroundTimer = setTimeout(refreshBackground, 3000);
 }
 
+
 async function announceFullHistory() {
   const previousStart = state.result ? state.result.startYear : null;
-  const result = await runQuery({ silent: true });
+  const result = await runQuery({ mode: "silent" });
   if (!result || !result.history || !result.history.complete) return;
   const firstYear = result.history.firstYear;
   const station = state.byId.get(state.selectedId);
@@ -643,6 +1184,105 @@ async function announceFullHistory() {
     playChime();
     showToast(`Histórico completo de ${station.nombreVisible}: registros desde ${firstYear}.`);
   }
+}
+
+// ---------- Compartir ----------
+
+async function drawShare() {
+  const station = state.byId.get(state.selectedId);
+  if (!station || !state.analysis) return;
+  els.shareDialog.dataset.format = state.shareFormat;
+  await drawShareCard(els.shareCanvas, {
+    format: state.shareFormat,
+    station,
+    dayText: prettyDay(state.month, state.day),
+    analysis: state.analysis,
+    host: location.host,
+    method:
+      state.mode === "day"
+        ? `Valor del ${prettyDay(state.month, state.day)} de cada año · ${state.analysis.valid.length} años con datos`
+        : `Media ${windowText(state.month, state.day)} de cada año · ${state.analysis.valid.length} años con datos`,
+  });
+  if (!reducedMotion()) {
+    els.shareCanvas.classList.remove("is-swapping");
+    void els.shareCanvas.offsetWidth;
+    els.shareCanvas.classList.add("is-swapping");
+  }
+}
+
+function canShareFiles() {
+  try {
+    const probe = new File([new Blob()], "x.png", { type: "image/png" });
+    return Boolean(navigator.canShare && navigator.canShare({ files: [probe] }));
+  } catch (_error) {
+    return false;
+  }
+}
+
+async function openShare() {
+  if (!state.analysis) return;
+  els.shareNative.hidden = !canShareFiles();
+  els.shareDownload.classList.toggle("btn-primary", els.shareNative.hidden);
+  els.shareDownload.classList.toggle("btn-ghost", !els.shareNative.hidden);
+  if (typeof els.shareDialog.showModal === "function") els.shareDialog.showModal();
+  else els.shareDialog.setAttribute("open", "");
+  await drawShare();
+}
+
+function closeShare() {
+  if (typeof els.shareDialog.close === "function") els.shareDialog.close();
+  else els.shareDialog.removeAttribute("open");
+}
+
+async function shareFile() {
+  const station = state.byId.get(state.selectedId);
+  const blob = await canvasToBlob(els.shareCanvas);
+  return new File([blob], shareFileName(station, state.month, state.day, state.shareFormat), { type: "image/png" });
+}
+
+async function downloadShare() {
+  const file = await shareFile();
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(file);
+  link.download = file.name;
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+  flashButton(els.shareDownload, "Descargada");
+}
+
+async function nativeShare() {
+  const station = state.byId.get(state.selectedId);
+  try {
+    const file = await shareFile();
+    await navigator.share({
+      files: [file],
+      title: "Si se calienta",
+      text: `${shareCaption(station, prettyDay(state.month, state.day), state.analysis)} ${location.href}`,
+    });
+  } catch (error) {
+    if (error && error.name !== "AbortError") showToast("No se pudo compartir. Descarga la imagen.", true);
+  }
+}
+
+async function copyLink() {
+  try {
+    await navigator.clipboard.writeText(location.href);
+    flashButton(els.shareCopy, "¡Enlace copiado!");
+  } catch (_error) {
+    showToast("No se pudo copiar. Copia la dirección desde el navegador.", true);
+  }
+}
+
+function flashButton(button, text) {
+  const label = button.querySelector("span") || button;
+  if (!button._label) button._label = label.textContent;
+  label.textContent = text;
+  button.classList.add("is-done");
+  clearTimeout(button._timer);
+  button._timer = setTimeout(() => {
+    label.textContent = button._label;
+    button.classList.remove("is-done");
+  }, 1800);
 }
 
 // ---------- Busqueda ----------
@@ -732,6 +1372,7 @@ function focusSearch() {
   renderSearch();
 }
 
+
 // ---------- Ubicacion, URL y fecha ----------
 
 function distanceKm(lat1, lon1, lat2, lon2) {
@@ -748,8 +1389,10 @@ function locateUser() {
     showToast("Tu navegador no permite obtener la ubicación. Busca la estación por nombre.", true);
     return;
   }
-  els.locateBtn.disabled = true;
-  els.locateBtn.textContent = "Localizando…";
+  for (const button of [els.locateBtn, els.dockLocate]) {
+    button.disabled = true;
+    button.classList.add("is-busy");
+  }
   navigator.geolocation.getCurrentPosition(
     (position) => {
       const { latitude, longitude } = position.coords;
@@ -777,9 +1420,12 @@ function locateUser() {
   );
 }
 
+
 function resetLocateButton() {
-  els.locateBtn.disabled = false;
-  els.locateBtn.textContent = "Usar mi ubicación";
+  for (const button of [els.locateBtn, els.dockLocate]) {
+    button.disabled = false;
+    button.classList.remove("is-busy");
+  }
 }
 
 function updateUrl() {
@@ -789,22 +1435,23 @@ function updateUrl() {
   history.replaceState(null, "", `${location.pathname}?${params}`);
 }
 
-function setDate(month, day) {
-  state.month = month;
-  state.day = day;
-  els.dateInput.value = `${new Date().getFullYear()}-${month}-${day}`;
-}
-
 function readInitialState() {
   const params = new URLSearchParams(location.search);
   const match = String(params.get("dia") || "").match(/^(\d{2})-(\d{2})$/);
-  const today = new Date();
-  if (match) setDate(match[1], match[2]);
-  else setDate(String(today.getMonth() + 1).padStart(2, "0"), String(today.getDate()).padStart(2, "0"));
+  const valid = match && !Number.isNaN(new Date(`${REF_YEAR}-${match[1]}-${match[2]}T00:00:00`).getTime());
+  const today = todayParts();
+  state.month = valid ? match[1] : today.month;
+  state.day = valid ? match[2] : today.day;
+  renderDayNav();
   return String(params.get("estacion") || "").toUpperCase();
 }
 
 // ---------- Eventos ----------
+
+function isTyping() {
+  const tag = document.activeElement && document.activeElement.tagName;
+  return ["INPUT", "TEXTAREA", "SELECT"].includes(tag);
+}
 
 function bindEvents() {
   els.searchInput.addEventListener("input", renderSearch);
@@ -842,38 +1489,76 @@ function bindEvents() {
   els.searchInput.addEventListener("blur", () => setTimeout(closeSearch, 120));
 
   document.addEventListener("keydown", (event) => {
-    const typing = ["INPUT", "TEXTAREA"].includes(document.activeElement && document.activeElement.tagName);
+    if (els.shareDialog.open) return;
     if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
       event.preventDefault();
       focusSearch();
-    } else if (event.key === "/" && !typing) {
+    } else if (event.key === "/" && !isTyping()) {
       event.preventDefault();
       focusSearch();
-    } else if (event.key === "Escape" && !typing && state.selectedId) {
-      closePanel();
+    } else if ((event.key === "ArrowLeft" || event.key === "ArrowRight") && !isTyping() && !event.target.closest('[role="tablist"], [role="radiogroup"]')) {
+      event.preventDefault();
+      shiftDay(event.key === "ArrowRight" ? 1 : -1);
+    } else if (event.key === "Escape" && !isTyping()) {
+      if (!els.rigorPop.hidden) toggleRigor(false);
+      else if (state.selectedId) goHome();
     }
   });
 
+  els.prevDay.addEventListener("click", () => shiftDay(-1));
+  els.nextDay.addEventListener("click", () => shiftDay(1));
+  els.todayBtn.addEventListener("click", goToday);
+  els.dayLabel.addEventListener("click", openDatePicker);
   els.dateInput.addEventListener("change", () => {
     const match = els.dateInput.value.match(/^\d{4}-(\d{2})-(\d{2})$/);
     if (!match) return;
-    state.month = match[1];
-    state.day = match[2];
-    updateUrl();
-    if (state.selectedId) {
-      unlockAudio();
-      runQuery();
-    }
+    const target = new Date(REF_YEAR, Number(match[1]) - 1, Number(match[2]));
+    setDay(match[1], match[2], Math.sign(target - dateFromState()));
   });
 
-  els.closeBtn.addEventListener("click", closePanel);
+  // En la barra compacta, la marca vuelve a desplegar la explicación.
+  els.aboutBtn.addEventListener("click", () => {
+    if (viewState() === "compact") setViewState("home");
+  });
+  els.backBtn.addEventListener("click", goHome);
+  els.quickPicks.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-id]");
+    if (button) selectStation(button.dataset.id);
+  });
+
   els.expandBtn.addEventListener("click", () => toggleExpanded());
   els.sheetHandle.addEventListener("click", () => toggleExpanded());
   els.locateBtn.addEventListener("click", locateUser);
-  els.focusSearchBtn.addEventListener("click", focusSearch);
+  els.dockLocate.addEventListener("click", locateUser);
   els.csvBtn.addEventListener("click", downloadCsv);
   els.toast.addEventListener("click", () => {
     els.toast.hidden = true;
+  });
+
+  els.rigorBtn.addEventListener("click", (event) => {
+    event.stopPropagation();
+    toggleRigor();
+  });
+  document.addEventListener("click", (event) => {
+    if (!els.rigorPop.hidden && !event.target.closest(".rigor")) toggleRigor(false);
+  });
+
+  els.tabSummaryBtn.addEventListener("click", () => setTab("summary"));
+  els.tabTableBtn.addEventListener("click", () => setTab("table"));
+  document.querySelector(".tabs").addEventListener("keydown", (event) => {
+    if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+      event.preventDefault();
+      setTab(state.tab === "summary" ? "table" : "summary", { focus: true });
+    }
+  });
+
+  els.modeToggle.addEventListener("click", (event) => {
+    const button = event.target.closest("button[data-mode]");
+    if (!button || button.dataset.mode === state.mode) return;
+    state.mode = button.dataset.mode;
+    for (const item of els.modeToggle.querySelectorAll("button")) item.setAttribute("aria-checked", String(item === button));
+    els.modeToggle.dataset.value = state.mode;
+    if (state.result) renderResult(state.result);
   });
 
   els.seriesToggles.addEventListener("click", (event) => {
@@ -884,20 +1569,84 @@ function bindEvents() {
     button.setAttribute("aria-pressed", String(state.visibility[id]));
     setSeriesVisibility(id, state.visibility[id]);
   });
+
+  // Franjas: se pueden recorrer con el ratón o arrastrando el dedo, y señalan el año en el gráfico.
+  const scrub = (event) => {
+    const stripe = stripeFromPointer(event);
+    if (!stripe) return;
+    const year = Number(stripe.dataset.year);
+    markStripe(year);
+    highlightYear(year);
+  };
+  els.stripes.addEventListener("pointermove", scrub);
+  els.stripes.addEventListener("pointerdown", (event) => {
+    if (event.pointerType !== "mouse") els.stripes.setPointerCapture(event.pointerId);
+    scrub(event);
+  });
+  const endScrub = () => {
+    markStripe(null);
+    highlightYear(null);
+  };
+  els.stripes.addEventListener("pointerleave", endScrub);
+  els.stripes.addEventListener("pointerup", (event) => {
+    if (event.pointerType !== "mouse") endScrub();
+  });
+  onChartHover((year) => markStripe(year));
+
+  els.shareBtn.addEventListener("click", openShare);
+  els.shareCta.addEventListener("click", openShare);
+  els.shareClose.addEventListener("click", closeShare);
+  els.shareDialog.addEventListener("click", (event) => {
+    if (event.target === els.shareDialog) closeShare();
+  });
+  els.shareFormats.addEventListener("click", (event) => {
+    const button = event.target.closest("button[data-format]");
+    if (!button || button.dataset.format === state.shareFormat) return;
+    state.shareFormat = button.dataset.format;
+    for (const item of els.shareFormats.querySelectorAll("button")) item.setAttribute("aria-checked", String(item === button));
+    els.shareFormats.dataset.value = state.shareFormat;
+    drawShare();
+  });
+  els.shareDownload.addEventListener("click", downloadShare);
+  els.shareNative.addEventListener("click", nativeShare);
+  els.shareCopy.addEventListener("click", copyLink);
+
+  let resizeTimer = 0;
+  window.addEventListener("resize", () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      if (state.result) renderTemperatureChart(els.chart, state.analysis, state.visibility);
+    }, 200);
+  });
 }
 
 // ---------- Inicio ----------
 
 async function init() {
   const initialStation = readInitialState();
+  applyLinks();
+  renderDonate();
   bindEvents();
-  createMap(els.map, { onSelect: selectStation });
+  createMap(els.map, {
+    onSelect: selectStation,
+    // En móvil la tarjeta tapa casi todo el mapa: al moverlo, se recoge en la barra para dejar sitio.
+    onExplore: () => {
+      if (isMobile() && viewState() === "home") setViewState("compact");
+    },
+  });
+  els.dock.hidden = false;
+  els.modeToggle.dataset.value = state.mode;
+  els.shareFormats.dataset.value = state.shareFormat;
+
+  // La tarjeta sale abierta en cada carga, salvo si se llega con una estación en el enlace.
+  applyViewState(initialStation ? "station" : "home");
 
   try {
     const [rawStations] = await Promise.all([fetchJson("/api/stations"), refreshCached()]);
     state.stations = rawStations.map(normalizeStation).sort((a, b) => a.nombreVisible.localeCompare(b.nombreVisible, "es"));
     state.byId = new Map(state.stations.map((station) => [station.idema, station]));
     setStations(state.stations, new Set(state.cached.keys()));
+    renderQuickPicks();
   } catch (error) {
     showToast(error.message || "No se pudieron cargar las estaciones", true);
     return;
@@ -906,6 +1655,7 @@ async function init() {
   if (initialStation && state.byId.has(initialStation)) {
     selectStation(initialStation, { userGesture: false });
   } else {
+    if (initialStation) setViewState("home");
     updateUrl();
   }
   refreshBackground();

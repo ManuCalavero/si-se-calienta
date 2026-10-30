@@ -39,7 +39,9 @@ function markerStyle(isCached, zoom) {
   };
 }
 
-export function createMap(element, { onSelect }) {
+const initialZoom = () => (window.innerWidth < 760 ? 5 : 6);
+
+export function createMap(element, { onSelect, onExplore = () => {} }) {
   onSelectHandler = onSelect;
   map = L.map(element, {
     zoomControl: false,
@@ -47,7 +49,7 @@ export function createMap(element, { onSelect }) {
     maxZoom: 13,
     zoomSnap: 0.5,
     worldCopyJump: false,
-  }).setView(SPAIN_CENTER, window.innerWidth < 760 ? 5 : 6);
+  }).setView(SPAIN_CENTER, initialZoom());
 
   L.control.zoom({ position: "bottomright" }).addTo(map);
   map.attributionControl.setPrefix(false);
@@ -69,6 +71,10 @@ export function createMap(element, { onSelect }) {
   }).addTo(map);
 
   renderer = L.canvas({ padding: 0.5, tolerance: 6 });
+
+  // Solo los gestos de la persona cuentan como explorar, no los vuelos que lanza la app.
+  map.on("dragstart", () => onExplore());
+  element.addEventListener("wheel", () => onExplore(), { passive: true });
 
   map.on("zoomend", () => {
     const zoom = map.getZoom();
@@ -129,6 +135,12 @@ export function focusStation(station, offset = [0, 0]) {
   }).addTo(map);
 
   flyWithOffset(latlng, Math.max(map.getZoom(), 8), offset);
+}
+
+export function resetView() {
+  if (!map) return;
+  if (reducedMotion()) map.setView(SPAIN_CENTER, initialZoom());
+  else map.flyTo(SPAIN_CENTER, initialZoom(), { duration: 1.1, easeLinearity: 0.2 });
 }
 
 export function clearSelection() {

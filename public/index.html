@@ -5,7 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
     <meta name="theme-color" content="#f3f5ea" />
-    <title>Si se calienta (BETA) · ¿Hace más calor que antes?</title>
+    <title>Si se calienta · ¿Hace más calor que antes?</title>
+    <meta name="description" content="Compara la temperatura de un día con ese mismo día en todos los años con registro en las estaciones de AEMET." />
+    <meta property="og:title" content="Si se calienta · ¿Hace más calor que antes?" />
+    <meta property="og:description" content="Elige un lugar y un día del año y mira cómo ha cambiado su temperatura desde 1920. Datos de AEMET OpenData." />
+    <meta property="og:type" content="website" />
     <link rel="icon" href="favicon.ico" sizes="32x32" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -24,160 +28,321 @@
   <body>
     <div id="map" class="map" role="application" aria-label="Mapa de estaciones de AEMET"></div>
 
-    <header class="topbar glass">
-      <div class="brand">
-        <span class="brand-mark" aria-hidden="true"></span>
-        <div class="brand-text">
-          <strong><span class="brand-name">Si se calienta</span> <span class="beta-tag">(BETA)</span></strong>
-          <span>Clima diario · <a href="https://x.com/InfoAEMET" target="_blank" rel="noopener noreferrer" aria-label="AEMET en X (Twitter)">AEMET</a></span>
-        </div>
-      </div>
-
-      <div class="search">
-        <svg class="search-icon" viewBox="0 0 20 20" aria-hidden="true"><circle cx="9" cy="9" r="6" /><path d="m14 14 4 4" /></svg>
-        <input
-          id="search-input"
-          type="search"
-          placeholder="Busca tu ciudad"
-          autocomplete="off"
-          spellcheck="false"
-          role="combobox"
-          aria-autocomplete="list"
-          aria-expanded="false"
-          aria-controls="search-results"
-          aria-label="Buscar estación"
-        />
-        <kbd class="search-kbd" aria-hidden="true">⌘K</kbd>
-        <ul id="search-results" class="search-results glass" role="listbox" hidden></ul>
-      </div>
-
-      <label class="date-field">
-        <span>Día</span>
-        <input id="date" type="date" required />
-      </label>
-
-      <div id="background-download" class="bg-pill" role="status" hidden>
-        <span class="bg-pill-dot" aria-hidden="true"></span>
-        <span id="background-download-text"></span>
-      </div>
-    </header>
-
-    <section id="welcome" class="welcome glass">
-      <p class="eyebrow">Datos diarios de AEMET desde 1920</p>
-      <img
-        class="welcome-image"
-        src="img/bienvenida.jpg"
-        width="800"
-        height="446"
-        alt="Ilustración: un niño ante colinas verdes y un adulto en el mismo paisaje, ya seco y labrado bajo un cielo rosado"
-      />
-      <h1>¿Hace más calor que antes?</h1>
-      <p class="welcome-text">
-        Elige una estación y descubre cómo ha cambiado un mismo día del año desde que hay registros.
-      </p>
-      <div class="welcome-actions">
-        <button id="locate-btn" class="btn btn-primary" type="button">Usar mi ubicación</button>
-        <button id="focus-search-btn" class="btn btn-ghost" type="button">Buscar estación</button>
-      </div>
-      <ul class="legend">
-        <li><span class="legend-dot is-cached"></span>Descargada · respuesta instantánea</li>
-        <li><span class="legend-dot"></span>Sin descargar · 2–3 min la primera vez</li>
-      </ul>
-    </section>
-
-    <aside id="panel" class="panel glass" aria-labelledby="panel-title" hidden>
+    <!-- Inicio: barra, bienvenida y resultado son el mismo objeto. Al elegir estación, la barra queda arriba y el resultado debajo. -->
+    <aside id="home" class="home glass" aria-label="Si se calienta">
       <button id="sheet-handle" class="sheet-handle" type="button" aria-label="Ampliar panel"><span></span></button>
 
-      <header class="panel-header">
-        <div class="panel-heading">
-          <p id="panel-eyebrow" class="eyebrow"></p>
-          <h2 id="panel-title"></h2>
-          <p id="panel-sub" class="panel-sub"></p>
+      <div class="topbar">
+        <button id="about-btn" class="brand" type="button" aria-label="Si se calienta. Ver cómo funciona" aria-controls="welcome" aria-expanded="true">
+          <span class="brand-mark" aria-hidden="true"></span>
+          <span class="brand-text">
+            <strong><span class="brand-name">Si se calienta</span> <span class="beta-tag">BETA</span></strong>
+            <span class="brand-help">Cómo funciona</span>
+          </span>
+        </button>
+
+        <button id="back-btn" class="back-btn" type="button" aria-label="Volver al inicio" tabindex="-1">
+          <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m12 5-5 5 5 5" /></svg>
+          <span>Volver</span>
+        </button>
+
+        <div class="search">
+          <svg class="search-icon" viewBox="0 0 20 20" aria-hidden="true"><circle cx="9" cy="9" r="6" /><path d="m14 14 4 4" /></svg>
+          <input
+            id="search-input"
+            type="search"
+            placeholder="Ciudad o estación"
+            autocomplete="off"
+            spellcheck="false"
+            role="combobox"
+            aria-autocomplete="list"
+            aria-expanded="false"
+            aria-controls="search-results"
+            aria-label="Buscar estación"
+          />
+          <kbd class="search-kbd" aria-hidden="true">⌘K</kbd>
+          <ul id="search-results" class="search-results glass" role="listbox" hidden></ul>
         </div>
-        <div class="panel-actions">
-          <span id="verdict" class="chip chip-neutral">Analizando…</span>
-          <button id="expand-btn" class="icon-btn" type="button" aria-label="Ampliar análisis" aria-expanded="false">
-            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M12 3h5v5M8 17H3v-5M17 3l-6 6M3 17l6-6" /></svg>
+
+        <div class="day-nav" role="group" aria-label="Día del año">
+          <button id="prev-day" class="day-arrow" type="button" aria-label="Día anterior" title="Día anterior (←)">
+            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m12 5-5 5 5 5" /></svg>
           </button>
-          <button id="close-btn" class="icon-btn" type="button" aria-label="Cerrar panel">
+          <button id="day-label" class="day-label" type="button" aria-label="Elegir día">
+            <span class="day-viewport"><span id="day-text" class="day-text" aria-live="polite"></span></span>
+            <svg class="day-caret" viewBox="0 0 20 20" aria-hidden="true"><rect x="3.5" y="4.5" width="13" height="12" rx="2.5" /><path d="M3.5 8.5h13M7 3v3M13 3v3" /></svg>
+          </button>
+          <input id="date" class="date-native" type="date" min="2024-01-01" max="2024-12-31" tabindex="-1" aria-hidden="true" />
+          <button id="next-day" class="day-arrow" type="button" aria-label="Día siguiente" title="Día siguiente (→)">
+            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m8 5 5 5-5 5" /></svg>
+          </button>
+          <button id="today-btn" class="today-btn" type="button">Hoy</button>
+        </div>
+
+        <div id="background-download" class="bg-pill" role="status" hidden>
+          <span class="bg-pill-dot" aria-hidden="true"></span>
+          <span id="background-download-text"></span>
+        </div>
+      </div>
+
+      <div id="welcome" class="welcome-head">
+        <img
+          class="welcome-image"
+          src="img/bienvenida.jpg"
+          width="800"
+          height="446"
+          alt="Ilustración: un niño ante colinas verdes y un adulto en el mismo paisaje, ya seco y labrado bajo un cielo rosado"
+        />
+        <p class="eyebrow">Un siglo de registros diarios</p>
+        <h1 id="welcome-title">¿Hace más calor que antes?</h1>
+        <p class="welcome-text">
+          Elige un lugar y un día del año. Verás qué temperatura hizo ese mismo día en cada año desde que la estación
+          empezó a medir, algunas desde 1920.
+        </p>
+      </div>
+
+      <div class="welcome-foot">
+        <div class="welcome-actions">
+          <button id="locate-btn" class="btn btn-primary" type="button">
+            <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="3" /><path d="M10 2v3M10 15v3M2 10h3M15 10h3" /></svg>
+            Usar mi ubicación
+          </button>
+          <span class="map-hint"><span class="dock-dot" aria-hidden="true"></span>o toca un punto verde del mapa</span>
+        </div>
+        <div class="quick-picks" hidden>
+          <span>O empieza por</span>
+          <div id="quick-picks" class="chips"></div>
+        </div>
+        <p class="disclaimer">
+          <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7.5" /><path d="M10 9v5M10 6.2v.1" /></svg>
+          <span>
+            <strong>Un día no es el clima.</strong> Un solo día no mide el cambio climático: hacen falta décadas y miles
+            de estaciones. Para eso, consulta
+            <a data-link="aemetClimate" target="_blank" rel="noopener noreferrer">AEMET</a>,
+            <a data-link="copernicus" target="_blank" rel="noopener noreferrer">Copernicus</a> o el
+            <a data-link="ipcc" target="_blank" rel="noopener noreferrer">IPCC</a>.
+          </span>
+        </p>
+        <p class="welcome-source">
+          Datos diarios de las estaciones de la Agencia Estatal de Meteorología, vía
+          <a data-link="aemetOpenData" target="_blank" rel="noopener noreferrer">AEMET OpenData</a>.
+        </p>
+      </div>
+
+      <section id="panel" class="panel" aria-labelledby="panel-title" hidden>
+        <header class="panel-header">
+          <div class="panel-heading">
+            <p id="panel-eyebrow" class="eyebrow"></p>
+            <h2 id="panel-title"></h2>
+            <p id="panel-sub" class="panel-sub"></p>
+          </div>
+          <div class="panel-actions">
+            <span id="verdict" class="chip chip-neutral">Analizando…</span>
+            <div class="rigor">
+              <button id="rigor-btn" class="icon-btn" type="button" aria-label="Cómo leer estos datos" aria-expanded="false" aria-controls="rigor-pop">
+                <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7.5" /><path d="M10 9v5M10 6.2v.1" /></svg>
+              </button>
+              <div id="rigor-pop" class="popover" role="dialog" aria-label="Cómo leer estos datos" hidden>
+                <h4>Cómo leer estos datos</h4>
+                <ul>
+                  <li id="rigor-window"></li>
+                  <li>“Se calienta” solo aparece si la tendencia es al menos el doble de su margen de error. Si no, verás “Sin tendencia clara”.</li>
+                  <li>Una estación mide su entorno: los traslados, los cambios de instrumento o el crecimiento de la ciudad también mueven los datos.</li>
+                  <li>
+                    <strong>Un solo día no mide el cambio climático.</strong> Para conclusiones sobre el clima, consulta
+                    <a data-link="aemetClimate" target="_blank" rel="noopener noreferrer">AEMET</a>,
+                    <a data-link="copernicus" target="_blank" rel="noopener noreferrer">Copernicus</a> o el
+                    <a data-link="ipcc" target="_blank" rel="noopener noreferrer">IPCC</a>.
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <button id="expand-btn" class="icon-btn" type="button" aria-label="Ampliar análisis" aria-expanded="false">
+              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M12 3h5v5M8 17H3v-5M17 3l-6 6M3 17l6-6" /></svg>
+            </button>
+          </div>
+        </header>
+
+        <div class="tabs" role="tablist" aria-label="Vistas del análisis">
+          <button id="tab-btn-summary" class="tab" type="button" role="tab" aria-selected="true" aria-controls="tab-summary">Resumen</button>
+          <button id="tab-btn-table" class="tab" type="button" role="tab" aria-selected="false" aria-controls="tab-table" tabindex="-1">
+            Tabla <span id="tab-table-count" class="tab-count"></span>
+          </button>
+          <span class="tab-indicator" aria-hidden="true"></span>
+          <div class="refresh-bar" aria-hidden="true"></div>
+        </div>
+
+        <div id="panel-progress" class="panel-progress" hidden>
+          <div class="progress"><div id="progress-bar" class="progress-bar"></div></div>
+          <p id="status" class="status" aria-live="polite"></p>
+        </div>
+
+        <div id="panel-body" class="panel-body">
+          <section id="tab-summary" class="tab-panel" role="tabpanel" aria-labelledby="tab-btn-summary">
+            <div class="hero">
+              <p id="headline" class="headline" aria-live="polite"></p>
+              <p id="subline" class="subline"></p>
+            </div>
+
+            <section id="kpis" class="kpis" aria-label="Indicadores principales"></section>
+
+            <section class="card chart-card">
+              <div class="section-head">
+                <div class="segmented" role="radiogroup" aria-label="Qué valor comparar">
+                  <button type="button" role="radio" data-mode="window" aria-checked="true">Media ±7 días</button>
+                  <button type="button" role="radio" data-mode="day" aria-checked="false">Día exacto</button>
+                </div>
+                <div id="series-toggles" class="series-toggles" role="group" aria-label="Series adicionales">
+                  <button type="button" data-series="tmax" aria-pressed="true"><span class="swatch swatch-warm"></span>Máx.</button>
+                  <button type="button" data-series="tmin" aria-pressed="true"><span class="swatch swatch-cool"></span>Mín.</button>
+                  <button type="button" data-series="prec" aria-pressed="true"><span class="swatch swatch-rain"></span>Lluvia</button>
+                </div>
+              </div>
+              <div class="chart-wrap"><canvas id="chart" aria-label="Evolución de la temperatura y la lluvia, año a año"></canvas></div>
+              <p id="chart-note" class="chart-note"></p>
+            </section>
+
+            <section class="card stripes-card" aria-label="Franjas climáticas">
+              <div class="section-head">
+                <h3>Franjas climáticas</h3>
+                <span class="hint">Cada barra es un año · <span class="hint-cool">azul</span>, más fresco; <span class="hint-warm">rojo</span>, más cálido que la media</span>
+              </div>
+              <div id="stripes" class="stripes"></div>
+              <div class="stripes-axis"><span id="stripes-start"></span><span id="stripes-hover" class="stripes-hover"></span><span id="stripes-end"></span></div>
+            </section>
+
+            <button id="share-cta" class="share-cta" type="button">
+              <span class="share-cta-thumb" aria-hidden="true"><span></span></span>
+              <span class="share-cta-text">
+                <strong>Comparte este día</strong>
+                <span>Crea una imagen para redes en formato cuadrado o historia</span>
+              </span>
+              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m8 5 5 5-5 5" /></svg>
+            </button>
+
+            <details class="card facts">
+              <summary>
+                <span>Estación y calidad de datos</span>
+                <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m6 8 4 4 4-4" /></svg>
+              </summary>
+              <div class="facts-grid">
+                <div>
+                  <h3>Estación</h3>
+                  <dl id="station-facts" class="fact-list"></dl>
+                </div>
+                <div>
+                  <h3>Calidad de datos</h3>
+                  <dl id="quality-facts" class="fact-list"></dl>
+                </div>
+              </div>
+            </details>
+
+            <section class="card donate" aria-labelledby="donate-title">
+              <div class="donate-head">
+                <span class="cup" aria-hidden="true">
+                  <span class="steam"><i></i><i></i><i></i></span>
+                  <svg viewBox="0 0 32 32"><path d="M6 12h17v7a7 7 0 0 1-7 7h-3a7 7 0 0 1-7-7v-7Z" /><path d="M23 14h2.5a3.5 3.5 0 0 1 0 7H23" /></svg>
+                </span>
+                <div>
+                  <h3 id="donate-title">Ayuda a que siga abierta</h3>
+                  <p>Gratis y sin publicidad. Mantenerla en marcha cuesta unos <strong id="donate-total"></strong>.</p>
+                </div>
+              </div>
+              <div id="cost-bar" class="cost-bar" aria-hidden="true"></div>
+              <ul id="cost-list" class="cost-list"></ul>
+              <div class="donate-foot">
+                <a id="bmc-link" class="btn btn-coffee" target="_blank" rel="noopener noreferrer">Invítame a un café</a>
+                <span id="donate-equivalence" class="donate-eq"></span>
+              </div>
+            </section>
+          </section>
+
+          <section id="tab-table" class="tab-panel" role="tabpanel" aria-labelledby="tab-btn-table" hidden>
+            <div class="section-head table-head">
+              <p id="table-caption" class="table-caption"></p>
+              <button id="csv-btn" class="btn btn-ghost btn-small" type="button">
+                <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v10M6 9l4 4 4-4M4 16h12" /></svg>
+                CSV
+              </button>
+            </div>
+            <dl id="stats-facts" class="fact-list stats-grid"></dl>
+            <div class="table-wrap">
+              <table id="results-table">
+                <thead>
+                  <tr>
+                    <th scope="col">Año</th>
+                    <th scope="col" class="col-anomaly">Respecto a la media</th>
+                    <th scope="col">T. media</th>
+                    <th scope="col">T. máx.</th>
+                    <th scope="col">T. mín.</th>
+                    <th scope="col">Lluvia</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+
+        <footer class="panel-foot">
+          <a class="foot-attribution" data-link="aemetOpenData" target="_blank" rel="noopener noreferrer">Datos: © AEMET OpenData</a>
+          <button id="share-btn" class="btn btn-primary btn-small" type="button">
+            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 13V3M6 7l4-4 4 4M4 11v5h12v-5" /></svg>
+            Compartir
+          </button>
+        </footer>
+      </section>
+    </aside>
+
+    <div id="dock" class="dock glass" hidden>
+      <span class="dock-text">
+        <span class="dock-dot" aria-hidden="true"></span>
+        <span><span class="dock-strong">Toca un punto verde</span> del mapa o busca tu ciudad</span>
+      </span>
+      <button id="dock-locate" class="btn btn-primary btn-small" type="button">
+        <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="3" /><path d="M10 2v3M10 15v3M2 10h3M15 10h3" /></svg>
+        Cerca de mí
+      </button>
+    </div>
+
+    <a id="attribution" class="attribution" target="_blank" rel="noopener noreferrer" data-link="aemetOpenData">Datos: © AEMET OpenData</a>
+
+
+    <dialog id="share-dialog" class="share-dialog" aria-labelledby="share-title">
+      <div class="share-inner">
+        <header class="share-header">
+          <div>
+            <p class="eyebrow">Tarjeta para compartir</p>
+            <h2 id="share-title">Comparte este día</h2>
+          </div>
+          <button id="share-close" class="icon-btn" type="button" aria-label="Cerrar">
             <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 5l10 10M15 5 5 15" /></svg>
           </button>
+        </header>
+        <div class="segmented share-formats" role="radiogroup" aria-label="Formato">
+          <button type="button" role="radio" data-format="square" aria-checked="true">
+            <span class="fmt-icon fmt-square" aria-hidden="true"></span>Publicación 1:1
+          </button>
+          <button type="button" role="radio" data-format="story" aria-checked="false">
+            <span class="fmt-icon fmt-story" aria-hidden="true"></span>Historia 9:16
+          </button>
         </div>
-      </header>
-
-      <div id="panel-progress" class="panel-progress" hidden>
-        <div class="progress"><div id="progress-bar" class="progress-bar"></div></div>
-        <p id="status" class="status" aria-live="polite"></p>
+        <div class="share-stage">
+          <canvas id="share-canvas" class="share-canvas" width="1080" height="1080" role="img" aria-label="Vista previa de la tarjeta"></canvas>
+        </div>
+        <div class="share-actions">
+          <button id="share-native" class="btn btn-primary" type="button" hidden>Compartir</button>
+          <button id="share-download" class="btn btn-ghost" type="button">
+            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v10M6 9l4 4 4-4M4 16h12" /></svg>
+            Descargar imagen
+          </button>
+          <button id="share-copy" class="btn btn-ghost" type="button">
+            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M8 12l4-4M7 9 5.5 10.5a3 3 0 0 0 4 4L11 13M13 11l1.5-1.5a3 3 0 0 0-4-4L9 7" /></svg>
+            <span>Copiar enlace</span>
+          </button>
+        </div>
       </div>
-
-      <div id="panel-body" class="panel-body">
-        <p id="headline" class="headline"></p>
-
-        <section id="kpis" class="kpis" aria-label="Indicadores principales"></section>
-
-        <section class="card chart-card">
-          <div class="section-head">
-            <h3>Temperatura y lluvia <span class="hint">· media de ±7 días</span></h3>
-            <div id="series-toggles" class="series-toggles" role="group" aria-label="Series adicionales">
-              <button type="button" data-series="tmax" aria-pressed="true"><span class="swatch swatch-warm"></span>Máx.</button>
-              <button type="button" data-series="tmin" aria-pressed="true"><span class="swatch swatch-cool"></span>Mín.</button>
-              <button type="button" data-series="prec" aria-pressed="true"><span class="swatch swatch-rain"></span>Lluvia</button>
-            </div>
-          </div>
-          <div class="chart-wrap"><canvas id="chart" aria-label="Evolución de la temperatura media y la lluvia"></canvas></div>
-        </section>
-
-        <section class="card stripes-card" aria-label="Franjas climáticas">
-          <div class="section-head">
-            <h3>Franjas climáticas</h3>
-            <span class="hint">Cada barra es un año · azul más fresco, rojo más cálido que la media</span>
-          </div>
-          <div id="stripes" class="stripes"></div>
-          <div class="stripes-axis"><span id="stripes-start"></span><span id="stripes-end"></span></div>
-        </section>
-
-        <details class="card facts">
-          <summary>
-            <span>Estación y calidad de datos</span>
-            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m6 8 4 4 4-4" /></svg>
-          </summary>
-          <div class="facts-grid">
-            <div>
-              <h3>Estación</h3>
-              <dl id="station-facts" class="fact-list"></dl>
-            </div>
-            <div>
-              <h3>Calidad de datos</h3>
-              <dl id="quality-facts" class="fact-list"></dl>
-            </div>
-          </div>
-        </details>
-
-        <section id="detail" class="card detail">
-          <div class="section-head">
-            <h3>Detalle para analistas</h3>
-            <button id="csv-btn" class="btn btn-ghost btn-small" type="button">Descargar CSV</button>
-          </div>
-          <dl id="stats-facts" class="fact-list stats-grid"></dl>
-          <div class="table-wrap">
-            <table id="results-table">
-              <thead>
-                <tr>
-                  <th>Año</th>
-                  <th>T. media</th>
-                  <th>T. máx.</th>
-                  <th>T. mín.</th>
-                  <th>Lluvia</th>
-                  <th>Día: media</th>
-                  <th>Día: máx.</th>
-                </tr>
-              </thead>
-              <tbody></tbody>
-            </table>
-          </div>
-        </section>
-      </div>
-    </aside>
+    </dialog>
 
     <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 

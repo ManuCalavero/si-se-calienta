@@ -130,18 +130,31 @@ function temperatureAnnotations(analysis) {
   return annotations;
 }
 
-function temperatureDatasets(analysis, visibility) {
+// Con más de un siglo de años los puntos se pisan: se encogen según el ancho disponible.
+function pointRadiusFor(count, width) {
+  const perPoint = width / Math.max(1, count);
+  if (perPoint < 4) return 1.6;
+  if (perPoint < 6) return 2.2;
+  if (perPoint < 9) return 2.8;
+  return 3.4;
+}
+
+function temperatureDatasets(analysis, visibility, width) {
   const rows = analysis.complete;
   const scale = anomalyScale(analysis);
+  const radius = pointRadiusFor(rows.length, width);
+  const exact = analysis.mode === "day";
   const datasets = [
     {
       id: "tmed",
-      label: "T. media",
+      label: exact ? "T. media del día" : "T. media",
       data: rows.map((row) => ({ x: row.year, y: row.tmed })),
-      borderColor: "rgba(36, 48, 42, 0.35)",
-      borderWidth: 1.8,
-      pointRadius: 3.2,
-      pointHoverRadius: 5,
+      borderColor: "rgba(36, 48, 42, 0.3)",
+      borderWidth: radius < 2.5 ? 1.2 : 1.8,
+      pointRadius: radius,
+      pointHoverRadius: radius + 2.6,
+      pointHoverBorderWidth: 2,
+      pointHoverBorderColor: INK,
       pointBackgroundColor: rows.map((row) => anomalyColor(analysis.anomalies.get(row.year), scale) || MUTED),
       pointBorderColor: "rgba(36, 48, 42, 0.25)",
       pointBorderWidth: 1,
@@ -153,7 +166,7 @@ function temperatureDatasets(analysis, visibility) {
       label: "T. máxima",
       data: rows.map((row) => ({ x: row.year, y: row.tmax })),
       borderColor: WARM_LINE,
-      borderWidth: 1.5,
+      borderWidth: radius < 2.5 ? 1.1 : 1.5,
       pointRadius: 0,
       hidden: !visibility.tmax,
       order: 3,
@@ -163,7 +176,7 @@ function temperatureDatasets(analysis, visibility) {
       label: "T. mínima",
       data: rows.map((row) => ({ x: row.year, y: row.tmin })),
       borderColor: COOL_LINE,
-      borderWidth: 1.5,
+      borderWidth: radius < 2.5 ? 1.1 : 1.5,
       pointRadius: 0,
       hidden: !visibility.tmin,
       order: 3,
@@ -204,12 +217,34 @@ function temperatureDatasets(analysis, visibility) {
   return datasets;
 }
 
+let hoverHandler = () => {};
+
+export function onChartHover(handler) {
+  hoverHandler = handler;
+}
+
+// Se mutan los datasets existentes en vez de sustituirlos: así Chart.js desplaza cada punto
+// desde su valor anterior al nuevo y el cambio de día se percibe como una transición.
+function mergeDatasets(chart, next) {
+  const current = chart.data.datasets;
+  const merged = next.map((dataset) => {
+    const existing = current.find((item) => item.id === dataset.id);
+    if (!existing) return dataset;
+    const hidden = existing.hidden;
+    Object.assign(existing, dataset);
+    existing.hidden = dataset.id === "trend" ? false : hidden;
+    return existing;
+  });
+  chart.data.datasets = merged;
+}
+
 export function renderTemperatureChart(canvas, analysis, visibility) {
-  const datasets = temperatureDatasets(analysis, visibility);
+  const width = canvas.parentElement ? canvas.parentElement.clientWidth : 600;
+  const datasets = temperatureDatasets(analysis, visibility, width);
   const annotations = temperatureAnnotations(analysis);
 
   if (tempChart) {
-    tempChart.data.datasets = datasets;
+    mergeDatasets(tempChart, datasets);
     tempChart.options.scales.x = yearAxis(analysis.complete);
     tempChart.options.scales.yRain = rainAxis(analysis);
     tempChart.options.plugins.annotation.annotations = annotations;
@@ -223,14 +258,23 @@ export function renderTemperatureChart(canvas, analysis, visibility) {
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      animation: reducedMotion() ? false : { duration: 700, easing: "easeOutCubic" },
+      animation: reducedMotion() ? false : { duration: 650, easing: "easeOutQuart" },
+      transitions: {
+        active: { animation: { duration: 160 } },
+      },
       interaction: { mode: "index", intersect: false },
       spanGaps: false,
+      onHover: (_event, elements) => {
+        const point = elements.find((item) => item.datasetIndex === 0) || elements[0];
+        const year = point ? tempChart.data.datasets[point.datasetIndex].data[point.index].x : null;
+        hoverHandler(year);
+      },
       scales: {
         x: yearAxis(analysis.complete),
         y: {
           grid: { color: GRID },
           border: { display: false },
+          grace: "4%",
           ticks: { callback: (value) => `${formatNumber(value, 0)}°` },
         },
         yRain: rainAxis(analysis),
@@ -242,6 +286,25 @@ export function renderTemperatureChart(canvas, analysis, visibility) {
       },
     },
   });
+  canvas.addEventListener("mouseleave", () => hoverHandler(null));
+}
+
+// Resalta un año desde fuera del gráfico (franjas, tabla) con su tooltip.
+export function highlightYear(year) {
+  if (!tempChart) return;
+  if (year === null) {
+    tempChart.setActiveElements([]);
+    tempChart.tooltip.setActiveElements([], { x: 0, y: 0 });
+    tempChart.update("none");
+    return;
+  }
+  const index = tempChart.data.datasets[0].data.findIndex((point) => point.x === year && point.y !== null);
+  if (index === -1) return;
+  const active = [{ datasetIndex: 0, index }];
+  const element = tempChart.getDatasetMeta(0).data[index];
+  tempChart.setActiveElements(active);
+  tempChart.tooltip.setActiveElements(active, { x: element.x, y: element.y });
+  tempChart.update("none");
 }
 
 export function setSeriesVisibility(id, visible) {

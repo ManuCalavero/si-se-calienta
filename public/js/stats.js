@@ -54,8 +54,20 @@ function compressYears(years) {
 }
 
 // El ano en curso se excluye: su ventana de 15 dias puede estar incompleta o en el futuro.
-export function analyze(result) {
-  const rows = result.data || [];
+// mode "window": media de ±7 días (por defecto). mode "day": solo el día exacto, más ruidoso.
+function rowsForMode(rows, mode) {
+  if (mode !== "day") return rows;
+  return rows.map((row) => ({
+    ...row,
+    tmed: row.day && row.day.tmed !== undefined ? row.day.tmed : null,
+    tmax: row.day && row.day.tmax !== undefined ? row.day.tmax : null,
+    tmin: row.day && row.day.tmin !== undefined ? row.day.tmin : null,
+    prec: row.day && row.day.prec !== undefined ? row.day.prec : null,
+  }));
+}
+
+export function analyze(result, mode = "window") {
+  const rows = rowsForMode(result.data || [], mode);
   const lastCompleteYear = Number(result.endYear) - 1;
   const complete = rows.filter((row) => row.year <= lastCompleteYear);
   const valid = complete.filter((row) => row.tmed !== null);
@@ -97,6 +109,19 @@ export function analyze(result) {
     ? []
     : complete.filter((row) => row.year >= firstYear && row.year <= lastYear && row.tmed === null).map((row) => row.year);
 
+  let warmest = null;
+  for (const row of valid) {
+    if (!warmest || row.tmed > warmest.tmed) warmest = row;
+  }
+
+  // Puesto del último año con dato entre todos los años (1 = el más cálido).
+  let latest = null;
+  if (valid.length >= MIN_YEARS_FOR_TREND) {
+    const last = valid[valid.length - 1];
+    const rank = 1 + valid.filter((row) => row.tmed > last.tmed).length;
+    latest = { year: last.year, tmed: last.tmed, rank, of: valid.length };
+  }
+
   let verdict = "insufficient";
   if (trend) {
     if (trend.t >= 2 && trend.slope > 0) verdict = "warming";
@@ -116,6 +141,9 @@ export function analyze(result) {
     change,
     record,
     anomalies,
+    warmest,
+    latest,
+    mode,
     precipMean: mean(valid.map((row) => row.prec)),
     gaps: compressYears(missingYears),
     missingCount: missingYears.length,
