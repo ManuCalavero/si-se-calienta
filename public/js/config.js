@@ -13,6 +13,10 @@ export const MONTHLY_COSTS = [
 
 export const COFFEE_EUROS = 5;
 
+// Lo que tendría que aportar de media cada visita para cubrir los costes sin poner dinero de mi bolsillo.
+// Es la cifra del botón junto a «Compartir»; el módulo de donación explica por qué conviene aportar más.
+export const VISIT_EUROS = 0.75;
+
 // Estaciones con más historia para empezar con un toque. Solo se muestran las ya descargadas.
 export const QUICK_PICKS = [
   { id: "3195", label: "Madrid" },

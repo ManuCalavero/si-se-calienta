@@ -1,14 +1,18 @@
 :root {
-  /* Interfaz clara (tarjeta blanca, texto #171717) sobre el mapa claro original. */
+  /* Tema claro (por defecto): tarjeta blanca, texto #171717, mapa gris y acción principal en negro. */
   color-scheme: light;
   --paper: #ffffff;
   --ivory: #f5f5f5;
   --beige: #ededed;
-  /* Mapa: fondo mientras cargan las teselas, el mismo crema que les da el filtro. */
-  --map-bg: #f3f5ea;
-  /* Estaciones del mapa: con datos y sin datos. */
+  /* Mapa: filtro de las teselas, fondo mientras cargan y etiquetas. */
+  --map-filter: grayscale(1) brightness(0.96);
+  --map-sea: #c7c7c7;
+  --map-vignette: rgba(199, 199, 199, 0.5);
+  --labels-filter: none;
+  --labels-opacity: 0.75;
+  /* Estaciones del mapa: con datos y sin datos (mismos tonos en map.js). */
   --station: #5a58e3;
-  --station-idle: #cee1f8;
+  --station-idle: #9a9a9a;
   /* Canales RGB para tintes (hover, bordes) y superficies translúcidas (campos, tarjetas). */
   --tint-rgb: 23, 23, 23;
   --surface-rgb: 255, 255, 255;
@@ -18,33 +22,103 @@
   --muted: #6b6b6b;
   --ink: #171717;
   --ink-soft: #3d3d3d;
-  /* Acento morado: #a05ddc como relleno; -ink, más profundo, cuando el acento es texto (6,3:1 sobre blanco). */
+  /* Acción principal: negro sobre blanco. */
+  --primary: #171717;
+  --primary-hover: #000;
+  --on-primary: #fff;
+  /* Acento morado para enlaces, foco y detalles; -ink es la versión de texto (6,3:1 sobre blanco). */
   --accent: #a05ddc;
   --accent-strong: #8a47c8;
   --accent-ink: #7d3fbd;
   --accent-soft: rgba(160, 93, 220, 0.12);
   --on-accent: #fff;
-  /* Datos: rojo para lo cálido, índigo para lo fresco, azul para la lluvia. -ink es la versión de texto. */
-  --warm: #f0563a;
-  --warm-ink: #c23a22;
-  --warm-soft: rgba(240, 86, 58, 0.12);
-  --cool: #5a58e3;
-  --cool-ink: #4a48d0;
-  --cool-soft: rgba(90, 88, 227, 0.12);
-  --rain: #8fbdf0;
+  /* Datos: rojo para lo cálido, azul para lo fresco, turquesa para la lluvia. -ink es la versión de texto. */
+  --warm: #f7394b;
+  --warm-ink: #d41f33;
+  --warm-soft: rgba(247, 57, 75, 0.12);
+  --cool: #029dff;
+  --cool-ink: #006bb8;
+  --cool-soft: rgba(2, 157, 255, 0.12);
+  --rain: #05e1cf;
+  --rain-ink: #00796f;
   --line: rgba(23, 23, 23, 0.08);
   --line-strong: rgba(23, 23, 23, 0.16);
+  --border: rgba(23, 23, 23, 0.08);
   --glass: rgba(255, 255, 255, 0.8);
   --glass-strong: rgba(255, 255, 255, 0.94);
   --sheet: #fff;
-  --shadow: 0 1px 0 rgba(255, 255, 255, 0.7) inset, 0 16px 40px rgba(0, 0, 0, 0.4);
+  /* Las sombras se multiplican por este factor: sobre el mapa oscuro hacen falta más fuertes. */
+  --shadow-strength: 1;
+  --shadow: 0 16px 40px rgba(0, 0, 0, 0.16);
+  /* Módulo de donación: fondo crema y celdas de gastos algo más blancas. */
+  --donate-bg: #fff5dc;
+  /* Botones de aporte: melocotón claro con texto naranja (4,5:1) y el icono algo más vivo. */
+  --kofi-bg: #fff3e6;
+  --kofi-bg-hover: #ffe7cc;
+  --kofi-ink: #b85208;
+  --kofi-icon: #e8711a;
+  --donate-cells: rgba(255, 255, 255, 0.7);
   --radius: 18px;
   --radius-small: 12px;
   --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
   --font: "Google Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  /* Prueba: Mona Sans para los títulos principales (bienvenida, nombre de la estación, compartir). */
+  --font-display: "Mona Sans", "Google Sans", system-ui, sans-serif;
   --gap: 16px;
   --topbar-height: 64px;
 }
+
+:root[data-theme="dark"] {
+  /* Tema oscuro azul marino: mapa en #0d101a, tarjeta en #111727 con borde fino, texto claro. */
+  color-scheme: dark;
+  --paper: #111727;
+  --ivory: #0d1220;
+  --beige: #1a2234;
+  /* El filtro #map-tint de index.html lleva la tierra a #1e283e y el agua a #0d101a. */
+  --map-filter: url(#map-tint);
+  --map-sea: #0d101a;
+  --map-vignette: rgba(13, 16, 26, 0.6);
+  /* Las etiquetas de Esri son oscuras con halo blanco; invertidas quedan claras con halo oscuro. */
+  --labels-filter: invert(1);
+  --labels-opacity: 0.8;
+  --station: #8583ff;
+  --station-idle: #cee1f8;
+  --tint-rgb: 226, 232, 240;
+  --surface-rgb: 26, 34, 52;
+  --surface: #161e30;
+  --stone: #2a3448;
+  --grey: #6b7588;
+  --muted: #8d97a8;
+  --ink: #e6eaf2;
+  --ink-soft: #b8c0cf;
+  --primary: #a05ddc;
+  --primary-hover: #b271ea;
+  --on-primary: #fff;
+  --accent: #a05ddc;
+  --accent-strong: #b271ea;
+  --accent-ink: #c39bf0;
+  --accent-soft: rgba(160, 93, 220, 0.18);
+  --warm-ink: #ff5c6b;
+  --warm-soft: rgba(247, 57, 75, 0.16);
+  --cool-ink: #029dff;
+  --cool-soft: rgba(2, 157, 255, 0.16);
+  --rain-ink: #05e1cf;
+  --line: rgba(148, 163, 184, 0.14);
+  --line-strong: rgba(148, 163, 184, 0.26);
+  --border: #243146;
+  --glass: rgba(17, 23, 39, 0.8);
+  --glass-strong: rgba(17, 23, 39, 0.94);
+  --sheet: #111727;
+  --shadow-strength: 2.2;
+  --shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+  --donate-bg: rgba(255, 214, 102, 0.08);
+  --kofi-bg: rgba(255, 140, 40, 0.14);
+  --kofi-bg-hover: rgba(255, 140, 40, 0.22);
+  --kofi-ink: #ffa25c;
+  --kofi-icon: #ff8a3d;
+  --donate-cells: rgba(255, 255, 255, 0.04);
+}
+
 
 * {
   box-sizing: border-box;
@@ -58,7 +132,7 @@ body {
 body {
   margin: 0;
   overflow: hidden;
-  background: var(--map-bg);
+  background: var(--map-sea);
   color: var(--ink);
   font-family: var(--font);
   font-size: 14px;
@@ -97,15 +171,16 @@ input {
   position: fixed;
   inset: 0;
   z-index: 0;
-  background: var(--map-bg);
+  background: var(--map-sea);
 }
 
 .map .leaflet-tile-pane {
-  filter: sepia(0.12) hue-rotate(28deg) saturate(0.75) brightness(1.03) contrast(0.95);
+  filter: var(--map-filter);
 }
 
 .map .leaflet-labels-pane {
-  opacity: 0.7;
+  filter: var(--labels-filter);
+  opacity: var(--labels-opacity);
 }
 
 .map::after {
@@ -114,7 +189,7 @@ input {
   inset: 0;
   z-index: 500;
   pointer-events: none;
-  background: radial-gradient(ellipse at center, transparent 55%, rgba(231, 236, 217, 0.6) 100%);
+  background: radial-gradient(ellipse at center, transparent 55%, var(--map-vignette) 100%);
 }
 
 .leaflet-container {
@@ -211,6 +286,10 @@ input {
 /* La barra no tiene caja propia: sus piezas se colocan en la rejilla de .home. */
 .topbar {
   display: contents;
+  padding: 4px 8px;
+  background: var(--ivory);
+  border: 1px solid red;
+
 }
 
 .brand {
@@ -260,14 +339,14 @@ input {
   border-radius: 8px;
   background: linear-gradient(
     90deg,
-    #5a58e3 0 12.5%,
-    #8583ea 12.5% 25%,
-    #b6b5f3 25% 37.5%,
+    #029dff 0 12.5%,
+    #4db9ff 12.5% 25%,
+    #9ad6ff 25% 37.5%,
     #efefef 37.5% 50%,
-    #f6c4b6 50% 62.5%,
-    #f4977f 62.5% 75%,
-    #f2735a 75% 87.5%,
-    #f0563a 87.5%
+    #fbb3ba 50% 62.5%,
+    #f9808b 62.5% 75%,
+    #f85c6a 75% 87.5%,
+    #f7394b 87.5%
   );
   box-shadow: inset 0 0 0 1px rgba(var(--tint-rgb), 0.15);
 }
@@ -306,8 +385,8 @@ input {
   display: inline-block;
   padding: 1px 6px;
   border-radius: 999px;
-  background: rgba(var(--tint-rgb), 0.07);
-  color: var(--muted);
+  background-color: var(--ink);
+  color: var(--paper);
   font-size: 0.62rem;
   font-weight: 600;
   letter-spacing: 0.08em;
@@ -522,13 +601,13 @@ input {
 }
 
 .btn-primary {
-  background: var(--accent);
-  color: var(--on-accent);
+  background: var(--primary);
+  color: var(--on-primary);
 }
 
 .btn-primary:hover {
-  background: var(--accent-strong);
-  box-shadow: 0 6px 16px rgba(134, 179, 11, 0.35);
+  background: var(--primary-hover);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, calc(0.16 * var(--shadow-strength)));
 }
 
 .btn-primary:disabled {
@@ -605,10 +684,11 @@ input {
 
 .welcome-head h1 {
   margin: 0 0 8px;
-  font-size: 1.95rem;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  line-height: 1.1;
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.08;
 }
 
 .welcome-text {
@@ -619,6 +699,7 @@ input {
 .welcome-actions {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   gap: 8px;
 }
 
@@ -659,7 +740,6 @@ input {
   display: flex;
   flex-direction: column;
   min-height: 0;
-  border-top: 1px solid var(--line);
 }
 
 .sheet-handle {
@@ -673,7 +753,6 @@ input {
   gap: 12px;
   min-width: 0;
   padding: 20px 22px 14px;
-  border-bottom: 1px solid var(--line);
 }
 
 .panel-heading {
@@ -682,46 +761,96 @@ input {
 
 .panel-header h2 {
   margin: 0;
-  font-size: 1.7rem;
-  font-weight: 600;
-  letter-spacing: -0.015em;
-  line-height: 1.15;
+  font-family: var(--font-display);
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.12;
+}
+
+/* Bajo el nombre, en una línea: badge de la estación y cómo se calcula el dato. */
+.panel-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  margin-top: 8px;
+}
+
+.panel-meta .panel-sub {
+  margin: 0;
+}
+
+/* Código y provincia de la estación: badge gris que abre los datos de la estación. */
+.station-info {
+  position: relative;
+  z-index: 5;
+}
+
+.station-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 24px;
+  border: 0;
+  cursor: pointer;
+  transition: background 0.2s var(--ease), color 0.2s var(--ease);
+  flex-shrink: 0;
+  margin: 0;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: rgba(var(--tint-rgb), 0.07);
+  color: var(--ink-soft);
+  font-size: 11.5px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.station-badge:hover {
+  background: rgba(var(--tint-rgb), 0.12);
+  color: var(--ink);
+}
+
+.station-badge[aria-expanded="true"] {
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+}
+
+.station-badge svg {
+  width: 13px;
+  height: 13px;
+  margin-right: -2px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 0.25s var(--ease);
+}
+
+.station-badge[aria-expanded="true"] svg {
+  transform: rotate(180deg);
+}
+
+.station-warn {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #f4b011;
+}
+
+/* Se abre hacia abajo desde la badge, alineado a su izquierda y algo más ancho que el de la toolbar. */
+.popover.station-pop {
+  left: 0;
+  right: auto;
+  width: min(460px, calc(100vw - 32px));
+  transform-origin: top left;
 }
 
 .panel-sub {
   margin: 4px 0 0;
   color: var(--muted);
   font-size: 12px;
-}
-
-.panel-actions {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-shrink: 0;
-}
-
-.chip {
-  padding: 5px 10px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-.chip-warm {
-  background: var(--warm-soft);
-  color: var(--warm-ink);
-}
-
-.chip-cool {
-  background: var(--cool-soft);
-  color: var(--cool-ink);
-}
-
-.chip-neutral {
-  background: rgba(var(--tint-rgb), 0.07);
-  color: var(--ink-soft);
 }
 
 .panel-progress {
@@ -793,9 +922,8 @@ input {
 .kpis {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(118px, 1fr));
-  border: 1px solid var(--line);
   border-radius: var(--radius-small);
-  background: rgba(var(--surface-rgb), 0.55);
+  background: var(--ivory);
   overflow: hidden;
 }
 
@@ -803,7 +931,6 @@ input {
   display: grid;
   gap: 2px;
   padding: 12px 14px;
-  border-right: 1px solid var(--line);
   animation: rise 0.45s var(--ease) both;
 }
 
@@ -833,7 +960,7 @@ input {
 
 .kpi-label {
   color: var(--muted);
-  font-size: 0.68rem;
+  font-size: 0.6rem;
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -934,19 +1061,47 @@ input {
   gap: 6px;
   height: 26px;
   padding: 0 10px;
-  border: 1px solid var(--line-strong);
+  border: 0;
   border-radius: 999px;
-  background: transparent;
+  background: rgba(var(--tint-rgb), 0.05);
   color: var(--muted);
   font-size: 12px;
   cursor: pointer;
   transition: all 0.2s var(--ease);
 }
 
+/* Cada serie con su color: fondo tintado y texto del mismo tono, sin borde. Apagada, vuelve al gris. */
+.series-toggles button[data-series="tmax"] {
+  --series-rgb: 247, 57, 75;
+  --series-ink: var(--warm-ink);
+}
+
+.series-toggles button[data-series="tmin"] {
+  --series-rgb: 2, 157, 255;
+  --series-ink: var(--cool-ink);
+}
+
+.series-toggles button[data-series="prec"] {
+  --series-rgb: 5, 225, 207;
+  --series-ink: var(--rain-ink);
+}
+
 .series-toggles button[aria-pressed="true"] {
-  border-color: var(--ink-soft);
-  background: var(--surface);
-  color: var(--ink);
+  background: rgba(var(--series-rgb), 0.14);
+  color: var(--series-ink);
+}
+
+.series-toggles button[aria-pressed="true"]:hover {
+  background: rgba(var(--series-rgb), 0.2);
+}
+
+.series-toggles button[aria-pressed="false"]:hover {
+  background: rgba(var(--tint-rgb), 0.09);
+  color: var(--ink-soft);
+}
+
+.series-toggles button[aria-pressed="false"] .swatch {
+  opacity: 0.4;
 }
 
 .swatch {
@@ -974,57 +1129,10 @@ input {
   height: clamp(300px, 42vh, 420px);
 }
 
-.facts {
-  padding: 0;
-}
-
-.facts summary {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 16px;
-  list-style: none;
-  cursor: pointer;
-  color: var(--ink-soft);
-  font-size: 0.78rem;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-
-.facts summary::-webkit-details-marker {
-  display: none;
-}
-
-.facts summary:hover {
-  color: var(--accent-ink);
-}
-
-.facts summary svg {
-  width: 16px;
-  height: 16px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.8;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  transition: transform 0.25s var(--ease);
-}
-
-.facts[open] summary svg {
-  transform: rotate(180deg);
-}
-
 .facts-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 4px 28px;
-  padding: 2px 16px 6px;
-  animation: rise 0.3s var(--ease);
-}
-
-.facts-grid h3 {
-  margin-bottom: 8px;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 4px 24px;
 }
 
 .fact-list {
@@ -1113,7 +1221,7 @@ td {
   border-radius: var(--radius-small);
   background: var(--paper);
   color: var(--ink);
-  box-shadow: 0 16px 40px rgba(var(--tint-rgb), 0.2);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, calc(0.2 * var(--shadow-strength)));
   transform: translateX(-50%);
   cursor: pointer;
   animation: toast-in 0.3s var(--ease);
@@ -1329,6 +1437,9 @@ td {
 
 .day-label {
   display: inline-flex;
+  flex: 1;
+  justify-content: center;
+  min-width: 0;
   align-items: center;
   gap: 8px;
   height: 34px;
@@ -1431,6 +1542,8 @@ td {
 }
 
 .today-btn {
+  flex-shrink: 0;
+  white-space: nowrap;
   height: 28px;
   margin: 0 3px 0 4px;
   padding: 0 10px;
@@ -1470,6 +1583,55 @@ td {
 .today-btn.is-today:hover {
   background: var(--accent-soft);
   color: var(--accent-ink);
+}
+
+/* ---------- Tema ---------- */
+
+/* Botón flotante sobre el mapa, arriba a la izquierda: queda libre en escritorio y en móvil. */
+.theme-toggle {
+  position: fixed;
+  top: calc(var(--gap) + env(safe-area-inset-top, 0px));
+  left: var(--gap);
+  z-index: 12;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--glass-strong);
+  color: var(--ink);
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  transition: border-color 0.2s var(--ease), transform 0.2s var(--ease);
+}
+
+.theme-toggle:hover {
+  border-color: var(--line-strong);
+  transform: rotate(-12deg);
+}
+
+.theme-toggle svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* En claro se ofrece la luna (pasar a oscuro); en oscuro, el sol. */
+.theme-toggle .icon-sun,
+:root[data-theme="dark"] .theme-toggle .icon-moon {
+  display: none;
+}
+
+:root[data-theme="dark"] .theme-toggle .icon-sun {
+  display: block;
 }
 
 /* ---------- Atribución ---------- */
@@ -1517,6 +1679,19 @@ td {
   stroke-linejoin: round;
 }
 
+/* Usar mi ubicación: más compacto que un botón principal normal, para que no compita con los campos. */
+#locate-btn {
+  height: 34px;
+  padding: 0 12px;
+  font-size: 13px;
+}
+
+#locate-btn svg {
+  width: 14px;
+  height: 14px;
+  margin-right: 5px;
+}
+
 .btn.is-busy svg {
   animation: spin 1.2s linear infinite;
 }
@@ -1531,6 +1706,7 @@ td {
   display: grid;
   gap: 8px;
   margin-top: 14px;
+  text-align: center;
 }
 
 .quick-picks > span {
@@ -1542,6 +1718,7 @@ td {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
+  justify-content: center;
 }
 
 .chip-btn {
@@ -1572,37 +1749,51 @@ td {
   transform: translateY(-1px);
 }
 
+/* Aviso: fondo tintado en rojo, sin borde, icono de alerta y la idea clave en negrita. */
 .disclaimer {
   display: flex;
-  gap: 10px;
+  gap: 12px;
   margin: 16px 0 0;
-  padding: 12px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-small);
-  background: var(--ivory);
+  padding: 16px 18px;
+  border-radius: 14px;
+  background: var(--warm-soft);
   color: var(--ink-soft);
-  font-size: 12.5px;
-  line-height: 1.45;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.disclaimer strong {
+  color: var(--ink);
+  font-weight: 600;
 }
 
 .disclaimer svg {
   flex-shrink: 0;
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   margin-top: 1px;
   fill: none;
-  stroke: var(--accent-ink);
+  stroke: var(--warm-ink);
   stroke-width: 1.7;
   stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
-.disclaimer a,
+.disclaimer a {
+  color: var(--ink);
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: rgba(var(--tint-rgb), 0.3);
+  text-underline-offset: 2px;
+  transition: text-decoration-color 0.2s;
+}
+
 .welcome-source a,
 .popover a {
   color: var(--accent-ink);
   font-weight: 600;
   text-decoration: underline;
-  text-decoration-color: rgba(77, 107, 0, 0.35);
+  text-decoration-color: rgba(var(--tint-rgb), 0.25);
   text-underline-offset: 2px;
   transition: text-decoration-color 0.2s;
 }
@@ -1692,20 +1883,6 @@ body.welcome-open .dock {
   padding-bottom: 8px;
 }
 
-.chip {
-  transition: background 0.3s var(--ease), color 0.3s var(--ease);
-}
-
-.chip-pop {
-  animation: chip-pop 0.45s var(--ease);
-}
-
-@keyframes chip-pop {
-  40% {
-    transform: scale(1.08);
-  }
-}
-
 .rigor {
   position: relative;
 }
@@ -1725,7 +1902,7 @@ body.welcome-open .dock {
   border: 1px solid var(--line);
   border-radius: var(--radius-small);
   background: var(--paper);
-  box-shadow: 0 18px 44px rgba(var(--tint-rgb), 0.2);
+  box-shadow: 0 18px 44px rgba(0, 0, 0, calc(0.2 * var(--shadow-strength)));
   font-size: 12.5px;
   line-height: 1.45;
   animation: pop-in 0.22s var(--ease);
@@ -1874,6 +2051,34 @@ body.welcome-open .dock {
   background: var(--glass-strong);
 }
 
+.foot-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Aporte: pastilla pequeña junto a «Compartir»; los colores, con .btn-coffee más abajo. */
+.donate-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 30px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 999px;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  transition: background 0.2s var(--ease), color 0.2s var(--ease);
+}
+
+.donate-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
 .foot-attribution {
   color: var(--muted);
   font-size: 11.5px;
@@ -1892,6 +2097,28 @@ body.has-selection .attribution {
 
 .panel-foot .btn {
   border-radius: 999px;
+}
+
+/* Compartir: mismo estilo que la pastilla «Hoy» (fondo morado suave, texto morado). */
+#share-btn {
+  height: 30px;
+  padding: 0 12px;
+  border: 0;
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+  font-size: 12.5px;
+  font-weight: 600;
+  box-shadow: none;
+}
+
+#share-btn:hover:not(:disabled) {
+  background: rgba(160, 93, 220, 0.22);
+}
+
+#share-btn svg {
+  width: 14px;
+  height: 14px;
+  margin-right: 5px;
 }
 
 .btn:disabled {
@@ -1988,7 +2215,7 @@ body.has-selection .attribution {
   width: calc(50% - 3px);
   border-radius: 8px;
   background: var(--surface);
-  box-shadow: 0 1px 3px rgba(var(--tint-rgb), 0.14);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, calc(0.14 * var(--shadow-strength)));
   transition: transform 0.3s var(--ease);
 }
 
@@ -2066,88 +2293,13 @@ body.has-selection .attribution {
   color: var(--cool-ink);
 }
 
-/* ---------- Llamada a compartir ---------- */
-
-.share-cta {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  width: 100%;
-  padding: 12px 14px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-small);
-  background: linear-gradient(110deg, rgba(var(--surface-rgb), 0.75), var(--accent-soft));
-  text-align: left;
-  cursor: pointer;
-  transition: border-color 0.2s var(--ease), transform 0.2s var(--ease), box-shadow 0.2s var(--ease);
-}
-
-.share-cta:hover:not(:disabled) {
-  border-color: var(--accent-ink);
-  box-shadow: 0 8px 20px rgba(var(--tint-rgb), 0.1);
-}
-
-.share-cta:hover:not(:disabled) .share-cta-thumb {
-  transform: rotate(-4deg) translateY(-2px);
-}
-
-.share-cta:hover:not(:disabled) > svg {
-  transform: translateX(3px);
-}
-
-.share-cta:disabled {
-  opacity: 0.5;
-  cursor: default;
-}
-
-.share-cta-thumb {
-  position: relative;
-  flex-shrink: 0;
-  width: 44px;
-  height: 44px;
-  padding: 6px;
-  border: 1px solid var(--line);
-  border-radius: 9px;
-  background: var(--paper);
-  box-shadow: 0 2px 6px rgba(var(--tint-rgb), 0.1);
-  transition: transform 0.3s var(--ease);
-}
-
-.share-cta-thumb span {
-  display: block;
-  height: 100%;
-  border-radius: 4px;
-  background: linear-gradient(90deg, #5a58e3 0 14%, #b6b5f3 14% 28%, #efefef 28% 43%, #f6c4b6 43% 57%, #f4977f 57% 71%, #f2735a 71% 86%, #f0563a 86%);
-}
-
-.share-cta-text {
-  display: grid;
-  flex: 1;
-  gap: 2px;
-}
-
-.share-cta-text span {
-  color: var(--muted);
-  font-size: 12px;
-}
-
-.share-cta > svg {
-  width: 18px;
-  height: 18px;
-  fill: none;
-  stroke: var(--accent-ink);
-  stroke-width: 2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  transition: transform 0.2s var(--ease);
-}
-
 /* ---------- Donación ---------- */
 
 .donate {
   display: grid;
   gap: 12px;
-  background: linear-gradient(160deg, rgba(var(--surface-rgb), 0.7), var(--ivory));
+  border-color: transparent;
+  background: var(--donate-bg);
 }
 
 .donate-head {
@@ -2162,111 +2314,46 @@ body.has-selection .attribution {
   font-size: 13px;
 }
 
-.cup {
-  position: relative;
-  flex-shrink: 0;
-  display: grid;
-  place-items: center;
-  width: 42px;
-  height: 42px;
-  border-radius: 12px;
-  background: #fff3c4;
-}
-
-.cup svg {
-  width: 26px;
-  height: 26px;
-  fill: none;
-  stroke: #6b4a12;
-  stroke-width: 2;
-  stroke-linejoin: round;
-}
-
-.steam {
-  position: absolute;
-  top: 2px;
-  left: 13px;
-  display: flex;
-  gap: 3px;
-}
-
-.steam i {
-  width: 2px;
-  height: 7px;
-  border-radius: 2px;
-  background: rgba(107, 74, 18, 0.35);
-  opacity: 0;
-}
-
-.donate:hover .steam i {
-  animation: steam 1.6s ease-in-out infinite;
-}
-
-.steam i:nth-child(2) {
-  animation-delay: 0.25s !important;
-}
-
-.steam i:nth-child(3) {
-  animation-delay: 0.5s !important;
-}
-
-@keyframes steam {
-  0% {
-    opacity: 0;
-    transform: translateY(4px);
-  }
-  50% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-    transform: translateY(-5px);
-  }
-}
-
-.cost-bar {
-  display: flex;
-  gap: 2px;
-  height: 8px;
-  border-radius: 999px;
-  overflow: hidden;
-}
-
-.cost-bar span {
-  flex-basis: 0;
-  min-width: 4px;
-}
-
+/* Gastos como barra de KPIs en horizontal: una celda por concepto, separadas por líneas finas. */
 .cost-list {
   display: grid;
-  gap: 6px;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   margin: 0;
   padding: 0;
+  border-radius: var(--radius-small);
+  background: var(--donate-cells);
   list-style: none;
-  font-size: 12.5px;
+  overflow: hidden;
 }
 
 .cost-list li {
   display: grid;
-  grid-template-columns: auto 1fr auto;
-  align-items: baseline;
-  gap: 8px;
+  gap: 2px;
+  padding: 12px 14px;
 }
 
-.cost-list small {
-  margin-left: 6px;
+.cost-list li + li {
+  border-left: 1px solid var(--line);
+}
+
+.cost-label {
   color: var(--muted);
-}
-
-.cost-list strong {
+  font-size: 0.6rem;
   font-weight: 600;
-  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
-.cost-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 2px;
+.cost-value {
+  font-size: 1.25rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.cost-detail {
+  color: var(--muted);
+  font-size: 11px;
 }
 
 .donate-foot {
@@ -2276,21 +2363,64 @@ body.has-selection .attribution {
   gap: 8px 14px;
 }
 
+/* Botón de aporte del módulo: la acción principal (negro en claro), en pastilla y con icono de moneda. */
 .btn-coffee {
-  background: #ffdd00;
-  color: #1f1a00;
+  border-radius: 999px;
+  font-weight: 600;
   text-decoration: none;
 }
 
-.btn-coffee:hover {
-  background: #ffd000;
-  box-shadow: 0 6px 16px rgba(255, 208, 0, 0.4);
-  transform: translateY(-1px);
+/* «0,75 €» del pie: fondo melocotón, texto naranja y moneda. */
+.donate-btn {
+  border: 0;
+  border-radius: 999px;
+  background: var(--kofi-bg);
+  color: var(--kofi-ink);
+  font-weight: 600;
+}
+
+.donate-btn:hover {
+  background: var(--kofi-bg-hover);
+}
+
+.btn-coffee svg,
+.donate-btn svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.donate-btn svg {
+  stroke: var(--kofi-icon);
 }
 
 .donate-eq {
   color: var(--muted);
   font-size: 12px;
+}
+
+.donate-visit {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+/* Al llegar desde el botón de la cantidad, el módulo se ilumina un instante. */
+.donate.is-flash {
+  animation: donate-flash 1.4s var(--ease);
+}
+
+@keyframes donate-flash {
+  0%,
+  40% {
+    box-shadow: 0 0 0 3px var(--accent-soft);
+    border-color: var(--accent-ink);
+  }
 }
 
 /* ---------- Tabla ---------- */
@@ -2345,7 +2475,7 @@ body.has-selection .attribution {
 
 #results-table tbody tr:hover,
 #results-table tbody tr:hover th {
-  background: #f6f8ee;
+  background: rgba(var(--tint-rgb), 0.05);
 }
 
 .col-anomaly {
@@ -2436,7 +2566,7 @@ tr.is-coldest th::after {
   border-radius: var(--radius);
   background: var(--paper);
   color: var(--ink);
-  box-shadow: 0 30px 80px rgba(var(--tint-rgb), 0.3);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, calc(0.25 * var(--shadow-strength)));
 }
 
 .share-dialog[open] {
@@ -2471,7 +2601,8 @@ tr.is-coldest th::after {
 
 .share-header h2 {
   margin: 0;
-  font-size: 1.4rem;
+  font-family: var(--font-display);
+  font-size: 1.45rem;
   font-weight: 600;
   letter-spacing: -0.01em;
 }
@@ -2519,7 +2650,7 @@ tr.is-coldest th::after {
   width: auto;
   height: auto;
   border-radius: 10px;
-  box-shadow: 0 10px 30px rgba(var(--tint-rgb), 0.18);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, calc(0.18 * var(--shadow-strength)));
 }
 
 .share-canvas.is-swapping {
@@ -2630,16 +2761,18 @@ tr.is-coldest th::after {
     padding: 8px 16px calc(8px + env(safe-area-inset-bottom, 0px));
   }
 
-  .panel-actions .chip {
-    font-size: 11px;
-  }
-
   .popover {
     position: fixed;
     top: auto;
     left: 12px;
     right: 12px;
     bottom: calc(70dvh - 40px);
+    width: auto;
+  }
+
+  .popover.station-pop {
+    left: 12px;
+    right: 12px;
     width: auto;
   }
 
@@ -2708,7 +2841,7 @@ tr.is-coldest th::after {
   grid-area: brand;
 }
 
-.back-btn {
+.toolbar {
   grid-area: back;
 }
 
@@ -2746,12 +2879,12 @@ tr.is-coldest th::after {
 
 .welcome-head,
 .welcome-foot,
-.back-btn {
+.toolbar {
   display: none;
 }
 
-body.has-selection .back-btn {
-  display: inline-flex;
+body.has-selection .toolbar {
+  display: flex;
 }
 
 body:not(.has-selection) .panel {
@@ -2766,11 +2899,11 @@ body:not(.has-selection) .panel {
 body.welcome-open .home,
 body.has-selection .home {
   --pad-x: 22px;
-  border-color: transparent;
+  border-color: var(--border);
   background: var(--sheet);
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+  box-shadow: var(--shadow);
 }
 
 body.welcome-open .home::before,
@@ -2780,18 +2913,18 @@ body.has-selection .home::before {
   grid-column: 1 / -1;
   align-self: stretch;
   margin: -14px calc(-1 * var(--pad-x)) -7px;
-  border-bottom: 1px solid var(--line);
 }
 
 /* Estación elegida: el panel ocupa toda la altura y el resultado llena lo que queda bajo la barra. */
 body.has-selection .home {
   bottom: calc(var(--gap) + env(safe-area-inset-bottom, 0px));
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  /* Dos columnas iguales: buscador y día miden lo mismo. */
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   grid-template-rows: auto auto minmax(0, 1fr);
   grid-template-areas:
-    "brand pill back"
-    "search search day"
-    "panel panel panel";
+    "brand back"
+    "search day"
+    "panel panel";
   gap: 14px;
   padding: 14px var(--pad-x) 0;
   /* clip y no hidden: el foco o scrollIntoView dentro del panel no deben desplazar la caja entera. */
@@ -2835,22 +2968,43 @@ body.has-selection .panel-header {
   padding-top: 14px;
 }
 
+/* La pastilla de descarga en segundo plano, cuando aparece, ocupa su propia fila bajo la marca. */
+@media (min-width: 761px) {
+  body.has-selection .home:has(.bg-pill:not([hidden])) {
+    grid-template-rows: auto auto auto minmax(0, 1fr);
+    grid-template-areas:
+      "brand back"
+      "pill pill"
+      "search day"
+      "panel panel";
+  }
+
+  body.welcome-open .home:has(.bg-pill:not([hidden])) {
+    grid-template-rows: auto auto auto auto 1fr;
+    grid-template-areas:
+      "brand brand"
+      "pill pill"
+      "head head"
+      "search day"
+      "foot foot";
+  }
+}
+
 /* Tarjeta abierta */
 body.welcome-open .home {
-  grid-template-columns: minmax(0, 1fr) auto auto;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   grid-template-areas:
-    "brand brand pill"
-    "head head head"
-    "search day day"
-    "hint hint hint"
-    "foot foot foot";
+    "brand brand"
+    "head head"
+    "search day"
+    "foot foot";
   gap: 14px 10px;
   width: 560px;
   padding: 14px var(--pad-x) var(--pad-x);
   max-height: calc(100dvh - 2 * var(--gap) - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
   overflow-y: auto;
   /* La última fila absorbe el alto sobrante para que la caja blanca llegue abajo sin abrir huecos entre filas. */
-  grid-template-rows: auto auto auto auto 1fr;
+  grid-template-rows: auto auto auto 1fr;
   align-content: start;
   overscroll-behavior: contain;
   scrollbar-width: thin;
@@ -2866,6 +3020,7 @@ body.welcome-open .welcome-foot {
   display: flex;
   flex-direction: column;
   align-self: stretch;
+  margin-top: -4px;
 }
 
 body.welcome-open .welcome-foot .disclaimer {
@@ -2889,7 +3044,7 @@ body.welcome-open {
 }
 
 body.welcome-open .day-nav {
-  justify-self: start;
+  justify-self: stretch;
 }
 
 /* Buscador y día comparten fila: el atajo de teclado le quitaría sitio al texto de ayuda. */
@@ -2953,9 +3108,52 @@ body.welcome-open .brand-help {
   margin-top: 16px;
 }
 
-/* Volver: botón discreto en la cabecera, a la derecha de la marca. */
-.back-btn {
+/*
+ * Toolbar del resultado, a la derecha de la marca: info y ampliar como iconos sin caja,
+ * una línea fina y «Volver» con texto. Todo a 32px de alto para que lea como una sola pieza.
+ */
+.toolbar {
   justify-self: end;
+  align-items: center;
+  gap: 2px;
+}
+
+.toolbar .icon-btn {
+  width: 32px;
+  height: 32px;
+  border-color: transparent;
+  border-radius: var(--radius-small);
+  background: transparent;
+  color: var(--ink-soft);
+}
+
+.toolbar .icon-btn svg {
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
+}
+
+.toolbar .icon-btn:hover {
+  border-color: transparent;
+  background: rgba(var(--tint-rgb), 0.06);
+  color: var(--ink);
+}
+
+.toolbar .icon-btn[aria-expanded="true"] {
+  border-color: transparent;
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+}
+
+.toolbar-divider {
+  width: 1px;
+  height: 18px;
+  margin: 0 6px;
+  background: var(--line-strong);
+}
+
+.back-btn {
+  display: inline-flex;
   align-items: center;
   gap: 4px;
   height: 32px;
@@ -3027,7 +3225,6 @@ body.welcome-open .brand-help {
       "head head"
       "search search"
       "day day"
-      "hint hint"
       "foot foot";
     gap: 10px;
     max-height: 76dvh;
@@ -3092,9 +3289,24 @@ body.welcome-open .brand-help {
     border-radius: 0;
   }
 
-  body.has-selection .back-btn {
+  /* En la hoja la toolbar comparte fila con el día: Volver primero, a la izquierda. */
+  body.has-selection .toolbar {
     justify-self: start;
+    gap: 4px;
+  }
+
+  body.has-selection .back-btn {
+    order: -1;
     border-color: var(--line-strong);
+  }
+
+  .toolbar-divider {
+    display: none;
+  }
+
+  .toolbar .icon-btn {
+    width: 36px;
+    height: 40px;
   }
 
   body.has-selection .panel-header {
@@ -3126,7 +3338,7 @@ html.is-morphing .brand {
   view-transition-name: home-brand;
 }
 
-html.is-morphing .back-btn {
+html.is-morphing .toolbar {
   view-transition-name: home-back;
 }
 

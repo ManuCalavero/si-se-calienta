@@ -4,7 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
-    <meta name="theme-color" content="#f3f5ea" />
+    <meta name="theme-color" content="#c7c7c7" />
+    <script src="js/theme-init.js"></script>
     <title>Si se calienta · ¿Hace más calor que antes?</title>
     <meta name="description" content="Compara la temperatura de un día con ese mismo día en todos los años con registro en las estaciones de AEMET." />
     <meta property="og:title" content="Si se calienta · ¿Hace más calor que antes?" />
@@ -14,7 +15,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&family=Mona+Sans:wght@500..800&display=swap"
       rel="stylesheet"
     />
     <link
@@ -27,6 +28,18 @@
   </head>
   <body>
     <div id="map" class="map" role="application" aria-label="Mapa de estaciones de AEMET"></div>
+    <!-- Tiñe las teselas grises: la tierra (#eeeeee) queda en #1e283e (--map-land) y el agua en #0d101a (--map-sea). -->
+    <svg width="0" height="0" style="position: absolute" aria-hidden="true">
+      <filter id="map-tint" color-interpolation-filters="sRGB">
+        <feColorMatrix
+          type="matrix"
+          values="0.1163 0.3911 0.0395 0 -0.3928
+                  0.1641 0.5522 0.0557 0 -0.5637
+                  0.2462 0.8283 0.0836 0 -0.8377
+                  0      0      0      1 0"
+        />
+      </filter>
+    </svg>
     <!-- Inicio: barra, bienvenida y resultado son el mismo objeto. Al elegir estación, la barra queda arriba y el resultado debajo. -->
     <aside id="home" class="home glass" aria-label="Si se calienta">
       <button id="sheet-handle" class="sheet-handle" type="button" aria-label="Ampliar panel"><span></span></button>
@@ -35,15 +48,40 @@
         <button id="about-btn" class="brand" type="button" aria-label="Si se calienta. Ver cómo funciona" aria-controls="welcome" aria-expanded="true">
           <span class="brand-mark" aria-hidden="true"></span>
           <span class="brand-text">
-            <strong><span class="brand-name">Si se calienta</span> <span class="beta-tag">BETA</span></strong>
+            <strong><span class="brand-name">secalienta.com</span> <span class="beta-tag">BETA</span></strong>
             <span class="brand-help">Cómo funciona</span>
           </span>
         </button>
 
-        <button id="back-btn" class="back-btn" type="button" aria-label="Volver al inicio" tabindex="-1">
-          <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m12 5-5 5 5 5" /></svg>
-          <span>Volver</span>
-        </button>
+        <!-- Toolbar del resultado: información, ampliar y volver. Solo aparece con una estación elegida. -->
+        <div class="toolbar" role="group" aria-label="Acciones del análisis">
+          <div class="rigor">
+            <button id="rigor-btn" class="icon-btn" type="button" aria-label="Cómo leer estos datos" aria-expanded="false" aria-controls="rigor-pop">
+              <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7.5" /><path d="M10 9v5M10 6.2v.1" /></svg>
+            </button>
+            <div id="rigor-pop" class="popover" role="dialog" aria-label="Cómo leer estos datos" hidden>
+              <h4>Cómo leer estos datos</h4>
+              <ul>
+                <li id="rigor-window"></li>
+                <li>Una estación mide su entorno: los traslados, los cambios de instrumento o el crecimiento de la ciudad también mueven los datos.</li>
+                <li>
+                  <strong>Un solo día no mide el cambio climático.</strong> Para conclusiones sobre el clima, consulta
+                  <a data-link="aemetClimate" target="_blank" rel="noopener noreferrer">AEMET</a>,
+                  <a data-link="copernicus" target="_blank" rel="noopener noreferrer">Copernicus</a> o el
+                  <a data-link="ipcc" target="_blank" rel="noopener noreferrer">IPCC</a>.
+                </li>
+              </ul>
+            </div>
+          </div>
+          <button id="expand-btn" class="icon-btn" type="button" aria-label="Ampliar análisis" aria-expanded="false">
+            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M12 3h5v5M8 17H3v-5M17 3l-6 6M3 17l6-6" /></svg>
+          </button>
+          <span class="toolbar-divider" aria-hidden="true"></span>
+          <button id="back-btn" class="back-btn" type="button" aria-label="Volver al inicio" tabindex="-1">
+            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m12 5-5 5 5 5" /></svg>
+            <span>Volver</span>
+          </button>
+        </div>
 
         <div class="search">
           <svg class="search-icon" viewBox="0 0 20 20" aria-hidden="true"><circle cx="9" cy="9" r="6" /><path d="m14 14 4 4" /></svg>
@@ -87,7 +125,7 @@
       <div id="welcome" class="welcome-head">
         <img
           class="welcome-image"
-          src="img/bienvenida.jpg"
+          src="img/comparador-temperaturas-españa.png"
           width="800"
           height="446"
           alt="Ilustración: un niño ante colinas verdes y un adulto en el mismo paisaje, ya seco y labrado bajo un cielo rosado"
@@ -113,7 +151,7 @@
           <div id="quick-picks" class="chips"></div>
         </div>
         <p class="disclaimer">
-          <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7.5" /><path d="M10 9v5M10 6.2v.1" /></svg>
+          <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M8.7 3.3 2.2 14.8A1.5 1.5 0 0 0 3.5 17h13a1.5 1.5 0 0 0 1.3-2.2L11.3 3.3a1.5 1.5 0 0 0-2.6 0Z" /><path d="M10 8v3.5M10 14.2v.1" /></svg>
           <span>
             <strong>Un día no es el clima.</strong> Un solo día no mide el cambio climático: hacen falta décadas y miles
             de estaciones. Para eso, consulta
@@ -131,34 +169,30 @@
       <section id="panel" class="panel" aria-labelledby="panel-title" hidden>
         <header class="panel-header">
           <div class="panel-heading">
-            <p id="panel-eyebrow" class="eyebrow"></p>
             <h2 id="panel-title"></h2>
-            <p id="panel-sub" class="panel-sub"></p>
-          </div>
-          <div class="panel-actions">
-            <span id="verdict" class="chip chip-neutral">Analizando…</span>
-            <div class="rigor">
-              <button id="rigor-btn" class="icon-btn" type="button" aria-label="Cómo leer estos datos" aria-expanded="false" aria-controls="rigor-pop">
-                <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7.5" /><path d="M10 9v5M10 6.2v.1" /></svg>
-              </button>
-              <div id="rigor-pop" class="popover" role="dialog" aria-label="Cómo leer estos datos" hidden>
-                <h4>Cómo leer estos datos</h4>
-                <ul>
-                  <li id="rigor-window"></li>
-                  <li>“Se calienta” solo aparece si la tendencia es al menos el doble de su margen de error. Si no, verás “Sin tendencia clara”.</li>
-                  <li>Una estación mide su entorno: los traslados, los cambios de instrumento o el crecimiento de la ciudad también mueven los datos.</li>
-                  <li>
-                    <strong>Un solo día no mide el cambio climático.</strong> Para conclusiones sobre el clima, consulta
-                    <a data-link="aemetClimate" target="_blank" rel="noopener noreferrer">AEMET</a>,
-                    <a data-link="copernicus" target="_blank" rel="noopener noreferrer">Copernicus</a> o el
-                    <a data-link="ipcc" target="_blank" rel="noopener noreferrer">IPCC</a>.
-                  </li>
-                </ul>
+            <div class="panel-meta">
+              <!-- La badge abre los datos de la estación y su calidad; el punto ámbar avisa si hay problemas. -->
+              <div class="station-info">
+                <button id="station-btn" class="station-badge" type="button" aria-expanded="false" aria-controls="station-pop">
+                  <span id="panel-eyebrow"></span>
+                  <span id="station-warn" class="station-warn" title="Revisa la calidad de los datos" hidden></span>
+                  <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m6 8 4 4 4-4" /></svg>
+                </button>
+                <div id="station-pop" class="popover station-pop" role="dialog" aria-label="Estación y calidad de datos" hidden>
+                  <div class="facts-grid">
+                    <div>
+                      <h4>Estación</h4>
+                      <dl id="station-facts" class="fact-list"></dl>
+                    </div>
+                    <div>
+                      <h4>Calidad de datos</h4>
+                      <dl id="quality-facts" class="fact-list"></dl>
+                    </div>
+                  </div>
+                </div>
               </div>
+              <p id="panel-sub" class="panel-sub"></p>
             </div>
-            <button id="expand-btn" class="icon-btn" type="button" aria-label="Ampliar análisis" aria-expanded="false">
-              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M12 3h5v5M8 17H3v-5M17 3l-6 6M3 17l6-6" /></svg>
-            </button>
           </div>
         </header>
 
@@ -210,47 +244,18 @@
               <div class="stripes-axis"><span id="stripes-start"></span><span id="stripes-hover" class="stripes-hover"></span><span id="stripes-end"></span></div>
             </section>
 
-            <button id="share-cta" class="share-cta" type="button">
-              <span class="share-cta-thumb" aria-hidden="true"><span></span></span>
-              <span class="share-cta-text">
-                <strong>Comparte este día</strong>
-                <span>Crea una imagen para redes en formato cuadrado o historia</span>
-              </span>
-              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m8 5 5 5-5 5" /></svg>
-            </button>
-
-            <details class="card facts">
-              <summary>
-                <span>Estación y calidad de datos</span>
-                <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m6 8 4 4 4-4" /></svg>
-              </summary>
-              <div class="facts-grid">
-                <div>
-                  <h3>Estación</h3>
-                  <dl id="station-facts" class="fact-list"></dl>
-                </div>
-                <div>
-                  <h3>Calidad de datos</h3>
-                  <dl id="quality-facts" class="fact-list"></dl>
-                </div>
-              </div>
-            </details>
 
             <section class="card donate" aria-labelledby="donate-title">
               <div class="donate-head">
-                <span class="cup" aria-hidden="true">
-                  <span class="steam"><i></i><i></i><i></i></span>
-                  <svg viewBox="0 0 32 32"><path d="M6 12h17v7a7 7 0 0 1-7 7h-3a7 7 0 0 1-7-7v-7Z" /><path d="M23 14h2.5a3.5 3.5 0 0 1 0 7H23" /></svg>
-                </span>
                 <div>
                   <h3 id="donate-title">Ayuda a que siga abierta</h3>
                   <p>Gratis y sin publicidad. Mantenerla en marcha cuesta unos <strong id="donate-total"></strong>.</p>
                 </div>
               </div>
-              <div id="cost-bar" class="cost-bar" aria-hidden="true"></div>
+              <p id="donate-visit" class="donate-visit"></p>
               <ul id="cost-list" class="cost-list"></ul>
               <div class="donate-foot">
-                <a id="bmc-link" class="btn btn-coffee" target="_blank" rel="noopener noreferrer">Invítame a un café</a>
+                <a id="bmc-link" class="btn btn-primary btn-coffee" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7.5" /><path d="M12.6 7.4a3.3 3.3 0 1 0 0 5.2M6.4 9.2h4.4M6.4 10.9h4.4" /></svg>Mantén la web abierta</a>
                 <span id="donate-equivalence" class="donate-eq"></span>
               </div>
             </section>
@@ -285,10 +290,16 @@
 
         <footer class="panel-foot">
           <a class="foot-attribution" data-link="aemetOpenData" target="_blank" rel="noopener noreferrer">Datos: © AEMET OpenData</a>
-          <button id="share-btn" class="btn btn-primary btn-small" type="button">
-            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 13V3M6 7l4-4 4 4M4 11v5h12v-5" /></svg>
-            Compartir
-          </button>
+          <div class="foot-actions">
+            <button id="donate-btn" class="donate-btn" type="button" aria-label="Aportar 0,75 €: ver cómo ayudar a mantener la web">
+              <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7.5" /><path d="M12.6 7.4a3.3 3.3 0 1 0 0 5.2M6.4 9.2h4.4M6.4 10.9h4.4" /></svg>
+              <span id="donate-btn-amount">0,75 €</span>
+            </button>
+            <button id="share-btn" class="btn btn-primary btn-small" type="button">
+              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 13V3M6 7l4-4 4 4M4 11v5h12v-5" /></svg>
+              Compartir
+            </button>
+          </div>
         </footer>
       </section>
     </aside>
@@ -303,6 +314,11 @@
         Cerca de mí
       </button>
     </div>
+
+    <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Cambiar a modo oscuro">
+      <svg class="icon-moon" viewBox="0 0 20 20" aria-hidden="true"><path d="M16.5 12.2A7 7 0 0 1 7.8 3.5a7 7 0 1 0 8.7 8.7Z" /></svg>
+      <svg class="icon-sun" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="3.4" /><path d="M10 2.5v1.8M10 15.7v1.8M2.5 10h1.8M15.7 10h1.8M4.7 4.7l1.3 1.3M14 14l1.3 1.3M4.7 15.3 6 14M14 6l1.3-1.3" /></svg>
+    </button>
 
     <a id="attribution" class="attribution" target="_blank" rel="noopener noreferrer" data-link="aemetOpenData">Datos: © AEMET OpenData</a>
 

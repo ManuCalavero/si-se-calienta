@@ -5,18 +5,52 @@ if (annotationPlugin) Chart.register(annotationPlugin);
 
 Chart.defaults.font.family = '"Google Sans", system-ui, -apple-system, "Segoe UI", sans-serif';
 Chart.defaults.font.size = 11;
-Chart.defaults.color = "#6b6b6b";
 
-// Mismos tonos que los tokens de styles.css: tinta #171717 sobre blanco, rojo, índigo y azul lluvia.
-const INK = "#171717";
-const MUTED = "#6b6b6b";
-const SURFACE = "rgba(255, 255, 255, 0.92)";
-const GRID = "rgba(23, 23, 23, 0.07)";
-const WARM_LINE = "rgba(240, 86, 58, 0.85)";
-const COOL_LINE = "rgba(90, 88, 227, 0.85)";
-const RAIN = "#8fbdf0";
-const RAIN_FILL = "rgba(143, 189, 240, 0.45)";
-const RAIN_TEXT = "#2f6fb0";
+// Mismos tonos que los tokens de styles.css para cada tema. Rojo para la máxima, azul para la mínima y turquesa para la lluvia.
+const PALETTES = {
+  light: {
+    ink: "#171717",
+    muted: "#6b6b6b",
+    surface: "rgba(255, 255, 255, 0.92)",
+    grid: "rgba(23, 23, 23, 0.07)",
+    warmLine: "#f7394b",
+    coolLine: "#029dff",
+    rain: "#05e1cf",
+    rainFill: "rgba(5, 225, 207, 0.35)",
+    rainText: "#00796f",
+    tooltip: "rgba(255, 255, 255, 0.97)",
+    tooltipBorder: "rgba(23, 23, 23, 0.12)",
+    earlyBand: "rgba(2, 157, 255, 0.08)",
+    lateBand: "rgba(247, 57, 75, 0.08)",
+    meanLine: "rgba(23, 23, 23, 0.3)",
+    pointBorder: "rgba(23, 23, 23, 0.25)",
+  },
+  dark: {
+    ink: "#e6eaf2",
+    muted: "#8d97a8",
+    surface: "rgba(17, 23, 39, 0.92)",
+    grid: "rgba(148, 163, 184, 0.12)",
+    warmLine: "rgba(247, 57, 75, 0.95)",
+    coolLine: "rgba(2, 157, 255, 0.95)",
+    rain: "#05e1cf",
+    rainFill: "rgba(5, 225, 207, 0.28)",
+    rainText: "#05e1cf",
+    tooltip: "rgba(22, 30, 48, 0.97)",
+    tooltipBorder: "rgba(148, 163, 184, 0.26)",
+    earlyBand: "rgba(2, 157, 255, 0.12)",
+    lateBand: "rgba(247, 57, 75, 0.12)",
+    meanLine: "rgba(230, 234, 242, 0.35)",
+    pointBorder: "rgba(13, 16, 26, 0.6)",
+  },
+};
+
+let C = PALETTES.light;
+
+function applyTheme() {
+  C = PALETTES[document.documentElement.dataset.theme === "dark" ? "dark" : "light"];
+  Chart.defaults.color = C.muted;
+}
+
 // La lluvia ocupa como mucho el tercio inferior para no tapar las temperaturas.
 const RAIN_HEADROOM = 3;
 
@@ -35,7 +69,7 @@ function rainAxis(analysis) {
       axis.ticks = maxRain > 0 ? [{ value: 0 }, { value: maxRain }] : [{ value: 0 }];
     },
     ticks: {
-      color: RAIN_TEXT,
+      color: C.rainText,
       callback: (value) => `${formatNumber(value, value > 0 && value < 10 ? 1 : 0)} mm`,
     },
   };
@@ -59,7 +93,7 @@ function yearAxis(rows) {
     min: rows.length ? rows[0].year - 0.5 : undefined,
     max: rows.length ? rows[rows.length - 1].year + 0.5 : undefined,
     grid: { display: false },
-    border: { color: GRID },
+    border: { color: C.grid },
     ticks: { maxTicksLimit: 8, maxRotation: 0, callback: (value) => (Number.isInteger(value) ? String(value) : null) },
   };
 }
@@ -68,10 +102,10 @@ function tooltip() {
   return {
     mode: "index",
     intersect: false,
-    backgroundColor: "rgba(255, 255, 255, 0.97)",
-    titleColor: INK,
-    bodyColor: INK,
-    borderColor: "rgba(23, 23, 23, 0.12)",
+    backgroundColor: C.tooltip,
+    titleColor: C.ink,
+    bodyColor: C.ink,
+    borderColor: C.tooltipBorder,
     borderWidth: 1,
     padding: 10,
     boxPadding: 4,
@@ -96,7 +130,7 @@ function boxAnnotation(range, color, text, align) {
       display: true,
       content: text,
       position: { x: align, y: "start" },
-      color: INK,
+      color: C.ink,
       font: { size: 10, weight: "500" },
       padding: 4,
     },
@@ -110,15 +144,15 @@ function temperatureAnnotations(analysis) {
       type: "line",
       yMin: analysis.meanTmed,
       yMax: analysis.meanTmed,
-      borderColor: MUTED,
+      borderColor: C.muted,
       borderWidth: 1.5,
       borderDash: [2, 4],
       label: {
         display: true,
         content: `Media ${formatNumber(analysis.meanTmed)} °C`,
         position: "center",
-        backgroundColor: SURFACE,
-        color: MUTED,
+        backgroundColor: C.surface,
+        color: C.muted,
         font: { size: 10 },
         padding: 3,
       },
@@ -126,8 +160,8 @@ function temperatureAnnotations(analysis) {
   }
   if (analysis.change) {
     const { earlyRange, lateRange, earlyMean, lateMean } = analysis.change;
-    annotations.early = boxAnnotation(earlyRange, "rgba(90, 88, 227, 0.08)", `Primeros años · ${formatNumber(earlyMean)} °C`, "start");
-    annotations.late = boxAnnotation(lateRange, "rgba(240, 86, 58, 0.08)", `Últimos años · ${formatNumber(lateMean)} °C`, "end");
+    annotations.early = boxAnnotation(earlyRange, C.earlyBand, `Primeros años · ${formatNumber(earlyMean)} °C`, "start");
+    annotations.late = boxAnnotation(lateRange, C.lateBand, `Últimos años · ${formatNumber(lateMean)} °C`, "end");
   }
   return annotations;
 }
@@ -151,14 +185,14 @@ function temperatureDatasets(analysis, visibility, width) {
       id: "tmed",
       label: exact ? "T. media del día" : "T. media",
       data: rows.map((row) => ({ x: row.year, y: row.tmed })),
-      borderColor: "rgba(23, 23, 23, 0.3)",
+      borderColor: C.meanLine,
       borderWidth: radius < 2.5 ? 1.2 : 1.8,
       pointRadius: radius,
       pointHoverRadius: radius + 2.6,
       pointHoverBorderWidth: 2,
-      pointHoverBorderColor: INK,
-      pointBackgroundColor: rows.map((row) => anomalyColor(analysis.anomalies.get(row.year), scale) || MUTED),
-      pointBorderColor: "rgba(23, 23, 23, 0.25)",
+      pointHoverBorderColor: C.ink,
+      pointBackgroundColor: rows.map((row) => anomalyColor(analysis.anomalies.get(row.year), scale) || C.muted),
+      pointBorderColor: C.pointBorder,
       pointBorderWidth: 1,
       tension: 0,
       order: 1,
@@ -167,7 +201,7 @@ function temperatureDatasets(analysis, visibility, width) {
       id: "tmax",
       label: "T. máxima",
       data: rows.map((row) => ({ x: row.year, y: row.tmax })),
-      borderColor: WARM_LINE,
+      borderColor: C.warmLine,
       borderWidth: radius < 2.5 ? 1.1 : 1.5,
       pointRadius: 0,
       hidden: !visibility.tmax,
@@ -177,7 +211,7 @@ function temperatureDatasets(analysis, visibility, width) {
       id: "tmin",
       label: "T. mínima",
       data: rows.map((row) => ({ x: row.year, y: row.tmin })),
-      borderColor: COOL_LINE,
+      borderColor: C.coolLine,
       borderWidth: radius < 2.5 ? 1.1 : 1.5,
       pointRadius: 0,
       hidden: !visibility.tmin,
@@ -191,8 +225,8 @@ function temperatureDatasets(analysis, visibility, width) {
     label: "Lluvia",
     yAxisID: "yRain",
     data: rows.map((row) => ({ x: row.year, y: row.prec })),
-    backgroundColor: RAIN_FILL,
-    hoverBackgroundColor: RAIN,
+    backgroundColor: C.rainFill,
+    hoverBackgroundColor: C.rain,
     borderRadius: 2,
     barPercentage: 0.85,
     categoryPercentage: 1,
@@ -209,7 +243,7 @@ function temperatureDatasets(analysis, visibility, width) {
         { x: firstYear, y: intercept + slope * firstYear },
         { x: lastYear, y: intercept + slope * lastYear },
       ],
-      borderColor: INK,
+      borderColor: C.ink,
       borderWidth: 2.4,
       borderDash: [6, 4],
       pointRadius: 0,
@@ -241,6 +275,7 @@ function mergeDatasets(chart, next) {
 }
 
 export function renderTemperatureChart(canvas, analysis, visibility) {
+  applyTheme();
   const width = canvas.parentElement ? canvas.parentElement.clientWidth : 600;
   const datasets = temperatureDatasets(analysis, visibility, width);
   const annotations = temperatureAnnotations(analysis);
@@ -274,7 +309,7 @@ export function renderTemperatureChart(canvas, analysis, visibility) {
       scales: {
         x: yearAxis(analysis.complete),
         y: {
-          grid: { color: GRID },
+          grid: { color: C.grid },
           border: { display: false },
           grace: "4%",
           ticks: { callback: (value) => `${formatNumber(value, 0)}°` },
@@ -315,6 +350,12 @@ export function setSeriesVisibility(id, visible) {
   if (index === -1) return;
   tempChart.data.datasets[index].hidden = !visible;
   tempChart.update();
+}
+
+// Al cambiar de tema se rehace el gráfico entero: los colores van en las opciones y en cada serie.
+export function resetChartTheme() {
+  if (tempChart) tempChart.destroy();
+  tempChart = null;
 }
 
 export function resizeCharts() {

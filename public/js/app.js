@@ -1,9 +1,9 @@
 import { analyze } from "./stats.js";
 import { anomalyColor, formatDuration, formatNumber, formatSigned, monthName, prettyDay, titleCase } from "./format.js";
-import { anomalyScale, highlightYear, onChartHover, renderTemperatureChart, resizeCharts, setSeriesVisibility } from "./charts.js";
-import { clearSelection, createMap, focusStation, resetView, setStations, updateCached } from "./map.js";
+import { anomalyScale, highlightYear, onChartHover, renderTemperatureChart, resetChartTheme, resizeCharts, setSeriesVisibility } from "./charts.js";
+import { clearSelection, createMap, focusStation, refreshMarkerTheme, resetView, setStations, updateCached } from "./map.js";
 import { canvasToBlob, drawShareCard, shareCaption, shareFileName } from "./share.js";
-import { BMC_USERNAME, COFFEE_EUROS, LINKS, MONTHLY_COSTS, QUICK_PICKS } from "./config.js";
+import { BMC_USERNAME, COFFEE_EUROS, LINKS, MONTHLY_COSTS, QUICK_PICKS, VISIT_EUROS } from "./config.js";
 
 const $ = (id) => document.getElementById(id);
 
@@ -32,7 +32,6 @@ const els = {
   eyebrow: $("panel-eyebrow"),
   title: $("panel-title"),
   sub: $("panel-sub"),
-  verdict: $("verdict"),
   rigorBtn: $("rigor-btn"),
   rigorPop: $("rigor-pop"),
   rigorWindow: $("rigor-window"),
@@ -58,13 +57,15 @@ const els = {
   chart: $("chart"),
   seriesToggles: $("series-toggles"),
   stationFacts: $("station-facts"),
+  stationBtn: $("station-btn"),
+  stationPop: $("station-pop"),
+  stationWarn: $("station-warn"),
   qualityFacts: $("quality-facts"),
   statsFacts: $("stats-facts"),
   tableCaption: $("table-caption"),
   tableBody: document.querySelector("#results-table tbody"),
   csvBtn: $("csv-btn"),
   shareBtn: $("share-btn"),
-  shareCta: $("share-cta"),
   shareDialog: $("share-dialog"),
   shareClose: $("share-close"),
   shareCanvas: $("share-canvas"),
@@ -73,10 +74,13 @@ const els = {
   shareDownload: $("share-download"),
   shareCopy: $("share-copy"),
   donateTotal: $("donate-total"),
-  costBar: $("cost-bar"),
   costList: $("cost-list"),
   bmcLink: $("bmc-link"),
   donateEq: $("donate-equivalence"),
+  donateVisit: $("donate-visit"),
+  donateBtn: $("donate-btn"),
+  donateBtnAmount: $("donate-btn-amount"),
+  donateCard: document.querySelector(".donate"),
   toast: $("toast"),
 };
 
@@ -412,35 +416,40 @@ function applyLinks() {
 function renderDonate() {
   const total = MONTHLY_COSTS.reduce((acc, item) => acc + item.euros, 0);
   els.donateTotal.textContent = `${formatNumber(total, 0)} € al mes`;
-  const tones = ["var(--accent)", "var(--rain)", "var(--warm)"];
-  els.costBar.replaceChildren(
-    ...MONTHLY_COSTS.map((item, index) => {
-      const segment = document.createElement("span");
-      segment.style.flexGrow = String(item.euros);
-      segment.style.background = tones[index % tones.length];
-      return segment;
-    })
-  );
+  // Barra de KPIs: una celda por gasto con su nombre, su importe y el plan.
   els.costList.replaceChildren(
-    ...MONTHLY_COSTS.map((item, index) => {
+    ...MONTHLY_COSTS.map((item) => {
       const li = document.createElement("li");
-      const dot = document.createElement("span");
-      dot.className = "cost-dot";
-      dot.style.background = tones[index % tones.length];
       const label = document.createElement("span");
+      label.className = "cost-label";
       label.textContent = item.label;
-      const detail = document.createElement("small");
-      detail.textContent = item.detail;
-      label.appendChild(detail);
       const value = document.createElement("strong");
+      value.className = "cost-value";
       value.textContent = `${formatNumber(item.euros, 0)} €`;
-      li.append(dot, label, value);
+      const detail = document.createElement("small");
+      detail.className = "cost-detail";
+      detail.textContent = item.detail;
+      li.append(label, value, detail);
       return li;
     })
   );
+  const visit = `${formatNumber(VISIT_EUROS, 2)} €`;
+  els.donateBtnAmount.textContent = visit;
+  els.donateBtn.setAttribute("aria-label", `Aportar ${visit}: ver cómo ayudar a mantener la web`);
+  els.donateVisit.textContent =
+    `Cada visita cuesta de media unos ${visit}. Pero en aportes tan pequeños las comisiones del pago se comen casi todo, así que, si puedes, pon algo más.`;
   const days = Math.floor(COFFEE_EUROS / (total / 30));
-  els.donateEq.textContent = `Un café de ${COFFEE_EUROS} € mantiene la web ${days === 1 ? "un día" : `unos ${days} días`}.`;
+  els.donateEq.textContent = `Con ${COFFEE_EUROS} € cubres ${days === 1 ? "un día" : `unos ${days} días`} de la app.`;
   els.bmcLink.href = `https://www.buymeacoffee.com/${encodeURIComponent(BMC_USERNAME)}`;
+}
+
+// El botón de la cantidad lleva al módulo de donación del resumen y lo resalta un momento.
+function goToDonate() {
+  if (state.tab !== "summary") setTab("summary");
+  els.donateCard.scrollIntoView({ behavior: reducedMotion() ? "auto" : "smooth", block: "center" });
+  els.donateCard.classList.remove("is-flash");
+  void els.donateCard.offsetWidth;
+  els.donateCard.classList.add("is-flash");
 }
 
 // ---------- Panel ----------
@@ -465,6 +474,7 @@ function closePanel() {
   els.panel.classList.remove("open", "expanded", "is-refreshing");
   els.expandBtn.setAttribute("aria-expanded", "false");
   toggleRigor(false);
+  toggleStationPop(false);
   clearSelection();
   updateUrl();
   setTimeout(() => {
@@ -515,6 +525,14 @@ function toggleRigor(force) {
   const open = force ?? els.rigorPop.hidden;
   els.rigorPop.hidden = !open;
   els.rigorBtn.setAttribute("aria-expanded", String(open));
+  if (open) toggleStationPop(false);
+}
+
+function toggleStationPop(force) {
+  const open = force ?? els.stationPop.hidden;
+  els.stationPop.hidden = !open;
+  els.stationBtn.setAttribute("aria-expanded", String(open));
+  if (open) toggleRigor(false);
 }
 
 function setProgress(percent, message) {
@@ -572,33 +590,13 @@ function renderHeader(station, analysis) {
   els.eyebrow.textContent = `Estación ${station.idema} · ${station.provinciaVisible}`;
   els.title.textContent = station.nombreVisible;
   const period = analysis && analysis.firstYear ? ` · ${analysis.firstYear}–${analysis.lastYear}` : "";
-  const how = state.mode === "day" ? "solo ese día" : `media ${windowText(state.month, state.day)}`;
-  els.sub.textContent = `${prettyDay(state.month, state.day)} · ${how}${period}`;
+  // El día ya está en el selector de arriba: aquí solo cómo se calcula y el periodo.
+  const how = state.mode === "day" ? "Solo ese día" : `Media ${windowText(state.month, state.day)}`;
+  els.sub.textContent = `${how}${period}`;
   els.rigorWindow.textContent =
     state.mode === "day"
       ? `Ahora ves el valor del ${prettyDay(state.month, state.day)} exacto. Un día suelto varía mucho de un año a otro: la media de ±7 días es más fiable.`
       : `Cada punto es la media de 15 días (${windowText(state.month, state.day)}) para que un día raro no domine. Si quieres, cambia a “Día exacto”.`;
-}
-
-const VERDICTS = {
-  warming: { text: "Se calienta", className: "chip-warm" },
-  cooling: { text: "Se enfría", className: "chip-cool" },
-  unclear: { text: "Sin tendencia clara", className: "chip-neutral" },
-  insufficient: { text: "Pocos datos", className: "chip-neutral" },
-};
-
-function renderVerdict(analysis) {
-  const verdict = VERDICTS[analysis.verdict];
-  const changed = els.verdict.textContent !== verdict.text;
-  els.verdict.textContent = verdict.text;
-  els.verdict.className = `chip ${verdict.className}`;
-  els.verdict.title = analysis.trend
-    ? "Tendencia clara si la pendiente es al menos el doble de su margen de error"
-    : "Hacen falta al menos 10 años con datos";
-  if (changed && !reducedMotion()) {
-    void els.verdict.offsetWidth;
-    els.verdict.classList.add("chip-pop");
-  }
 }
 
 function renderHeadline(station, analysis) {
@@ -619,19 +617,19 @@ function renderHeadline(station, analysis) {
   const number = document.createElement("span");
   number.className = "delta-num";
   emphasis.append(number, ` °C más ${warm ? "cálido" : "fresco"}`);
-  els.headline.append(`El ${day} en ${station.nombreVisible} es `, emphasis, ` en ${lateRange[0]}–${lateRange[1]} que en ${earlyRange[0]}–${earlyRange[1]}.`);
+  // El día y la estación ya están en la cabecera: aquí solo va el dato.
+  els.headline.append(emphasis, ` en ${lateRange[0]}–${lateRange[1]} que en ${earlyRange[0]}–${earlyRange[1]}.`);
   tweenNumber(number, Math.abs(delta), (v) => formatNumber(v), { from: els.headline._delta ?? null });
   els.headline._delta = Math.abs(delta);
 
   const parts = [];
   if (analysis.latest) {
     const { year, rank, of } = analysis.latest;
-    if (rank === 1) parts.push(`${year} fue el año más cálido de los ${of} con datos en esta fecha.`);
-    else if (rank <= 10) parts.push(`${year} fue el ${rank}.º más cálido de ${of} años.`);
-    else parts.push(`${year} quedó en el puesto ${rank} de ${of}: no todos los años recientes son récord.`);
+    if (rank === 1) parts.push(`${year}, el más cálido de ${of} años.`);
+    else parts.push(`${year}, ${rank}.º más cálido de ${of} años.`);
   }
   if (analysis.verdict !== "warming" && analysis.verdict !== "cooling") {
-    parts.push("La tendencia no es clara: hay pocos años o mucha variación entre ellos.");
+    parts.push("Tendencia poco clara.");
   }
   els.subline.textContent = parts.join(" ");
 }
@@ -716,8 +714,6 @@ function renderSkeleton() {
   els.headline.textContent = "";
   els.headline._delta = null;
   els.subline.textContent = "";
-  els.verdict.textContent = "Analizando…";
-  els.verdict.className = "chip chip-neutral";
   ensureKpis();
   for (const value of els.kpis.querySelectorAll(".kpi-value")) {
     cancelAnimationFrame(value._raf || 0);
@@ -810,9 +806,14 @@ function renderFacts(station, result, analysis) {
     "Histórico",
     history.complete ? "Completo" : history.scanning ? "Buscando registros más antiguos…" : "Desde 1976 de momento"
   );
-  if (Array.isArray(result.failedYears) && result.failedYears.length) {
+  const pending = Array.isArray(result.failedYears) && result.failedYears.length;
+  if (pending) {
     fact(els.qualityFacts, "Pendiente", `${result.failedYears.length} años por descargar (se reintentan solos)`);
   }
+
+  // Aviso en la badge solo cuando importa: pocos años, muchos huecos o años sin descargar.
+  const coverage = span ? analysis.valid.length / span : 0;
+  els.stationWarn.hidden = !(pending || analysis.valid.length < 30 || coverage < 0.85);
 }
 
 function renderStats(analysis) {
@@ -929,7 +930,6 @@ function renderResult(result, { partial = false } = {}) {
   state.analysis = analysis;
 
   renderHeader(station, analysis);
-  renderVerdict(analysis);
   renderHeadline(station, analysis);
   nudge(els.hero);
   renderKpis(analysis);
@@ -941,7 +941,6 @@ function renderResult(result, { partial = false } = {}) {
   renderTable(analysis);
   els.panelBody.classList.remove("is-loading");
   els.shareBtn.disabled = partial;
-  els.shareCta.disabled = partial;
   state.direction = 0;
 }
 
@@ -1073,7 +1072,6 @@ async function runQuery({ mode = "fresh" } = {}) {
     renderHeader(station, null);
     renderSkeleton();
     els.shareBtn.disabled = true;
-    els.shareCta.disabled = true;
     els.panelBody.classList.add("is-loading");
     setProgress(2, "Buscando datos…");
   }
@@ -1501,6 +1499,7 @@ function bindEvents() {
       shiftDay(event.key === "ArrowRight" ? 1 : -1);
     } else if (event.key === "Escape" && !isTyping()) {
       if (!els.rigorPop.hidden) toggleRigor(false);
+      else if (!els.stationPop.hidden) toggleStationPop(false);
       else if (state.selectedId) goHome();
     }
   });
@@ -1539,8 +1538,13 @@ function bindEvents() {
     event.stopPropagation();
     toggleRigor();
   });
+  els.stationBtn.addEventListener("click", (event) => {
+    event.stopPropagation();
+    toggleStationPop();
+  });
   document.addEventListener("click", (event) => {
     if (!els.rigorPop.hidden && !event.target.closest(".rigor")) toggleRigor(false);
+    if (!els.stationPop.hidden && !event.target.closest(".station-info")) toggleStationPop(false);
   });
 
   els.tabSummaryBtn.addEventListener("click", () => setTab("summary"));
@@ -1594,7 +1598,7 @@ function bindEvents() {
   onChartHover((year) => markStripe(year));
 
   els.shareBtn.addEventListener("click", openShare);
-  els.shareCta.addEventListener("click", openShare);
+  els.donateBtn.addEventListener("click", goToDonate);
   els.shareClose.addEventListener("click", closeShare);
   els.shareDialog.addEventListener("click", (event) => {
     if (event.target === els.shareDialog) closeShare();
@@ -1620,6 +1624,41 @@ function bindEvents() {
   });
 }
 
+// ---------- Tema ----------
+
+// theme-init.js ya puso el tema guardado antes de pintar; aquí solo se cambia y se recuerda.
+function currentTheme() {
+  return document.documentElement.dataset.theme === "dark" ? "dark" : "light";
+}
+
+function renderThemeToggle() {
+  const toggle = document.getElementById("theme-toggle");
+  toggle.setAttribute("aria-label", currentTheme() === "dark" ? "Cambiar a modo claro" : "Cambiar a modo oscuro");
+}
+
+function setTheme(theme) {
+  document.documentElement.dataset.theme = theme;
+  try {
+    localStorage.setItem("theme", theme);
+  } catch {}
+  document.querySelector('meta[name="theme-color"]').content = theme === "dark" ? "#0d101a" : "#c7c7c7";
+  renderThemeToggle();
+  refreshMarkerTheme();
+  if (state.result && state.analysis) {
+    resetChartTheme();
+    renderTemperatureChart(els.chart, state.analysis, state.visibility);
+  }
+}
+
+function bindThemeToggle() {
+  renderThemeToggle();
+  document.getElementById("theme-toggle").addEventListener("click", () => {
+    const next = currentTheme() === "dark" ? "light" : "dark";
+    if (document.startViewTransition && !reducedMotion()) document.startViewTransition(() => setTheme(next));
+    else setTheme(next);
+  });
+}
+
 // ---------- Inicio ----------
 
 async function init() {
@@ -1627,6 +1666,7 @@ async function init() {
   applyLinks();
   renderDonate();
   bindEvents();
+  bindThemeToggle();
   createMap(els.map, {
     onSelect: selectStation,
     // En móvil la tarjeta tapa casi todo el mapa: al moverlo, se recoge en la barra para dejar sitio.

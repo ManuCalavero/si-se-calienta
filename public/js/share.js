@@ -6,10 +6,10 @@ const IVORY = "#f5f5f5";
 const INK = "#171717";
 const MUTED = "#6b6b6b";
 const LINE = "rgba(23, 23, 23, 0.1)";
-const WARM_INK = "#c23a22";
-const COOL_INK = "#4a48d0";
+const WARM_INK = "#c81d30";
+const COOL_INK = "#006bb8";
 const ACCENT_INK = "#7d3fbd";
-const BRAND_STRIPES = ["#5a58e3", "#8583ea", "#b6b5f3", "#efefef", "#f6c4b6", "#f4977f", "#f2735a", "#f0563a"];
+const BRAND_STRIPES = ["#029dff", "#4db9ff", "#9ad6ff", "#efefef", "#fbb3ba", "#f9808b", "#f85c6a", "#f7394b"];
 const FONT = '"Google Sans", system-ui, -apple-system, "Segoe UI", sans-serif';
 
 export const SHARE_FORMATS = {
@@ -154,8 +154,8 @@ export async function drawShareCard(canvas, { format, station, dayText, analysis
   ctx.fillStyle = PAPER;
   ctx.fillRect(0, 0, width, height);
   const glow = ctx.createRadialGradient(width, 0, 0, width, 0, width * 1.1);
-  glow.addColorStop(0, "rgba(240, 86, 58, 0.10)");
-  glow.addColorStop(1, "rgba(240, 86, 58, 0)");
+  glow.addColorStop(0, "rgba(247, 57, 75, 0.1)");
+  glow.addColorStop(1, "rgba(247, 57, 75, 0)");
   ctx.fillStyle = glow;
   ctx.fillRect(0, 0, width, height);
 

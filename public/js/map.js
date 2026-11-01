@@ -3,9 +3,12 @@ const ESRI_BASE = "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas";
 const TILE_ATTRIBUTION =
   'Mapa &copy; <a href="https://www.esri.com">Esri</a>, HERE, Garmin, &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
 
-// Mismos tonos que --station y --station-idle de styles.css.
-const ACCENT = "#5a58e3";
-const IDLE = "#cee1f8";
+// Mismos tonos que --station y --station-idle de styles.css en cada tema.
+const STATION_COLORS = {
+  light: { active: "#5a58e3", idle: "#9a9a9a" },
+  dark: { active: "#8583ff", idle: "#cee1f8" },
+};
+const stationColors = () => STATION_COLORS[document.documentElement.dataset.theme === "dark" ? "dark" : "light"];
 
 let map;
 let renderer;
@@ -29,12 +32,13 @@ function radiusForZoom(zoom) {
 }
 
 function markerStyle(isCached, zoom) {
+  const colors = stationColors();
   return {
     renderer,
     radius: radiusForZoom(zoom) + (isCached ? 0.5 : 0),
     // Sin borde: el canvas tiene tolerancia de clic (tolerance) y los puntos pequeños siguen siendo fáciles de tocar.
     stroke: false,
-    fillColor: isCached ? ACCENT : IDLE,
+    fillColor: isCached ? colors.active : colors.idle,
     fillOpacity: isCached ? 1 : 0.7,
   };
 }
@@ -104,6 +108,12 @@ export function setStations(stations, cachedIds) {
     marker.addTo(map);
     markers.set(station.idema, { marker, isCached });
   }
+}
+
+export function refreshMarkerTheme() {
+  if (!map) return;
+  const zoom = map.getZoom();
+  for (const { marker, isCached } of markers.values()) marker.setStyle(markerStyle(isCached, zoom));
 }
 
 export function updateCached(cachedIds) {
