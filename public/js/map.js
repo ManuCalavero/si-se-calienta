@@ -3,9 +3,9 @@ const ESRI_BASE = "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas";
 const TILE_ATTRIBUTION =
   'Mapa &copy; <a href="https://www.esri.com">Esri</a>, HERE, Garmin, &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
 
-const ACCENT = "#97c90d";
-const ACCENT_INK = "#4d6b00";
-const IDLE = "#8f978f";
+// Mismos tonos que --station y --station-idle de styles.css.
+const ACCENT = "#5a58e3";
+const IDLE = "#cee1f8";
 
 let map;
 let renderer;
@@ -22,20 +22,20 @@ function escapeHtml(text) {
 }
 
 function radiusForZoom(zoom) {
-  if (zoom <= 5) return 3;
-  if (zoom <= 6) return 4;
-  if (zoom <= 8) return 5.5;
-  return 7;
+  if (zoom <= 5) return 2;
+  if (zoom <= 6) return 2.6;
+  if (zoom <= 8) return 3.6;
+  return 4.6;
 }
 
 function markerStyle(isCached, zoom) {
   return {
     renderer,
     radius: radiusForZoom(zoom) + (isCached ? 0.5 : 0),
-    color: isCached ? ACCENT_INK : "#fbfcf7",
-    weight: 1,
+    // Sin borde: el canvas tiene tolerancia de clic (tolerance) y los puntos pequeños siguen siendo fáciles de tocar.
+    stroke: false,
     fillColor: isCached ? ACCENT : IDLE,
-    fillOpacity: isCached ? 0.95 : 0.6,
+    fillOpacity: isCached ? 1 : 0.7,
   };
 }
 
@@ -51,7 +51,6 @@ export function createMap(element, { onSelect, onExplore = () => {} }) {
     worldCopyJump: false,
   }).setView(SPAIN_CENTER, initialZoom());
 
-  L.control.zoom({ position: "bottomright" }).addTo(map);
   map.attributionControl.setPrefix(false);
 
   map.createPane("labels");

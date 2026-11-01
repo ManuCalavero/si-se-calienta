@@ -5,16 +5,18 @@ if (annotationPlugin) Chart.register(annotationPlugin);
 
 Chart.defaults.font.family = '"Google Sans", system-ui, -apple-system, "Segoe UI", sans-serif';
 Chart.defaults.font.size = 11;
-Chart.defaults.color = "#6d746e";
+Chart.defaults.color = "#6b6b6b";
 
-const INK = "#24302a";
-const MUTED = "#6d746e";
-const GRID = "rgba(36, 48, 42, 0.07)";
-const WARM_LINE = "rgba(240, 86, 58, 0.8)";
-const COOL_LINE = "rgba(46, 155, 240, 0.8)";
-const RAIN = "#3ec1d9";
-const RAIN_FILL = "rgba(62, 193, 217, 0.32)";
-const RAIN_TEXT = "#1f8ea6";
+// Mismos tonos que los tokens de styles.css: tinta #171717 sobre blanco, rojo, índigo y azul lluvia.
+const INK = "#171717";
+const MUTED = "#6b6b6b";
+const SURFACE = "rgba(255, 255, 255, 0.92)";
+const GRID = "rgba(23, 23, 23, 0.07)";
+const WARM_LINE = "rgba(240, 86, 58, 0.85)";
+const COOL_LINE = "rgba(90, 88, 227, 0.85)";
+const RAIN = "#8fbdf0";
+const RAIN_FILL = "rgba(143, 189, 240, 0.45)";
+const RAIN_TEXT = "#2f6fb0";
 // La lluvia ocupa como mucho el tercio inferior para no tapar las temperaturas.
 const RAIN_HEADROOM = 3;
 
@@ -66,10 +68,10 @@ function tooltip() {
   return {
     mode: "index",
     intersect: false,
-    backgroundColor: "rgba(251, 252, 247, 0.97)",
+    backgroundColor: "rgba(255, 255, 255, 0.97)",
     titleColor: INK,
     bodyColor: INK,
-    borderColor: "rgba(36, 48, 42, 0.12)",
+    borderColor: "rgba(23, 23, 23, 0.12)",
     borderWidth: 1,
     padding: 10,
     boxPadding: 4,
@@ -115,7 +117,7 @@ function temperatureAnnotations(analysis) {
         display: true,
         content: `Media ${formatNumber(analysis.meanTmed)} °C`,
         position: "center",
-        backgroundColor: "rgba(251, 252, 247, 0.9)",
+        backgroundColor: SURFACE,
         color: MUTED,
         font: { size: 10 },
         padding: 3,
@@ -124,7 +126,7 @@ function temperatureAnnotations(analysis) {
   }
   if (analysis.change) {
     const { earlyRange, lateRange, earlyMean, lateMean } = analysis.change;
-    annotations.early = boxAnnotation(earlyRange, "rgba(46, 155, 240, 0.08)", `Primeros años · ${formatNumber(earlyMean)} °C`, "start");
+    annotations.early = boxAnnotation(earlyRange, "rgba(90, 88, 227, 0.08)", `Primeros años · ${formatNumber(earlyMean)} °C`, "start");
     annotations.late = boxAnnotation(lateRange, "rgba(240, 86, 58, 0.08)", `Últimos años · ${formatNumber(lateMean)} °C`, "end");
   }
   return annotations;
@@ -149,14 +151,14 @@ function temperatureDatasets(analysis, visibility, width) {
       id: "tmed",
       label: exact ? "T. media del día" : "T. media",
       data: rows.map((row) => ({ x: row.year, y: row.tmed })),
-      borderColor: "rgba(36, 48, 42, 0.3)",
+      borderColor: "rgba(23, 23, 23, 0.3)",
       borderWidth: radius < 2.5 ? 1.2 : 1.8,
       pointRadius: radius,
       pointHoverRadius: radius + 2.6,
       pointHoverBorderWidth: 2,
       pointHoverBorderColor: INK,
       pointBackgroundColor: rows.map((row) => anomalyColor(analysis.anomalies.get(row.year), scale) || MUTED),
-      pointBorderColor: "rgba(36, 48, 42, 0.25)",
+      pointBorderColor: "rgba(23, 23, 23, 0.25)",
       pointBorderWidth: 1,
       tension: 0,
       order: 1,

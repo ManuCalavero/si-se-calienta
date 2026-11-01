@@ -54,8 +54,8 @@ export function titleCase(text) {
     .replace(/(^|[\s,.\-/(])(\p{L})/gu, (_match, sep, letter) => sep + letter.toUpperCase());
 }
 
-const COOL = [46, 155, 240];
-const NEUTRAL = [243, 245, 234];
+const COOL = [90, 88, 227];
+const NEUTRAL = [240, 240, 240];
 const WARM = [240, 86, 58];
 
 function mix(a, b, t) {

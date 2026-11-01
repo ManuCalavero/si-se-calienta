@@ -1,15 +1,15 @@
 import { anomalyScale } from "./charts.js";
 import { anomalyColor, formatNumber, formatSigned } from "./format.js";
 
-const PAPER = "#fbfcf7";
-const IVORY = "#f3f5ea";
-const INK = "#24302a";
-const MUTED = "#6d746e";
-const LINE = "rgba(36, 48, 42, 0.12)";
+const PAPER = "#ffffff";
+const IVORY = "#f5f5f5";
+const INK = "#171717";
+const MUTED = "#6b6b6b";
+const LINE = "rgba(23, 23, 23, 0.1)";
 const WARM_INK = "#c23a22";
-const COOL_INK = "#1f6fb8";
-const ACCENT_INK = "#4d6b00";
-const BRAND_STRIPES = ["#2e9bf0", "#6bb6f2", "#aed3ef", "#eef1e4", "#f6c4b6", "#f4977f", "#f2735a", "#f0563a"];
+const COOL_INK = "#4a48d0";
+const ACCENT_INK = "#7d3fbd";
+const BRAND_STRIPES = ["#5a58e3", "#8583ea", "#b6b5f3", "#efefef", "#f6c4b6", "#f4977f", "#f2735a", "#f0563a"];
 const FONT = '"Google Sans", system-ui, -apple-system, "Segoe UI", sans-serif';
 
 export const SHARE_FORMATS = {
@@ -107,7 +107,7 @@ function drawMiniChart(ctx, analysis, box) {
     ctx.fillStyle = anomalyColor(analysis.anomalies.get(row.year), scale) || MUTED;
     ctx.fill();
     ctx.lineWidth = 1.2;
-    ctx.strokeStyle = "rgba(36, 48, 42, 0.28)";
+    ctx.strokeStyle = "rgba(23, 23, 23, 0.28)";
     ctx.stroke();
   });
 
