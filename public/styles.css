@@ -58,12 +58,12 @@
   --kofi-ink: #b85208;
   --kofi-icon: #e8711a;
   --donate-cells: rgba(255, 255, 255, 0.7);
-  --radius: 18px;
-  --radius-small: 12px;
+  --radius: 12px;
+  --radius-small: 8px;
   --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
   --font: "Google Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
-  /* Prueba: Mona Sans para los títulos principales (bienvenida, nombre de la estación, compartir). */
-  --font-display: "Mona Sans", "Google Sans", system-ui, sans-serif;
+  /* Titulares en monoespaciada y mayúsculas, con aire de terminal o de instrumento de medida. */
+  --font-display: "DM Mono", ui-monospace, "SF Mono", Menlo, monospace;
   --gap: 16px;
   --topbar-height: 64px;
 }
@@ -686,9 +686,10 @@ input {
   margin: 0 0 8px;
   font-family: var(--font-display);
   font-size: 2rem;
-  font-weight: 700;
-  letter-spacing: -0.025em;
-  line-height: 1.08;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+  text-transform: uppercase;
 }
 
 .welcome-text {
@@ -762,10 +763,11 @@ input {
 .panel-header h2 {
   margin: 0;
   font-family: var(--font-display);
-  font-size: 1.75rem;
-  font-weight: 700;
-  letter-spacing: -0.025em;
-  line-height: 1.12;
+  font-size: 1.4rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+  text-transform: uppercase;
 }
 
 /* Bajo el nombre, en una línea: badge de la estación y cómo se calcula el dato. */
@@ -1755,7 +1757,7 @@ td {
   gap: 12px;
   margin: 16px 0 0;
   padding: 16px 18px;
-  border-radius: 14px;
+  border-radius: var(--radius-small);
   background: var(--warm-soft);
   color: var(--ink-soft);
   font-size: 13px;
@@ -2351,11 +2353,6 @@ body.has-selection .attribution {
   white-space: nowrap;
 }
 
-.cost-detail {
-  color: var(--muted);
-  font-size: 11px;
-}
-
 .donate-foot {
   display: flex;
   flex-wrap: wrap;
@@ -2602,9 +2599,10 @@ tr.is-coldest th::after {
 .share-header h2 {
   margin: 0;
   font-family: var(--font-display);
-  font-size: 1.45rem;
-  font-weight: 600;
-  letter-spacing: -0.01em;
+  font-size: 1.2rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
 }
 
 .share-formats {
@@ -2979,32 +2977,23 @@ body.has-selection .panel-header {
       "panel panel";
   }
 
-  body.welcome-open .home:has(.bg-pill:not([hidden])) {
-    grid-template-rows: auto auto auto auto 1fr;
-    grid-template-areas:
-      "brand brand"
-      "pill pill"
-      "head head"
-      "search day"
-      "foot foot";
-  }
 }
 
 /* Tarjeta abierta */
 body.welcome-open .home {
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   grid-template-areas:
-    "brand brand"
     "head head"
     "search day"
     "foot foot";
   gap: 14px 10px;
   width: 560px;
-  padding: 14px var(--pad-x) var(--pad-x);
+  /* Sin relleno arriba ni a los lados: la portada va a sangre hasta el borde de la tarjeta. */
+  padding: 0 0 var(--pad-x);
   max-height: calc(100dvh - 2 * var(--gap) - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
   overflow-y: auto;
   /* La última fila absorbe el alto sobrante para que la caja blanca llegue abajo sin abrir huecos entre filas. */
-  grid-template-rows: auto auto auto 1fr;
+  grid-template-rows: auto auto 1fr;
   align-content: start;
   overscroll-behavior: contain;
   scrollbar-width: thin;
@@ -3033,8 +3022,66 @@ body.welcome-open .welcome-foot .quick-picks:not([hidden]) {
 
 /* En escritorio la tarjeta ocupa todo el alto, como con estación. En móvil deja ver el mapa debajo. */
 @media (min-width: 761px) {
+  /*
+   * Las acciones quedan centradas entre la portada y el aviso: el pie se deshace (display: contents)
+   * para colocar sus piezas en la rejilla, y dos filas vacías (.) se reparten a partes iguales el alto que sobra.
+   */
   body.welcome-open .home {
     bottom: calc(var(--gap) + env(safe-area-inset-bottom, 0px));
+    grid-template-rows: auto 1fr auto auto auto 1fr auto auto;
+    grid-template-areas:
+      "head head"
+      ". ."
+      "search day"
+      "actions actions"
+      "picks picks"
+      ". ."
+      "note note"
+      "source source";
+  }
+
+  body.welcome-open .home:has(.bg-pill:not([hidden])) {
+    grid-template-rows: auto auto 1fr auto auto auto 1fr auto auto;
+    grid-template-areas:
+      "head head"
+      "pill pill"
+      ". ."
+      "search day"
+      "actions actions"
+      "picks picks"
+      ". ."
+      "note note"
+      "source source";
+  }
+
+  body.welcome-open .welcome-foot {
+    display: contents;
+  }
+
+  body.welcome-open .welcome-actions {
+    grid-area: actions;
+  }
+
+  body.welcome-open .quick-picks {
+    grid-area: picks;
+    margin: 0;
+  }
+
+  body.welcome-open .welcome-foot .disclaimer {
+    grid-area: note;
+    margin: 0 var(--pad-x);
+  }
+
+  body.welcome-open .welcome-source {
+    grid-area: source;
+    margin: -4px 0 0;
+  }
+
+  body.welcome-open .welcome-actions,
+  body.welcome-open .quick-picks,
+  body.welcome-open .disclaimer,
+  body.welcome-open .welcome-source {
+    margin-inline: var(--pad-x);
   }
 }
 
@@ -3060,7 +3107,26 @@ body.welcome-open .bg-pill {
   justify-self: end;
 }
 
-/* En la tarjeta la marca es solo título; «Cómo funciona» ya está debajo. */
+/* En la bienvenida la marca va dentro de la portada: se ocultan la de la cabecera y su línea. */
+body.welcome-open .brand,
+body.welcome-open .home::before {
+  display: none;
+}
+
+/* Las piezas de abajo llevan el margen lateral; la portada llega al borde de la tarjeta. */
+body.welcome-open .welcome-foot {
+  margin-inline: var(--pad-x);
+}
+
+/* Buscador y día: margen solo por fuera, para que entre ellos quede el hueco normal de la rejilla. */
+body.welcome-open .search {
+  margin-left: var(--pad-x);
+}
+
+body.welcome-open .day-nav {
+  margin-right: var(--pad-x);
+}
+
 body.welcome-open .brand {
   cursor: default;
 }
@@ -3077,13 +3143,87 @@ body.welcome-open .brand-help {
   display: none;
 }
 
-.welcome-head .welcome-image {
-  aspect-ratio: 5 / 2;
-  margin: 2px 0 14px;
+/* Portada: imagen de fondo a sangre, más alta, con degradado oscuro a la izquierda para leer el texto. */
+.welcome-hero {
+  position: relative;
+  overflow: hidden;
+  min-height: 340px;
+  border-radius: 0;
+  background: #000;
+  color: #fff;
 }
 
-.welcome-head .welcome-text {
+body.welcome-open .welcome-hero {
+  display: flex;
+}
+
+.welcome-hero .welcome-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   margin: 0;
+  aspect-ratio: auto;
+  object-fit: cover;
+  object-position: 70% 50%;
+  border-radius: 0;
+}
+
+.welcome-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0.35) 55%, transparent 80%);
+}
+
+.welcome-hero-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 100%;
+  padding: 20px 22px 22px;
+}
+
+.hero-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 auto;
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.hero-brand .brand-mark {
+  width: 26px;
+  height: 26px;
+}
+
+.hero-brand .beta-tag {
+  padding: 1px 6px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 999px;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+}
+
+.welcome-hero .eyebrow {
+  margin: 0 0 6px;
+  color: #d9b8ff;
+}
+
+.welcome-hero h1 {
+  max-width: 16ch;
+  color: #fff;
+}
+
+.welcome-hero .welcome-text {
+  max-width: 34ch;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.82);
+  line-height: 1.2;
 }
 
 .welcome-actions {
@@ -3221,7 +3361,6 @@ body.welcome-open .brand-help {
     width: auto;
     grid-template-columns: auto minmax(0, 1fr);
     grid-template-areas:
-      "brand pill"
       "head head"
       "search search"
       "day day"
@@ -3240,8 +3379,8 @@ body.welcome-open .brand-help {
     height: 28px;
   }
 
-  .welcome-head .welcome-image {
-    aspect-ratio: 21 / 9;
+  .welcome-hero {
+    min-height: 300px;
   }
 
   body.welcome-open .day-nav {

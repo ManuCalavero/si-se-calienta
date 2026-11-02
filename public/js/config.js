@@ -1,14 +1,14 @@
 // Ajustes editables sin tocar la lógica de la app.
 
-// Usuario de Buy Me a Coffee: https://www.buymeacoffee.com/<usuario>
-export const BMC_USERNAME = "sisecalienta";
+// Usuario de Ko-fi: https://ko-fi.com/<usuario>
+export const KOFI_USERNAME = "secalienta";
 
 // Coste mensual estimado para mantener la web abierta con tráfico real (euros, octubre de 2026).
 // Hoy funciona en planes gratuitos; estos son los planes necesarios si la web recibe visitas de prensa.
 export const MONTHLY_COSTS = [
-  { label: "Servidor web", detail: "Vercel Pro", euros: 19 },
-  { label: "Base de datos", detail: "MongoDB Atlas Flex", euros: 15 },
-  { label: "Dominio", detail: ".es, prorrateado", euros: 1 },
+  { label: "Servidor web", euros: 19 },
+  { label: "Base de datos", euros: 15 },
+  { label: "Dominio", euros: 1 },
 ];
 
 export const COFFEE_EUROS = 5;

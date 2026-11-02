@@ -3,7 +3,7 @@ import { anomalyColor, formatDuration, formatNumber, formatSigned, monthName, pr
 import { anomalyScale, highlightYear, onChartHover, renderTemperatureChart, resetChartTheme, resizeCharts, setSeriesVisibility } from "./charts.js";
 import { clearSelection, createMap, focusStation, refreshMarkerTheme, resetView, setStations, updateCached } from "./map.js";
 import { canvasToBlob, drawShareCard, shareCaption, shareFileName } from "./share.js";
-import { BMC_USERNAME, COFFEE_EUROS, LINKS, MONTHLY_COSTS, QUICK_PICKS, VISIT_EUROS } from "./config.js";
+import { COFFEE_EUROS, KOFI_USERNAME, LINKS, MONTHLY_COSTS, QUICK_PICKS, VISIT_EUROS } from "./config.js";
 
 const $ = (id) => document.getElementById(id);
 
@@ -75,7 +75,7 @@ const els = {
   shareCopy: $("share-copy"),
   donateTotal: $("donate-total"),
   costList: $("cost-list"),
-  bmcLink: $("bmc-link"),
+  kofiLink: $("kofi-link"),
   donateEq: $("donate-equivalence"),
   donateVisit: $("donate-visit"),
   donateBtn: $("donate-btn"),
@@ -416,7 +416,7 @@ function applyLinks() {
 function renderDonate() {
   const total = MONTHLY_COSTS.reduce((acc, item) => acc + item.euros, 0);
   els.donateTotal.textContent = `${formatNumber(total, 0)} € al mes`;
-  // Barra de KPIs: una celda por gasto con su nombre, su importe y el plan.
+  // Barra de KPIs: una celda por gasto con su nombre y su importe.
   els.costList.replaceChildren(
     ...MONTHLY_COSTS.map((item) => {
       const li = document.createElement("li");
@@ -426,10 +426,7 @@ function renderDonate() {
       const value = document.createElement("strong");
       value.className = "cost-value";
       value.textContent = `${formatNumber(item.euros, 0)} €`;
-      const detail = document.createElement("small");
-      detail.className = "cost-detail";
-      detail.textContent = item.detail;
-      li.append(label, value, detail);
+      li.append(label, value);
       return li;
     })
   );
@@ -440,7 +437,7 @@ function renderDonate() {
     `Cada visita cuesta de media unos ${visit}. Pero en aportes tan pequeños las comisiones del pago se comen casi todo, así que, si puedes, pon algo más.`;
   const days = Math.floor(COFFEE_EUROS / (total / 30));
   els.donateEq.textContent = `Con ${COFFEE_EUROS} € cubres ${days === 1 ? "un día" : `unos ${days} días`} de la app.`;
-  els.bmcLink.href = `https://www.buymeacoffee.com/${encodeURIComponent(BMC_USERNAME)}`;
+  els.kofiLink.href = `https://ko-fi.com/${encodeURIComponent(KOFI_USERNAME)}`;
 }
 
 // El botón de la cantidad lleva al módulo de donación del resumen y lo resalta un momento.

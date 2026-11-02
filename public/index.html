@@ -15,7 +15,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&family=Mona+Sans:wght@500..800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&family=DM+Mono:wght@400;500&display=swap"
       rel="stylesheet"
     />
     <link
@@ -122,20 +122,28 @@
         </div>
       </div>
 
-      <div id="welcome" class="welcome-head">
+      <!-- Portada: la imagen hace de fondo y el texto va encima, sobre la zona oscura de la izquierda. -->
+      <div id="welcome" class="welcome-head welcome-hero">
         <img
           class="welcome-image"
-          src="img/comparador-temperaturas-espana.png"
+          src="img/ascii-magic-point-cloud.png"
           width="800"
           height="446"
-          alt="Ilustración: un globo terraqueo en el que se destaca España"
+          alt=""
         />
-        <p class="eyebrow">Un siglo de registros diarios</p>
-        <h1 id="welcome-title">¿Hace más calor que antes?</h1>
-        <p class="welcome-text">
-          Elige un lugar y un día del año. Verás qué temperatura hizo ese mismo día en cada año desde que la estación
-          empezó a medir, algunas desde 1920.
-        </p>
+        <div class="welcome-hero-content">
+          <p class="hero-brand">
+            <span class="brand-mark" aria-hidden="true"></span>
+            <span>secalienta.com</span>
+            <span class="beta-tag">BETA</span>
+          </p>
+          <p class="eyebrow">Un siglo de registros diarios</p>
+          <h1 id="welcome-title">¿Hace más calor que antes?</h1>
+          <p class="welcome-text">
+            Elige un lugar y un día del año. Verás qué temperatura hizo ese mismo día en cada año desde que la estación
+            empezó a medir, algunas desde 1920.
+          </p>
+        </div>
       </div>
 
       <div class="welcome-foot">
@@ -255,7 +263,7 @@
               <p id="donate-visit" class="donate-visit"></p>
               <ul id="cost-list" class="cost-list"></ul>
               <div class="donate-foot">
-                <a id="bmc-link" class="btn btn-primary btn-coffee" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7.5" /><path d="M12.6 7.4a3.3 3.3 0 1 0 0 5.2M6.4 9.2h4.4M6.4 10.9h4.4" /></svg>Mantén la web abierta</a>
+                <a id="kofi-link" class="btn btn-primary btn-coffee" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7.5" /><path d="M12.6 7.4a3.3 3.3 0 1 0 0 5.2M6.4 9.2h4.4M6.4 10.9h4.4" /></svg>Mantén la web abierta</a>
                 <span id="donate-equivalence" class="donate-eq"></span>
               </div>
             </section>
