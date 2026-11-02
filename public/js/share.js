@@ -61,7 +61,7 @@ function drawBrand(ctx, x, y, size) {
   ctx.fillStyle = INK;
   ctx.font = font(600, size * 0.62);
   ctx.textBaseline = "middle";
-  ctx.fillText("Si se calienta", x + size + size * 0.4, y + size / 2 + 1);
+  ctx.fillText("secalienta.com", x + size + size * 0.4, y + size / 2 + 1);
 }
 
 // Mini gráfico: franjas climáticas abajo y la serie de temperatura con su tendencia encima.
@@ -243,7 +243,7 @@ export function canvasToBlob(canvas) {
 }
 
 export function shareFileName(station, month, day, format) {
-  return `si-se-calienta_${station.idema}_${month}-${day}_${SHARE_FORMATS[format].label.replace(":", "x")}.png`;
+  return `secalienta_${station.idema}_${month}-${day}_${SHARE_FORMATS[format].label.replace(":", "x")}.png`;
 }
 
 export function shareCaption(station, dayText, analysis) {

@@ -1,122 +1,72 @@
+/*
+ * Tema editorial (único): mapa crema #fefcee, tarjeta casi negra cálida #161513, texto #d9d9d9
+ * y titulares en serif (EB Garamond).
+ */
 :root {
-  /* Tema claro (por defecto): tarjeta blanca, texto #171717, mapa gris y acción principal en negro. */
-  color-scheme: light;
-  --paper: #ffffff;
-  --ivory: #f5f5f5;
-  --beige: #ededed;
-  /* Mapa: filtro de las teselas, fondo mientras cargan y etiquetas. */
-  --map-filter: grayscale(1) brightness(0.96);
-  --map-sea: #c7c7c7;
-  --map-vignette: rgba(199, 199, 199, 0.5);
+  color-scheme: dark;
+  /* Superficies de la tarjeta. */
+  --paper: #161513;
+  --ivory: #100f0e;
+  --beige: #22201d;
+  --sheet: #161513;
+  --surface: #1e1c1a;
+  /* Canales RGB para tintes (hover, bordes) y superficies translúcidas (campos, tarjetas). */
+  --surface-rgb: 30, 28, 26;
+  --tint-rgb: 217, 217, 217;
+  --glass: rgba(22, 21, 19, 0.8);
+  --glass-strong: rgba(22, 21, 19, 0.94);
+  /* Mapa: el filtro #map-cream de index.html lleva la tierra a #fefcee y el agua a #e9e3cc. */
+  --map-filter: url(#map-cream);
+  --map-sea: #e9e3cc;
+  --map-vignette: rgba(233, 227, 204, 0.5);
   --labels-filter: none;
-  --labels-opacity: 0.75;
+  --labels-opacity: 0.7;
   /* Estaciones del mapa: con datos y sin datos (mismos tonos en map.js). */
   --station: #5a58e3;
   --station-idle: #9a9a9a;
-  /* Canales RGB para tintes (hover, bordes) y superficies translúcidas (campos, tarjetas). */
-  --tint-rgb: 23, 23, 23;
-  --surface-rgb: 255, 255, 255;
-  --surface: #fff;
-  --stone: #dedede;
-  --grey: #8a8a8a;
-  --muted: #6b6b6b;
-  --ink: #171717;
-  --ink-soft: #3d3d3d;
-  /* Acción principal: negro sobre blanco. */
-  --primary: #171717;
-  --primary-hover: #000;
-  --on-primary: #fff;
-  /* Acento morado para enlaces, foco y detalles; -ink es la versión de texto (6,3:1 sobre blanco). */
-  --accent: #a05ddc;
-  --accent-strong: #8a47c8;
-  --accent-ink: #7d3fbd;
-  --accent-soft: rgba(160, 93, 220, 0.12);
-  --on-accent: #fff;
-  /* Datos: rojo para lo cálido, azul para lo fresco, turquesa para la lluvia. -ink es la versión de texto. */
-  --warm: #f7394b;
-  --warm-ink: #d41f33;
-  --warm-soft: rgba(247, 57, 75, 0.12);
-  --cool: #029dff;
-  --cool-ink: #006bb8;
-  --cool-soft: rgba(2, 157, 255, 0.12);
-  --rain: #05e1cf;
-  --rain-ink: #00796f;
-  --line: rgba(23, 23, 23, 0.08);
-  --line-strong: rgba(23, 23, 23, 0.16);
-  --border: rgba(23, 23, 23, 0.08);
-  --glass: rgba(255, 255, 255, 0.8);
-  --glass-strong: rgba(255, 255, 255, 0.94);
-  --sheet: #fff;
-  /* Las sombras se multiplican por este factor: sobre el mapa oscuro hacen falta más fuertes. */
-  --shadow-strength: 1;
-  --shadow: 0 16px 40px rgba(0, 0, 0, 0.16);
-  /* Módulo de donación: fondo crema y celdas de gastos algo más blancas. */
-  --donate-bg: #fff5dc;
-  /* Botones de aporte: melocotón claro con texto naranja (4,5:1) y el icono algo más vivo. */
-  --kofi-bg: #fff3e6;
-  --kofi-bg-hover: #ffe7cc;
-  --kofi-ink: #b85208;
-  --kofi-icon: #e8711a;
-  --donate-cells: rgba(255, 255, 255, 0.7);
-  --radius: 18px;
-  --radius-small: 12px;
-  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
-  --font: "Google Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
-  /* Titulares en monoespaciada y mayúsculas, con aire de terminal o de instrumento de medida. */
-  --font-display: "DM Mono", ui-monospace, "SF Mono", Menlo, monospace;
-  --gap: 16px;
-  --topbar-height: 64px;
-}
-
-:root[data-theme="dark"] {
-  /* Tema oscuro azul marino: mapa en #0d101a, tarjeta en #111727 con borde fino, texto claro. */
-  color-scheme: dark;
-  --paper: #111727;
-  --ivory: #0d1220;
-  --beige: #1a2234;
-  /* El filtro #map-tint de index.html lleva la tierra a #1e283e y el agua a #0d101a. */
-  --map-filter: url(#map-tint);
-  --map-sea: #0d101a;
-  --map-vignette: rgba(13, 16, 26, 0.6);
-  /* Las etiquetas de Esri son oscuras con halo blanco; invertidas quedan claras con halo oscuro. */
-  --labels-filter: invert(1);
-  --labels-opacity: 0.8;
-  --station: #8583ff;
-  --station-idle: #cee1f8;
-  --tint-rgb: 226, 232, 240;
-  --surface-rgb: 26, 34, 52;
-  --surface: #161e30;
-  --stone: #2a3448;
-  --grey: #6b7588;
-  --muted: #8d97a8;
-  --ink: #e6eaf2;
-  --ink-soft: #b8c0cf;
-  --primary: #a05ddc;
-  --primary-hover: #b271ea;
-  --on-primary: #fff;
+  /* Texto y neutros. */
+  --ink: #d9d9d9;
+  --ink-soft: #b3b1ab;
+  --muted: #8c8a84;
+  --grey: #6e6c67;
+  --stone: #2c2a27;
+  --line: rgba(217, 217, 217, 0.12);
+  --line-strong: rgba(217, 217, 217, 0.22);
+  --border: #2a2825;
+  /* Acción principal: gris claro sobre la tarjeta oscura. */
+  --primary: #d9d9d9;
+  --primary-hover: #fff;
+  --on-primary: #161513;
+  /* Acento morado para enlaces, foco y detalles; -ink es la versión de texto. */
   --accent: #a05ddc;
   --accent-strong: #b271ea;
   --accent-ink: #c39bf0;
   --accent-soft: rgba(160, 93, 220, 0.18);
+  --on-accent: #fff;
+  /* Datos: rojo para lo cálido, azul para lo fresco, turquesa para la lluvia. -ink es la versión de texto. */
+  --warm: #f7394b;
   --warm-ink: #ff5c6b;
   --warm-soft: rgba(247, 57, 75, 0.16);
+  --cool: #029dff;
   --cool-ink: #029dff;
   --cool-soft: rgba(2, 157, 255, 0.16);
+  --rain: #05e1cf;
   --rain-ink: #05e1cf;
-  --line: rgba(148, 163, 184, 0.14);
-  --line-strong: rgba(148, 163, 184, 0.26);
-  --border: #243146;
-  --glass: rgba(17, 23, 39, 0.8);
-  --glass-strong: rgba(17, 23, 39, 0.94);
-  --sheet: #111727;
-  --shadow-strength: 2.2;
-  --shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
-  --donate-bg: rgba(255, 214, 102, 0.08);
+  /* Módulo de donación y botón «0,75 €». */
   --kofi-bg: rgba(255, 140, 40, 0.14);
   --kofi-bg-hover: rgba(255, 140, 40, 0.22);
   --kofi-ink: #ffa25c;
   --kofi-icon: #ff8a3d;
-  --donate-cells: rgba(255, 255, 255, 0.04);
+  /* Las sombras de algunos elementos se multiplican por este factor. */
+  --shadow-strength: 1.6;
+  --shadow: 0 16px 40px rgba(0, 0, 0, 0.3);
+  --radius: 18px;
+  --radius-small: 12px;
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --font: "Google Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "EB Garamond", Georgia, "Times New Roman", serif;
+  --gap: 16px;
+  --topbar-height: 64px;
 }
 
 * {
@@ -144,7 +94,6 @@ body {
 .stripes-axis,
 .fact-list dd,
 .search-meta,
-.date-field input,
 td {
   font-variant-numeric: tabular-nums;
 }
@@ -517,29 +466,6 @@ input {
   font-weight: 500;
 }
 
-.date-field {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-shrink: 0;
-}
-
-.date-field span {
-  color: var(--muted);
-  font-size: 0.72rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-
-.date-field input {
-  height: 42px;
-  padding: 0 10px;
-  border: 1px solid var(--line-strong);
-  border-radius: var(--radius-small);
-  background: rgba(var(--surface-rgb), 0.7);
-  font-size: 13px;
-}
-
 .bg-pill {
   display: inline-flex;
   align-items: center;
@@ -672,23 +598,15 @@ input {
 .welcome-head h1 {
   margin: 0 0 8px;
   font-family: var(--font-display);
-  font-size: 2.3rem;
-  font-weight: 500;
-  letter-spacing: 0.02em;
-  line-height: 1.2;
-  text-transform: uppercase;
+  font-size: 2.6rem;
+  font-weight: 400;
+  letter-spacing: -0.015em;
+  line-height: 1.05;
 }
 
 .welcome-text {
   margin: 0 0 16px;
   color: var(--ink-soft);
-}
-
-.welcome-actions {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 8px;
 }
 
 .legend {
@@ -706,19 +624,6 @@ input {
   display: flex;
   align-items: center;
   gap: 8px;
-}
-
-.legend-dot {
-  width: 10px;
-  height: 10px;
-  border: 1px solid var(--paper);
-  border-radius: 50%;
-  background: var(--grey);
-  box-shadow: 0 0 0 1px var(--line);
-}
-
-.legend-dot.is-cached {
-  background: var(--accent);
 }
 
 /* ---------- Panel ---------- */
@@ -750,11 +655,10 @@ input {
 .panel-header h2 {
   margin: 0;
   font-family: var(--font-display);
-  font-size: 1.4rem;
-  font-weight: 500;
-  letter-spacing: 0.02em;
-  line-height: 1.2;
-  text-transform: uppercase;
+  font-size: 2.2rem;
+  font-weight: 400;
+  letter-spacing: -0.015em;
+  line-height: 1.05;
 }
 
 /* Bajo el nombre, en una línea: badge de la estación y cómo se calcula el dato. */
@@ -1152,10 +1056,6 @@ input {
   text-align: left;
 }
 
-.detail {
-  animation: rise 0.4s var(--ease);
-}
-
 .table-wrap {
   max-height: 360px;
   overflow: auto;
@@ -1257,24 +1157,13 @@ td {
     max-width: none;
   }
 
-  .search input,
-  .date-field input {
+  .search input {
     height: 40px;
     font-size: 16px;
   }
 
   .search input {
     padding-right: 12px;
-  }
-
-  .date-field span {
-    display: none;
-  }
-
-  .date-field input {
-    width: 124px;
-    padding: 0 6px;
-    font-size: 14px;
   }
 
   .bg-pill {
@@ -1285,7 +1174,7 @@ td {
   }
 
   .welcome-head h1 {
-    font-size: 1.65rem;
+    font-size: 2.1rem;
   }
 
   body.has-selection .sheet-handle {
@@ -1569,55 +1458,6 @@ td {
   color: var(--accent-ink);
 }
 
-/* ---------- Tema ---------- */
-
-/* Botón flotante sobre el mapa, arriba a la izquierda: queda libre en escritorio y en móvil. */
-.theme-toggle {
-  position: fixed;
-  top: calc(var(--gap) + env(safe-area-inset-top, 0px));
-  left: var(--gap);
-  z-index: 12;
-  display: grid;
-  place-items: center;
-  width: 38px;
-  height: 38px;
-  padding: 0;
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  background: var(--glass-strong);
-  color: var(--ink);
-  box-shadow: var(--shadow);
-  cursor: pointer;
-  -webkit-backdrop-filter: blur(12px);
-  backdrop-filter: blur(12px);
-  transition: border-color 0.2s var(--ease), transform 0.2s var(--ease);
-}
-
-.theme-toggle:hover {
-  border-color: var(--line-strong);
-  transform: rotate(-12deg);
-}
-
-.theme-toggle svg {
-  width: 18px;
-  height: 18px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.7;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-/* En claro se ofrece la luna (pasar a oscuro); en oscuro, el sol. */
-.theme-toggle .icon-sun,
-:root[data-theme="dark"] .theme-toggle .icon-moon {
-  display: none;
-}
-
-:root[data-theme="dark"] .theme-toggle .icon-sun {
-  display: block;
-}
-
 /* ---------- Atribución ---------- */
 
 .attribution {
@@ -1655,19 +1495,6 @@ td {
   stroke-width: 1.9;
   stroke-linecap: round;
   stroke-linejoin: round;
-}
-
-/* Usar mi ubicación: más compacto que un botón principal normal, para que no compita con los campos. */
-#locate-btn {
-  height: 34px;
-  padding: 0 12px;
-  font-size: 13px;
-}
-
-#locate-btn svg {
-  width: 14px;
-  height: 14px;
-  margin-right: 5px;
 }
 
 .btn.is-busy svg {
@@ -2273,11 +2100,41 @@ body.has-selection .attribution {
 
 /* ---------- Donación ---------- */
 
+/*
+ * El módulo de donación invierte los colores (fondo amarillo, texto oscuro) para destacar sobre la tarjeta negra.
+ * Se redefinen los tokens dentro del módulo y todo lo de dentro los hereda.
+ */
 .donate {
+  --ink: #161513;
+  --ink-soft: #3d3b37;
+  --muted: #6b6964;
+  --tint-rgb: 22, 21, 19;
+  --line: rgba(22, 21, 19, 0.1);
+  --donate-cells: #f4f2ec;
+  --primary: #161513;
+  --primary-hover: #000;
+  --on-primary: #fff;
   display: grid;
   gap: 12px;
   border-color: transparent;
-  background: var(--donate-bg);
+  background: #f6be33;
+  color: var(--ink);
+}
+
+#donate-title {
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+/* Título del módulo como titular: serif y más grande, sin las mayúsculas de las demás tarjetas. */
+.donate h3 {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+  text-transform: none;
+  color: var(--ink);
 }
 
 .donate-head {
@@ -2299,7 +2156,7 @@ body.has-selection .attribution {
   margin: 0;
   padding: 0;
   border-radius: var(--radius-small);
-  background: var(--donate-cells);
+  background: #fff;
   list-style: none;
   overflow: hidden;
 }
@@ -2329,11 +2186,18 @@ body.has-selection .attribution {
   white-space: nowrap;
 }
 
+/* Texto a la izquierda y botón a la derecha del módulo. */
 .donate-foot {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  justify-content: space-between;
   gap: 8px 14px;
+}
+
+.donate-foot .btn-coffee {
+  order: 2;
+  margin-left: auto;
 }
 
 /* Botón de aporte del módulo: la acción principal (negro en claro), en pastilla y con icono de moneda. */
@@ -2575,10 +2439,10 @@ tr.is-coldest th::after {
 .share-header h2 {
   margin: 0;
   font-family: var(--font-display);
-  font-size: 1.2rem;
-  font-weight: 500;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
+  font-size: 1.7rem;
+  font-weight: 400;
+  letter-spacing: -0.015em;
+  line-height: 1.05;
 }
 
 .share-formats {
@@ -2948,14 +2812,12 @@ body.has-selection .panel-header {
       "search day"
       "panel panel";
   }
-
 }
 
 /* Tarjeta abierta */
 body.welcome-open .home {
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   grid-template-areas:
-    "brand brand"
     "head head"
     "search day"
     "foot foot";
@@ -3003,9 +2865,8 @@ body.welcome-open .welcome-source {
    */
   body.welcome-open .home {
     bottom: calc(var(--gap) + env(safe-area-inset-bottom, 0px));
-    grid-template-rows: auto auto auto auto 1fr auto auto;
+    grid-template-rows: auto auto auto 1fr auto auto;
     grid-template-areas:
-      "brand brand"
       "head head"
       "search day"
       "picks picks"
@@ -3015,9 +2876,8 @@ body.welcome-open .welcome-source {
   }
 
   body.welcome-open .home:has(.bg-pill:not([hidden])) {
-    grid-template-rows: auto auto auto auto auto 1fr auto auto;
+    grid-template-rows: auto auto auto auto 1fr auto auto;
     grid-template-areas:
-      "brand brand"
       "pill pill"
       "head head"
       "search day"
@@ -3029,10 +2889,6 @@ body.welcome-open .welcome-source {
 
   body.welcome-open .welcome-foot {
     display: contents;
-  }
-
-  body.welcome-open .welcome-actions {
-    grid-area: actions;
   }
 
   body.welcome-open .quick-picks {
@@ -3062,7 +2918,8 @@ body.welcome-open .bg-pill {
   justify-self: end;
 }
 
-/* En la bienvenida la marca va encima de la portada, sin la línea de cabecera. */
+/* En la bienvenida la marca va dentro de la portada, que queda a 16px del borde superior: sin cabecera ni línea. */
+body.welcome-open .brand,
 body.welcome-open .home::before {
   display: none;
 }
@@ -3123,11 +2980,6 @@ body.welcome-open .search-locate:hover {
   animation: spin 1.2s linear infinite;
 }
 
-/* El botón negro y la pista del mapa sobran: la ubicación está en el buscador y el mapa se ve detrás. */
-body.welcome-open .welcome-actions {
-  display: none;
-}
-
 /* Día junto al buscador, con su caja, flechas y «Hoy», a la misma altura que el buscador. */
 body.welcome-open .day-nav {
   height: 52px;
@@ -3159,8 +3011,11 @@ body.welcome-open .brand-help {
   color: #fff;
 }
 
+/* La portada va a sangre: anula el relleno de la tarjeta (16px) y comparte sus esquinas, dentro del borde de 1px. */
 body.welcome-open .welcome-hero {
   display: flex;
+  margin: -16px -16px 0;
+  border-radius: calc(var(--radius) - 1px) calc(var(--radius) - 1px) 0 0;
 }
 
 /*
@@ -3197,6 +3052,33 @@ body.welcome-open .welcome-hero {
   padding: 16px;
 }
 
+/* Marca arriba a la izquierda de la portada; margin-bottom: auto empuja el texto al fondo. */
+.hero-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 auto;
+  padding-bottom: 16px;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.hero-brand .brand-mark {
+  width: 26px;
+  height: 26px;
+}
+
+.hero-brand .beta-tag {
+  padding: 1px 6px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 999px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+}
+
 .welcome-hero .eyebrow {
   margin: 0 0 6px;
   color: #d9b8ff;
@@ -3212,24 +3094,6 @@ body.welcome-open .welcome-hero {
   margin: 0;
   color: rgba(255, 255, 255, 0.82);
   line-height: 1.2;
-}
-
-.welcome-actions {
-  align-items: center;
-  gap: 8px 14px;
-}
-
-.map-hint {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  color: var(--ink-soft);
-  font-size: 13px;
-}
-
-.map-hint .dock-dot {
-  flex-shrink: 0;
-  margin-left: 4px;
 }
 
 .welcome-foot .quick-picks {
@@ -3349,7 +3213,6 @@ body.welcome-open .welcome-hero {
     width: auto;
     grid-template-columns: auto minmax(0, 1fr);
     grid-template-areas:
-      "brand pill"
       "head head"
       "search search"
       "day day"

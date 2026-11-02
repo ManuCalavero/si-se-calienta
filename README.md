@@ -1,4 +1,4 @@
-# Si Se Calienta
+# secalienta.com
 
 App web para ver cómo ha cambiado un mismo día del año (mes + día) en una estación de AEMET, desde su primer registro (como muy pronto 1920) hasta hoy.
 
@@ -50,12 +50,12 @@ npm run dev
 - `GET /api/evolution/jobs/enqueue?station=XXXX&month=MM&day=DD`: devuelve el resultado al instante si está en caché; si no, encola la descarga y devuelve un `jobId`.
 - `GET /api/evolution/jobs/:jobId`: estado, progreso, tiempo estimado y resultado parcial del trabajo.
 - `GET /api/background`: búsquedas de histórico en segundo plano en curso.
-- `GET /api/evolution?station=XXXX&month=MM&day=DD`: igual que el anterior pero esperando a que termine (modo síncrono). Con `&refresh=1&refreshSecret=TU_SECRETO` fuerza la recarga desde AEMET.
+
+Solo se aceptan estaciones que existan en el inventario de AEMET, para no gastar la cuota con indicativos inventados.
 
 ## Seguridad (variables opcionales)
 
 - `FETCH_TIMEOUT_MS`: timeout para llamadas HTTP salientes a AEMET (por defecto `20000`).
-- `REFRESH_SECRET`: secreto requerido para permitir `refresh=1`.
 
 ## Descarga desde AEMET (variables opcionales)
 
@@ -64,7 +64,6 @@ npm run dev
 
 ## Rate limits (variables opcionales)
 
-- `EVOLUTION_SYNC_LIMIT_PER_MIN`: límite por minuto para `GET /api/evolution`.
 - `EVOLUTION_ENQUEUE_LIMIT_PER_MIN`: límite por minuto para `GET /api/evolution/jobs/enqueue`.
 - `EVOLUTION_STATUS_LIMIT_PER_MIN`: límite por minuto para el estado de trabajos y `/api/background`.
 

@@ -39,11 +39,9 @@ const EVOLUTION_JOB_RETENTION_MINUTES = Math.max(5, Number(process.env.EVOLUTION
 const EVOLUTION_JOB_RETENTION_MS = EVOLUTION_JOB_RETENTION_MINUTES * 60 * 1000;
 const AEMET_REQUEST_DELAY_MS = Math.max(300, Number(process.env.AEMET_REQUEST_DELAY_MS || "1000"));
 const AEMET_MAX_BACKOFF_MS = 30000;
-const EVOLUTION_SYNC_LIMIT_PER_MIN = Math.max(4, Number(process.env.EVOLUTION_SYNC_LIMIT_PER_MIN || "12"));
 const EVOLUTION_ENQUEUE_LIMIT_PER_MIN = Math.max(10, Number(process.env.EVOLUTION_ENQUEUE_LIMIT_PER_MIN || "40"));
 const EVOLUTION_STATUS_LIMIT_PER_MIN = Math.max(60, Number(process.env.EVOLUTION_STATUS_LIMIT_PER_MIN || "240"));
 
-const refreshSecret = String(process.env.REFRESH_SECRET || "").trim();
 const evolutionJobs = new Map();
 let evolutionJobSequence = 0;
 
@@ -98,11 +96,18 @@ app.use(
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
-        connectSrc: ["'self'", "https://cdn.jsdelivr.net", "https://unpkg.com"],
-        imgSrc: ["'self'", "https:", "data:", "blob:"],
+        connectSrc: ["'self'"],
+        // Teselas del mapa (Esri); data: y blob: para los iconos de Leaflet y la imagen para compartir.
+        imgSrc: ["'self'", "https://server.arcgisonline.com", "data:", "blob:"],
+        mediaSrc: ["'self'"],
+        // 'unsafe-inline' solo en estilos: Leaflet y Chart.js colocan elementos con style="…".
         styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://unpkg.com"],
         fontSrc: ["'self'", "https://fonts.gstatic.com"],
         scriptSrc: ["'self'", "https://cdn.jsdelivr.net", "https://unpkg.com"],
+        objectSrc: ["'none'"],
+        baseUri: ["'self'"],
+        formAction: ["'self'"],
+        frameAncestors: ["'none'"],
         // Safari aplica esta directiva tambien a http://localhost y rompe la carga de CSS/JS en local.
         upgradeInsecureRequests: null,
       },
@@ -118,14 +123,6 @@ const baseLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: "Demasiadas solicitudes. Intenta de nuevo en un minuto." },
-});
-
-const evolutionLimiter = rateLimit({
-  windowMs: 60 * 1000,
-  limit: EVOLUTION_SYNC_LIMIT_PER_MIN,
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: { error: "Limite temporal alcanzado para /api/evolution. Espera un minuto." },
 });
 
 const evolutionEnqueueLimiter = rateLimit({
@@ -162,8 +159,8 @@ function createEvolutionJobId() {
   return `job_${Date.now()}_${evolutionJobSequence}`;
 }
 
-function buildEvolutionJobKey(station, month, day, forceRefresh) {
-  return `${station}_${month}_${day}_${forceRefresh ? "refresh" : "cached"}`;
+function buildEvolutionJobKey(station, month, day) {
+  return `${station}_${month}_${day}`;
 }
 
 function pruneOldEvolutionJobs() {
@@ -202,6 +199,15 @@ function logServerError(context, error) {
 function buildAemetUrl(endpointPath) {
   const separator = endpointPath.includes("?") ? "&" : "?";
   return `${AEMET_BASE}${endpointPath}${separator}api_key=${encodeURIComponent(AEMET_API_KEY || "")}`;
+}
+
+function isAemetDataUrl(value) {
+  try {
+    const url = new URL(String(value));
+    return url.protocol === "https:" && (url.hostname === "opendata.aemet.es" || url.hostname.endsWith(".aemet.es"));
+  } catch (_error) {
+    return false;
+  }
 }
 
 function wait(ms) {
@@ -254,6 +260,10 @@ async function fetchAemetData(endpointPath) {
     throw error;
   }
 
+  // La URL de datos la da AEMET; solo se sigue si apunta a su propio dominio y por HTTPS.
+  if (!isAemetDataUrl(firstStepJson.datos)) {
+    throw new Error("AEMET devolvio una URL de datos inesperada");
+  }
   const dataResponse = await fetch(firstStepJson.datos, { signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) });
   if (!dataResponse.ok) {
     throw aemetHttpError(dataResponse, await dataResponse.text(), "Error descargando datos AEMET");
@@ -706,7 +716,7 @@ function buildSeries(job) {
   return { data, yearsWithAnyData: data.filter(rowHasData).length };
 }
 
-async function planEvolution({ station, month, day, forceRefresh }) {
+async function planEvolution({ station, month, day }) {
   const meta = await readStationMeta(station);
   const startYear = meta && meta.firstYear ? meta.firstYear : DEFAULT_START_YEAR;
   const endYear = currentYear();
@@ -722,7 +732,7 @@ async function planEvolution({ station, month, day, forceRefresh }) {
   const missing = [];
   await Promise.all(
     [...neededByKey.entries()].map(async ([key, { year, half }]) => {
-      const chunk = forceRefresh ? null : await readUsableChunk(station, year, half);
+      const chunk = await readUsableChunk(station, year, half);
       if (chunk) chunkMap.set(key, chunk);
       else missing.push({ key, year, half });
     })
@@ -757,7 +767,7 @@ function buildEvolutionResult(job, cacheHit) {
 
 function startEvolutionJob(params, plan) {
   pruneOldEvolutionJobs();
-  const key = buildEvolutionJobKey(params.station, params.month, params.day, params.forceRefresh);
+  const key = buildEvolutionJobKey(params.station, params.month, params.day);
   const existingJob = [...evolutionJobs.values()].find((job) => job.key === key && job.status === "running");
   if (existingJob) {
     return existingJob;
@@ -869,7 +879,6 @@ function parseEvolutionQuery(req) {
   const station = String(req.query.station || "").trim().toUpperCase();
   const month = String(req.query.month || "").padStart(2, "0");
   const day = String(req.query.day || "").padStart(2, "0");
-  const forceRefresh = String(req.query.refresh || "").trim() === "1";
 
   if (!station) {
     throw safeApiError("Debes indicar una estacion", 400);
@@ -887,14 +896,31 @@ function parseEvolutionQuery(req) {
     throw safeApiError("Fecha no valida", 400);
   }
 
-  if (forceRefresh) {
-    const providedRefreshSecret = String(req.query.refreshSecret || "").trim();
-    if (!refreshSecret || providedRefreshSecret !== refreshSecret) {
-      throw safeApiError("No autorizado para forzar recarga", 403);
-    }
-  }
+  return { station, month, day };
+}
 
-  return { station, month, day, forceRefresh };
+// Indicativos del inventario, para no lanzar descargas a AEMET con estaciones inventadas (gastarían la cuota).
+// Si el inventario no está disponible, no se bloquea nada.
+const KNOWN_STATIONS_TTL_MS = 60 * 60 * 1000;
+let knownStations = { ids: null, loadedAt: 0 };
+
+async function loadKnownStationIds() {
+  if (knownStations.ids && Date.now() - knownStations.loadedAt < KNOWN_STATIONS_TTL_MS) return knownStations.ids;
+  const stored = await findInMongo("inventory", "stations");
+  const payload =
+    stored && Array.isArray(stored.payload) && stored.payload.length > 0
+      ? stored.payload
+      : ((await readStationsCache({ allowExpired: true })) || {}).payload;
+  if (!Array.isArray(payload) || payload.length === 0) return null;
+  knownStations = { ids: new Set(payload.map((station) => String(station.idema).toUpperCase())), loadedAt: Date.now() };
+  return knownStations.ids;
+}
+
+async function assertKnownStation(station) {
+  const ids = await loadKnownStationIds();
+  if (ids && !ids.has(station)) {
+    throw safeApiError("Estacion no encontrada", 404);
+  }
 }
 
 async function buildCachedResultIfComplete(params) {
@@ -911,7 +937,7 @@ async function buildCachedResultIfComplete(params) {
 app.get("/api/stations", async (_req, res) => {
   try {
     if (!AEMET_API_KEY) {
-      return res.status(500).json({ error: "Falta configurar AEMET_API_KEY en .env" });
+      return res.status(503).json({ error: "Servicio no disponible temporalmente" });
     }
 
     const stored = await findInMongo("inventory", "stations");
@@ -972,10 +998,11 @@ app.get("/api/stations/cached", async (_req, res) => {
 app.get("/api/evolution/jobs/enqueue", evolutionEnqueueLimiter, async (req, res) => {
   try {
     if (!AEMET_API_KEY) {
-      return res.status(500).json({ error: "Falta configurar AEMET_API_KEY en .env" });
+      return res.status(503).json({ error: "Servicio no disponible temporalmente" });
     }
 
     const params = parseEvolutionQuery(req);
+    await assertKnownStation(params.station);
     const { plan, result } = await buildCachedResultIfComplete(params);
     if (result) {
       return res.json({ status: "done", fromCache: true, result });
@@ -1015,32 +1042,6 @@ app.get("/api/evolution/jobs/:jobId", evolutionStatusLimiter, (req, res) => {
 
 app.get("/api/background", evolutionStatusLimiter, (_req, res) => {
   res.json({ downloads: getBackgroundDownloads() });
-});
-
-app.get("/api/evolution", evolutionLimiter, async (req, res) => {
-  try {
-    if (!AEMET_API_KEY) {
-      return res.status(500).json({ error: "Falta configurar AEMET_API_KEY en .env" });
-    }
-
-    const params = parseEvolutionQuery(req);
-    const { plan, result } = await buildCachedResultIfComplete(params);
-    if (result) {
-      return res.json(result);
-    }
-
-    const job = startEvolutionJob(params, plan);
-    await job.done;
-    if (job.status !== "done") {
-      throw new Error(job.error || "Error consultando evolucion");
-    }
-    res.json(job.result);
-  } catch (error) {
-    logServerError("api.evolution", error);
-    const statusCode = Number.isInteger(error && error.statusCode) ? error.statusCode : 500;
-    const clientMessage = redactErrorForClient(error, "Error consultando evolucion");
-    res.status(statusCode).json({ error: clientMessage });
-  }
 });
 
 app.listen(PORT, () => {

@@ -4,18 +4,18 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
-    <meta name="theme-color" content="#c7c7c7" />
-    <script src="js/theme-init.js"></script>
-    <title>Si se calienta · ¿Hace más calor que antes?</title>
+    <meta name="theme-color" content="#e9e3cc" />
+    <title>secalienta.com · ¿Hace más calor que antes?</title>
     <meta name="description" content="Compara la temperatura de un día con ese mismo día en todos los años con registro en las estaciones de AEMET." />
-    <meta property="og:title" content="Si se calienta · ¿Hace más calor que antes?" />
+    <meta property="og:title" content="secalienta.com · ¿Hace más calor que antes?" />
+    <meta property="og:site_name" content="secalienta.com" />
     <meta property="og:description" content="Elige un lugar y un día del año y mira cómo ha cambiado su temperatura desde 1920. Datos de AEMET OpenData." />
     <meta property="og:type" content="website" />
     <link rel="icon" href="favicon.ico" sizes="32x32" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&family=DM+Mono:wght@400;500&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&family=EB+Garamond:wght@400..600&display=swap"
       rel="stylesheet"
     />
     <link
@@ -28,24 +28,24 @@
   </head>
   <body>
     <div id="map" class="map" role="application" aria-label="Mapa de estaciones de AEMET"></div>
-    <!-- Tiñe las teselas grises: la tierra (#eeeeee) queda en #1e283e (--map-land) y el agua en #0d101a (--map-sea). -->
+    <!-- Tiñe las teselas grises del mapa: la tierra (#eeeeee) queda en #fefcee y el agua en #e9e3cc (--map-sea). -->
     <svg width="0" height="0" style="position: absolute" aria-hidden="true">
-      <filter id="map-tint" color-interpolation-filters="sRGB">
+      <filter id="map-cream" color-interpolation-filters="sRGB">
         <feColorMatrix
           type="matrix"
-          values="0.1163 0.3911 0.0395 0 -0.3928
-                  0.1641 0.5522 0.0557 0 -0.5637
-                  0.2462 0.8283 0.0836 0 -0.8377
+          values="0.1436 0.4832 0.0488 0 0.3656
+                  0.1710 0.5752 0.0581 0 0.2376
+                  0.2325 0.7823 0.0790 0 -0.0875
                   0      0      0      1 0"
         />
       </filter>
     </svg>
     <!-- Inicio: barra, bienvenida y resultado son el mismo objeto. Al elegir estación, la barra queda arriba y el resultado debajo. -->
-    <aside id="home" class="home glass" aria-label="Si se calienta">
+    <aside id="home" class="home glass" aria-label="secalienta.com">
       <button id="sheet-handle" class="sheet-handle" type="button" aria-label="Ampliar panel"><span></span></button>
 
       <div class="topbar">
-        <button id="about-btn" class="brand" type="button" aria-label="Si se calienta. Ver cómo funciona" aria-controls="welcome" aria-expanded="true">
+        <button id="about-btn" class="brand" type="button" aria-label="secalienta.com. Ver cómo funciona" aria-controls="welcome" aria-expanded="true">
           <span class="brand-mark" aria-hidden="true"></span>
           <span class="brand-text">
             <strong><span class="brand-name">secalienta.com</span> <span class="beta-tag">BETA</span></strong>
@@ -131,7 +131,7 @@
         <!-- Vídeo de fondo: parado en el primer fotograma si se prefiere menos movimiento. -->
         <video
           class="welcome-video"
-          src="img/portada-globo.mp4"
+          src="img/comparador-temperaturas-spain-historicas-diarias.mp4"
           autoplay
           muted
           loop
@@ -140,6 +140,11 @@
           aria-hidden="true"
         ></video>
         <div class="welcome-hero-content">
+          <p class="hero-brand">
+            <span class="brand-mark" aria-hidden="true"></span>
+            <span>secalienta.com</span>
+            <span class="beta-tag">BETA</span>
+          </p>
           <p class="eyebrow">Un siglo de registros diarios</p>
           <h1 id="welcome-title">¿Hace más calor que antes?</h1>
           <p class="welcome-text">
@@ -150,13 +155,6 @@
       </div>
 
       <div class="welcome-foot">
-        <div class="welcome-actions">
-          <button id="locate-btn" class="btn btn-primary" type="button">
-            <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="3" /><path d="M10 2v3M10 15v3M2 10h3M15 10h3" /></svg>
-            Usar mi ubicación
-          </button>
-          <span class="map-hint"><span class="dock-dot" aria-hidden="true"></span>o toca un punto del mapa</span>
-        </div>
         <div class="quick-picks" hidden>
           <span>Prueba con</span>
           <div id="quick-picks" class="chips"></div>
@@ -260,14 +258,14 @@
             <section class="card donate" aria-labelledby="donate-title">
               <div class="donate-head">
                 <div>
-                  <h3 id="donate-title">Ayuda a que siga abierta</h3>
+                  <h3 id="donate-title">Mantén esta web abierta</h3>
                   <p>Gratis y sin publicidad. Mantenerla en marcha cuesta unos <strong id="donate-total"></strong>.</p>
                 </div>
               </div>
               <p id="donate-visit" class="donate-visit"></p>
               <ul id="cost-list" class="cost-list"></ul>
               <div class="donate-foot">
-                <a id="kofi-link" class="btn btn-primary btn-coffee" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7.5" /><path d="M12.6 7.4a3.3 3.3 0 1 0 0 5.2M6.4 9.2h4.4M6.4 10.9h4.4" /></svg>Mantén la web abierta</a>
+                <a id="kofi-link" class="btn btn-primary btn-coffee" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7.5" /><path d="M12.6 7.4a3.3 3.3 0 1 0 0 5.2M6.4 9.2h4.4M6.4 10.9h4.4" /></svg>Quiero ayudar</a>
                 <span id="donate-equivalence" class="donate-eq"></span>
               </div>
             </section>
@@ -327,10 +325,6 @@
       </button>
     </div>
 
-    <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Cambiar a modo oscuro">
-      <svg class="icon-moon" viewBox="0 0 20 20" aria-hidden="true"><path d="M16.5 12.2A7 7 0 0 1 7.8 3.5a7 7 0 1 0 8.7 8.7Z" /></svg>
-      <svg class="icon-sun" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="3.4" /><path d="M10 2.5v1.8M10 15.7v1.8M2.5 10h1.8M15.7 10h1.8M4.7 4.7l1.3 1.3M14 14l1.3 1.3M4.7 15.3 6 14M14 6l1.3-1.3" /></svg>
-    </button>
 
     <a id="attribution" class="attribution" target="_blank" rel="noopener noreferrer" data-link="aemetOpenData">Datos: © AEMET OpenData</a>
 
@@ -373,8 +367,16 @@
 
     <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"
+      integrity="sha384-JUh163oCRItcbPme8pYnROHQMC6fNKTBWtRG3I3I0erJkzNgL7uxKlNwcrcFKeqF"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"
+      integrity="sha384-oNtu+d18330MVFpltUTve1DatxCkkctlpA2AC3GulbVFOSqhHdDat3qHse/Lbuek"
+      crossorigin="anonymous"
+    ></script>
     <script
       src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
       integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="

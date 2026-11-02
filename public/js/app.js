@@ -1,7 +1,7 @@
 import { analyze } from "./stats.js";
 import { anomalyColor, formatDuration, formatNumber, formatSigned, monthName, prettyDay, titleCase } from "./format.js";
-import { anomalyScale, highlightYear, onChartHover, renderTemperatureChart, resetChartTheme, resizeCharts, setSeriesVisibility } from "./charts.js";
-import { clearSelection, createMap, focusStation, refreshMarkerTheme, resetView, setStations, updateCached } from "./map.js";
+import { anomalyScale, highlightYear, onChartHover, renderTemperatureChart, resizeCharts, setSeriesVisibility } from "./charts.js";
+import { clearSelection, createMap, focusStation, resetView, setStations, updateCached } from "./map.js";
 import { canvasToBlob, drawShareCard, shareCaption, shareFileName } from "./share.js";
 import { COFFEE_EUROS, KOFI_USERNAME, LINKS, MONTHLY_COSTS, QUICK_PICKS, VISIT_EUROS } from "./config.js";
 
@@ -25,7 +25,6 @@ const els = {
   quickPicks: $("quick-picks"),
   dock: $("dock"),
   dockLocate: $("dock-locate"),
-  locateBtn: $("locate-btn"),
   searchLocate: $("search-locate"),
   panel: $("panel"),
   panelBody: $("panel-body"),
@@ -488,6 +487,14 @@ function toggleExpanded(force) {
   els.expandBtn.setAttribute("aria-expanded", String(expanded));
   els.sheetHandle.setAttribute("aria-label", expanded ? "Reducir panel" : "Ampliar panel");
   setTimeout(resizeCharts, reducedMotion() ? 0 : 480);
+}
+
+// Desplazamiento para centrar la península en el hueco libre: a la izquierda de la tarjeta en escritorio,
+// por encima de la hoja en móvil. El margen derecho de la tarjeta (--gap) también cuenta como ocupado.
+function homeOffset() {
+  const gap = 16;
+  if (isMobile()) return [0, Math.round(els.home.offsetHeight / 2)];
+  return [Math.round((els.home.offsetWidth + gap) / 2), 0];
 }
 
 function panelOffset() {
@@ -967,7 +974,7 @@ function downloadCsv() {
   const blob = new Blob([[header, ...lines].join("\n")], { type: "text/csv;charset=utf-8" });
   const link = document.createElement("a");
   link.href = URL.createObjectURL(blob);
-  link.download = `si-se-calienta_${station.idema}_${state.month}-${state.day}.csv`;
+  link.download = `secalienta_${station.idema}_${state.month}-${state.day}.csv`;
   link.click();
   setTimeout(() => URL.revokeObjectURL(link.href), 1000);
 }
@@ -1254,7 +1261,7 @@ async function nativeShare() {
     const file = await shareFile();
     await navigator.share({
       files: [file],
-      title: "Si se calienta",
+      title: "secalienta.com",
       text: `${shareCaption(station, prettyDay(state.month, state.day), state.analysis)} ${location.href}`,
     });
   } catch (error) {
@@ -1387,7 +1394,7 @@ function locateUser() {
     showToast("Tu navegador no permite obtener la ubicación. Busca la estación por nombre.", true);
     return;
   }
-  for (const button of [els.locateBtn, els.dockLocate, els.searchLocate]) {
+  for (const button of [els.dockLocate, els.searchLocate]) {
     button.disabled = true;
     button.classList.add("is-busy");
   }
@@ -1420,7 +1427,7 @@ function locateUser() {
 
 
 function resetLocateButton() {
-  for (const button of [els.locateBtn, els.dockLocate, els.searchLocate]) {
+  for (const button of [els.dockLocate, els.searchLocate]) {
     button.disabled = false;
     button.classList.remove("is-busy");
   }
@@ -1527,7 +1534,6 @@ function bindEvents() {
 
   els.expandBtn.addEventListener("click", () => toggleExpanded());
   els.sheetHandle.addEventListener("click", () => toggleExpanded());
-  els.locateBtn.addEventListener("click", locateUser);
   els.searchLocate.addEventListener("click", locateUser);
   els.dockLocate.addEventListener("click", locateUser);
   els.csvBtn.addEventListener("click", downloadCsv);
@@ -1635,41 +1641,6 @@ function setupHeroVideo() {
   video.pause();
 }
 
-// ---------- Tema ----------
-
-// theme-init.js ya puso el tema guardado antes de pintar; aquí solo se cambia y se recuerda.
-function currentTheme() {
-  return document.documentElement.dataset.theme === "dark" ? "dark" : "light";
-}
-
-function renderThemeToggle() {
-  const toggle = document.getElementById("theme-toggle");
-  toggle.setAttribute("aria-label", currentTheme() === "dark" ? "Cambiar a modo claro" : "Cambiar a modo oscuro");
-}
-
-function setTheme(theme) {
-  document.documentElement.dataset.theme = theme;
-  try {
-    localStorage.setItem("theme", theme);
-  } catch {}
-  document.querySelector('meta[name="theme-color"]').content = theme === "dark" ? "#0d101a" : "#c7c7c7";
-  renderThemeToggle();
-  refreshMarkerTheme();
-  if (state.result && state.analysis) {
-    resetChartTheme();
-    renderTemperatureChart(els.chart, state.analysis, state.visibility);
-  }
-}
-
-function bindThemeToggle() {
-  renderThemeToggle();
-  document.getElementById("theme-toggle").addEventListener("click", () => {
-    const next = currentTheme() === "dark" ? "light" : "dark";
-    if (document.startViewTransition && !reducedMotion()) document.startViewTransition(() => setTheme(next));
-    else setTheme(next);
-  });
-}
-
 // ---------- Inicio ----------
 
 async function init() {
@@ -1677,10 +1648,13 @@ async function init() {
   applyLinks();
   renderDonate();
   bindEvents();
-  bindThemeToggle();
   setupHeroVideo();
+  // La tarjeta sale abierta en cada carga, salvo si se llega con una estación en el enlace.
+  // Va antes del mapa: su tamaño decide dónde se centra la península.
+  applyViewState(initialStation ? "station" : "home");
   createMap(els.map, {
     onSelect: selectStation,
+    homeOffset,
     // En móvil la tarjeta tapa casi todo el mapa: al moverlo, se recoge en la barra para dejar sitio.
     onExplore: () => {
       if (isMobile() && viewState() === "home") setViewState("compact");
@@ -1689,9 +1663,6 @@ async function init() {
   els.dock.hidden = false;
   els.modeToggle.dataset.value = state.mode;
   els.shareFormats.dataset.value = state.shareFormat;
-
-  // La tarjeta sale abierta en cada carga, salvo si se llega con una estación en el enlace.
-  applyViewState(initialStation ? "station" : "home");
 
   try {
     const [rawStations] = await Promise.all([fetchJson("/api/stations"), refreshCached()]);

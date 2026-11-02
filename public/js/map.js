@@ -3,16 +3,14 @@ const ESRI_BASE = "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas";
 const TILE_ATTRIBUTION =
   'Mapa &copy; <a href="https://www.esri.com">Esri</a>, HERE, Garmin, &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
 
-// Mismos tonos que --station y --station-idle de styles.css en cada tema.
-const STATION_COLORS = {
-  light: { active: "#5a58e3", idle: "#9a9a9a" },
-  dark: { active: "#8583ff", idle: "#cee1f8" },
-};
-const stationColors = () => STATION_COLORS[document.documentElement.dataset.theme === "dark" ? "dark" : "light"];
+// Mismos tonos que --station y --station-idle de styles.css.
+const ACTIVE = "#5a58e3";
+const IDLE = "#9a9a9a";
 
 let map;
 let renderer;
 let onSelectHandler = () => {};
+let homeOffsetFn = () => [0, 0];
 let selectedMarker = null;
 const markers = new Map();
 
@@ -32,21 +30,26 @@ function radiusForZoom(zoom) {
 }
 
 function markerStyle(isCached, zoom) {
-  const colors = stationColors();
   return {
     renderer,
     radius: radiusForZoom(zoom) + (isCached ? 0.5 : 0),
     // Sin borde: el canvas tiene tolerancia de clic (tolerance) y los puntos pequeños siguen siendo fáciles de tocar.
     stroke: false,
-    fillColor: isCached ? colors.active : colors.idle,
+    fillColor: isCached ? ACTIVE : IDLE,
     fillOpacity: isCached ? 1 : 0.7,
   };
 }
 
 const initialZoom = () => (window.innerWidth < 760 ? 5 : 6);
 
-export function createMap(element, { onSelect, onExplore = () => {} }) {
+// La península se centra en el hueco que deja libre la tarjeta, no en el centro de la pantalla.
+function homeTarget(zoom) {
+  return map.unproject(map.project(SPAIN_CENTER, zoom).add(homeOffsetFn()), zoom);
+}
+
+export function createMap(element, { onSelect, onExplore = () => {}, homeOffset }) {
   onSelectHandler = onSelect;
+  if (homeOffset) homeOffsetFn = homeOffset;
   map = L.map(element, {
     zoomControl: false,
     minZoom: 4,
@@ -54,6 +57,7 @@ export function createMap(element, { onSelect, onExplore = () => {} }) {
     zoomSnap: 0.5,
     worldCopyJump: false,
   }).setView(SPAIN_CENTER, initialZoom());
+  map.setView(homeTarget(initialZoom()), initialZoom(), { animate: false });
 
   map.attributionControl.setPrefix(false);
 
@@ -110,12 +114,6 @@ export function setStations(stations, cachedIds) {
   }
 }
 
-export function refreshMarkerTheme() {
-  if (!map) return;
-  const zoom = map.getZoom();
-  for (const { marker, isCached } of markers.values()) marker.setStyle(markerStyle(isCached, zoom));
-}
-
 export function updateCached(cachedIds) {
   const zoom = map.getZoom();
   for (const [id, entry] of markers.entries()) {
@@ -148,8 +146,9 @@ export function focusStation(station, offset = [0, 0]) {
 
 export function resetView() {
   if (!map) return;
-  if (reducedMotion()) map.setView(SPAIN_CENTER, initialZoom());
-  else map.flyTo(SPAIN_CENTER, initialZoom(), { duration: 1.1, easeLinearity: 0.2 });
+  const zoom = initialZoom();
+  if (reducedMotion()) map.setView(homeTarget(zoom), zoom);
+  else map.flyTo(homeTarget(zoom), zoom, { duration: 1.1, easeLinearity: 0.2 });
 }
 
 export function clearSelection() {

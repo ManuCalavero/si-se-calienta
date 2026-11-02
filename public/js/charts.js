@@ -6,50 +6,27 @@ if (annotationPlugin) Chart.register(annotationPlugin);
 Chart.defaults.font.family = '"Google Sans", system-ui, -apple-system, "Segoe UI", sans-serif';
 Chart.defaults.font.size = 11;
 
-// Mismos tonos que los tokens de styles.css para cada tema. Rojo para la máxima, azul para la mínima y turquesa para la lluvia.
-const PALETTES = {
-  light: {
-    ink: "#171717",
-    muted: "#6b6b6b",
-    surface: "rgba(255, 255, 255, 0.92)",
-    grid: "rgba(23, 23, 23, 0.07)",
-    warmLine: "#f7394b",
-    coolLine: "#029dff",
-    rain: "#05e1cf",
-    rainFill: "rgba(5, 225, 207, 0.35)",
-    rainText: "#00796f",
-    tooltip: "rgba(255, 255, 255, 0.97)",
-    tooltipBorder: "rgba(23, 23, 23, 0.12)",
-    earlyBand: "rgba(2, 157, 255, 0.08)",
-    lateBand: "rgba(247, 57, 75, 0.08)",
-    meanLine: "rgba(23, 23, 23, 0.3)",
-    pointBorder: "rgba(23, 23, 23, 0.25)",
-  },
-  dark: {
-    ink: "#e6eaf2",
-    muted: "#8d97a8",
-    surface: "rgba(17, 23, 39, 0.92)",
-    grid: "rgba(148, 163, 184, 0.12)",
-    warmLine: "rgba(247, 57, 75, 0.95)",
-    coolLine: "rgba(2, 157, 255, 0.95)",
-    rain: "#05e1cf",
-    rainFill: "rgba(5, 225, 207, 0.28)",
-    rainText: "#05e1cf",
-    tooltip: "rgba(22, 30, 48, 0.97)",
-    tooltipBorder: "rgba(148, 163, 184, 0.26)",
-    earlyBand: "rgba(2, 157, 255, 0.12)",
-    lateBand: "rgba(247, 57, 75, 0.12)",
-    meanLine: "rgba(230, 234, 242, 0.35)",
-    pointBorder: "rgba(13, 16, 26, 0.6)",
-  },
+// Mismos tonos que los tokens de styles.css: tarjeta casi negra cálida (#161513) con texto #d9d9d9.
+// Rojo para la máxima, azul para la mínima y turquesa para la lluvia.
+const C = {
+  ink: "#d9d9d9",
+  muted: "#8c8a84",
+  surface: "rgba(22, 21, 19, 0.92)",
+  grid: "rgba(217, 217, 217, 0.1)",
+  warmLine: "rgba(247, 57, 75, 0.95)",
+  coolLine: "rgba(2, 157, 255, 0.95)",
+  rain: "#05e1cf",
+  rainFill: "rgba(5, 225, 207, 0.28)",
+  rainText: "#05e1cf",
+  tooltip: "rgba(30, 28, 26, 0.97)",
+  tooltipBorder: "rgba(217, 217, 217, 0.2)",
+  earlyBand: "rgba(2, 157, 255, 0.12)",
+  lateBand: "rgba(247, 57, 75, 0.12)",
+  meanLine: "rgba(217, 217, 217, 0.35)",
+  pointBorder: "rgba(22, 21, 19, 0.6)",
 };
 
-let C = PALETTES.light;
-
-function applyTheme() {
-  C = PALETTES[document.documentElement.dataset.theme === "dark" ? "dark" : "light"];
-  Chart.defaults.color = C.muted;
-}
+Chart.defaults.color = C.muted;
 
 // La lluvia ocupa como mucho el tercio inferior para no tapar las temperaturas.
 const RAIN_HEADROOM = 3;
@@ -275,7 +252,6 @@ function mergeDatasets(chart, next) {
 }
 
 export function renderTemperatureChart(canvas, analysis, visibility) {
-  applyTheme();
   const width = canvas.parentElement ? canvas.parentElement.clientWidth : 600;
   const datasets = temperatureDatasets(analysis, visibility, width);
   const annotations = temperatureAnnotations(analysis);
@@ -350,12 +326,6 @@ export function setSeriesVisibility(id, visible) {
   if (index === -1) return;
   tempChart.data.datasets[index].hidden = !visible;
   tempChart.update();
-}
-
-// Al cambiar de tema se rehace el gráfico entero: los colores van en las opciones y en cada serie.
-export function resetChartTheme() {
-  if (tempChart) tempChart.destroy();
-  tempChart = null;
 }
 
 export function resizeCharts() {
