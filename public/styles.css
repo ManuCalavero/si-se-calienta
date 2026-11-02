@@ -3164,17 +3164,17 @@ body.welcome-open .welcome-hero {
 }
 
 /*
- * En el vídeo el globo está centrado (al 47% de alto) y su radio mide el 41% del alto. En la imagen de portada
- * el globo tiene el centro al 83% del ancho y al 73% del alto, con un radio del 66% del alto.
- * Para encuadrar igual: alto = 66/41 ≈ 161% de la portada y el centro del globo llevado a ese punto.
+ * El vídeo viene recortado a la zona que se ve (la parte izquierda y superior del original), así pesa mucho menos.
+ * En ese recorte el centro del globo cae al 75,65% del ancho y al 65,3% del alto, y su radio mide el 57,1% del alto.
+ * Se coloca para que el globo tenga el centro al 83% del ancho y al 68,8% del alto de la portada, con radio del 62,6% del alto.
  */
 .welcome-video {
   position: absolute;
-  top: 73%;
+  top: 68.8%;
   left: 83%;
-  height: 161%;
-  aspect-ratio: 32 / 17;
-  transform: translate(-50%, -47%);
+  height: 109.6%;
+  aspect-ratio: 846 / 490;
+  transform: translate(-75.65%, -65.3%);
   /* Atenuado con filtro y no con opacidad, para que no se transparente nada por detrás. */
   filter: brightness(0.75);
   pointer-events: none;
