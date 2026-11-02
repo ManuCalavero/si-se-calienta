@@ -10,7 +10,7 @@ const WARM_INK = "#c81d30";
 const COOL_INK = "#006bb8";
 const ACCENT_INK = "#7d3fbd";
 const BRAND_STRIPES = ["#029dff", "#4db9ff", "#9ad6ff", "#efefef", "#fbb3ba", "#f9808b", "#f85c6a", "#f7394b"];
-const FONT = '"Google Sans", system-ui, -apple-system, "Segoe UI", sans-serif';
+const FONT = '"Inter", system-ui, -apple-system, "Segoe UI", sans-serif';
 
 export const SHARE_FORMATS = {
   square: { width: 1080, height: 1080, label: "1:1" },

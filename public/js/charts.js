@@ -3,27 +3,27 @@ import { anomalyColor, formatNumber } from "./format.js";
 const annotationPlugin = window["chartjs-plugin-annotation"];
 if (annotationPlugin) Chart.register(annotationPlugin);
 
-Chart.defaults.font.family = '"Google Sans", system-ui, -apple-system, "Segoe UI", sans-serif';
+Chart.defaults.font.family = '"IBM Plex Mono", ui-monospace, monospace';
 Chart.defaults.font.size = 11;
 
-// Mismos tonos que los tokens de styles.css: tarjeta casi negra cálida (#161513) con texto #d9d9d9.
+// Mismos tonos que los tokens de styles.css: tarjeta blanca rota (#f1f0ea) con texto casi negro.
 // Rojo para la máxima, azul para la mínima y turquesa para la lluvia.
 const C = {
-  ink: "#d9d9d9",
-  muted: "#8c8a84",
-  surface: "rgba(22, 21, 19, 0.92)",
-  grid: "rgba(217, 217, 217, 0.1)",
-  warmLine: "rgba(247, 57, 75, 0.95)",
-  coolLine: "rgba(2, 157, 255, 0.95)",
+  ink: "#111111",
+  muted: "#6a6962",
+  surface: "rgba(241, 240, 234, 0.92)",
+  grid: "rgba(17, 17, 17, 0.07)",
+  warmLine: "#f7394b",
+  coolLine: "#029dff",
   rain: "#05e1cf",
-  rainFill: "rgba(5, 225, 207, 0.28)",
-  rainText: "#05e1cf",
-  tooltip: "rgba(30, 28, 26, 0.97)",
-  tooltipBorder: "rgba(217, 217, 217, 0.2)",
-  earlyBand: "rgba(2, 157, 255, 0.12)",
-  lateBand: "rgba(247, 57, 75, 0.12)",
-  meanLine: "rgba(217, 217, 217, 0.35)",
-  pointBorder: "rgba(22, 21, 19, 0.6)",
+  rainFill: "rgba(5, 225, 207, 0.35)",
+  rainText: "#00796f",
+  tooltip: "rgba(250, 249, 245, 0.97)",
+  tooltipBorder: "rgba(17, 17, 17, 0.12)",
+  earlyBand: "rgba(2, 157, 255, 0.08)",
+  lateBand: "rgba(247, 57, 75, 0.08)",
+  meanLine: "rgba(17, 17, 17, 0.3)",
+  pointBorder: "rgba(17, 17, 17, 0.25)",
 };
 
 Chart.defaults.color = C.muted;

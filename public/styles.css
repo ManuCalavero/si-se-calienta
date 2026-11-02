@@ -1,72 +1,139 @@
 /*
- * Tema editorial (único): mapa crema #fefcee, tarjeta casi negra cálida #161513, texto #d9d9d9
- * y titulares en serif (EB Garamond).
+ * Tema único: tarjeta blanca rota #f1f0ea sobre mapa gris, texto casi negro, titulares en grotesca
+ * muy apretada (Inter Tight) y etiquetas en mono mayúsculas (IBM Plex Mono).
  */
 :root {
-  color-scheme: dark;
+  color-scheme: light;
   /* Superficies de la tarjeta. */
-  --paper: #161513;
-  --ivory: #100f0e;
-  --beige: #22201d;
-  --sheet: #161513;
-  --surface: #1e1c1a;
+  --paper: #f1f0ea;
+  --ivory: #e8e7e0;
+  --beige: #e2e1d9;
+  --sheet: #f1f0ea;
+  --surface: #faf9f5;
   /* Canales RGB para tintes (hover, bordes) y superficies translúcidas (campos, tarjetas). */
-  --surface-rgb: 30, 28, 26;
-  --tint-rgb: 217, 217, 217;
-  --glass: rgba(22, 21, 19, 0.8);
-  --glass-strong: rgba(22, 21, 19, 0.94);
-  /* Mapa: el filtro #map-cream de index.html lleva la tierra a #fefcee y el agua a #e9e3cc. */
-  --map-filter: url(#map-cream);
-  --map-sea: #e9e3cc;
-  --map-vignette: rgba(233, 227, 204, 0.5);
+  --surface-rgb: 250, 249, 245;
+  --tint-rgb: 17, 17, 17;
+  --glass: rgba(241, 240, 234, 0.8);
+  --glass-strong: rgba(241, 240, 234, 0.94);
+  /* Mapa en grises. */
+  --map-filter: grayscale(1) brightness(0.96);
+  --map-sea: #c7c7c7;
+  --map-vignette: rgba(199, 199, 199, 0.5);
   --labels-filter: none;
-  --labels-opacity: 0.7;
+  --labels-opacity: 0.75;
   /* Estaciones del mapa: con datos y sin datos (mismos tonos en map.js). */
   --station: #5a58e3;
   --station-idle: #9a9a9a;
   /* Texto y neutros. */
-  --ink: #d9d9d9;
-  --ink-soft: #b3b1ab;
-  --muted: #8c8a84;
-  --grey: #6e6c67;
-  --stone: #2c2a27;
-  --line: rgba(217, 217, 217, 0.12);
-  --line-strong: rgba(217, 217, 217, 0.22);
-  --border: #2a2825;
-  /* Acción principal: gris claro sobre la tarjeta oscura. */
-  --primary: #d9d9d9;
-  --primary-hover: #fff;
-  --on-primary: #161513;
-  /* Acento morado para enlaces, foco y detalles; -ink es la versión de texto. */
+  --ink: #111111;
+  --ink-soft: #3a3a36;
+  --muted: #6a6962;
+  --grey: #8a8982;
+  --stone: #d9d8d0;
+  --line: rgba(17, 17, 17, 0.1);
+  --line-strong: rgba(17, 17, 17, 0.18);
+  --border: rgba(17, 17, 17, 0.1);
+  /* Acción principal: negro sobre la tarjeta clara. */
+  --primary: #111111;
+  --primary-hover: #000;
+  --on-primary: #fff;
+  /* Acento morado para enlaces, foco y detalles; -ink es la versión de texto, más oscura para leerse sobre blanco. */
   --accent: #a05ddc;
-  --accent-strong: #b271ea;
-  --accent-ink: #c39bf0;
-  --accent-soft: rgba(160, 93, 220, 0.18);
+  --accent-strong: #8f4bcc;
+  --accent-ink: #7a3bb5;
+  --accent-soft: rgba(160, 93, 220, 0.12);
   --on-accent: #fff;
   /* Datos: rojo para lo cálido, azul para lo fresco, turquesa para la lluvia. -ink es la versión de texto. */
   --warm: #f7394b;
-  --warm-ink: #ff5c6b;
-  --warm-soft: rgba(247, 57, 75, 0.16);
+  --warm-ink: #d41f33;
+  --warm-soft: rgba(247, 57, 75, 0.12);
   --cool: #029dff;
-  --cool-ink: #029dff;
-  --cool-soft: rgba(2, 157, 255, 0.16);
+  --cool-ink: #006bb8;
+  --cool-soft: rgba(2, 157, 255, 0.12);
   --rain: #05e1cf;
-  --rain-ink: #05e1cf;
+  --rain-ink: #00796f;
   /* Módulo de donación y botón «0,75 €». */
-  --kofi-bg: rgba(255, 140, 40, 0.14);
-  --kofi-bg-hover: rgba(255, 140, 40, 0.22);
-  --kofi-ink: #ffa25c;
-  --kofi-icon: #ff8a3d;
+  --kofi-bg: #fff3e6;
+  --kofi-bg-hover: #ffe7cc;
+  --kofi-ink: #b85208;
+  --kofi-icon: #e8711a;
   /* Las sombras de algunos elementos se multiplican por este factor. */
-  --shadow-strength: 1.6;
-  --shadow: 0 16px 40px rgba(0, 0, 0, 0.3);
+  --shadow-strength: 1;
+  --shadow: 0 16px 40px rgba(0, 0, 0, 0.12);
   --radius: 18px;
   --radius-small: 12px;
   --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
-  --font: "Google Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-display: "EB Garamond", Georgia, "Times New Roman", serif;
+  --font: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Inter Tight", "Inter", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
   --gap: 16px;
   --topbar-height: 64px;
+}
+
+/*
+ * Tipografía. Con :root delante para ganar a las reglas de cada componente, que fijan su propio peso y espaciado.
+ * Titulares: grotesca grande, pesada y con el espaciado muy cerrado.
+ */
+:root .welcome-head h1,
+:root .panel-header h2,
+:root .share-header h2,
+:root .donate h3,
+:root #donate-title {
+  font-weight: 600;
+  letter-spacing: -0.055em;
+  line-height: 0.95;
+}
+
+:root .welcome-head h1 {
+  font-size: 2.9rem;
+}
+
+:root .panel-header h2 {
+  font-size: 2.4rem;
+}
+
+/* Etiquetas y textos de apoyo: mono en mayúsculas con algo de aire entre letras. */
+:root .eyebrow,
+:root .card h3,
+:root .kpi-label,
+:root .cost-label,
+:root .station-badge,
+:root .panel-sub,
+:root .welcome-source,
+:root .quick-picks > span,
+:root .tab,
+:root .hint,
+:root .foot-attribution,
+:root .beta-tag,
+:root .chip-btn small,
+:root .kpi-sub,
+:root .stripes-axis {
+  font-family: var(--font-mono);
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+:root .kpi-value,
+:root .cost-value {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+
+/* El cuadradito turquesa delante de la etiqueta de la portada. */
+:root .eyebrow::before {
+  content: "";
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-right: 8px;
+  background: var(--rain);
+  vertical-align: 1px;
+}
+
+:root .welcome-hero .eyebrow {
+  color: #fff;
 }
 
 * {
@@ -336,8 +403,8 @@ input {
   background-color: var(--ink);
   color: var(--paper);
   font-size: 0.62rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
+  font-weight: 400;
+  letter-spacing: 0.04em;
   vertical-align: 2px;
 }
 
@@ -2860,29 +2927,27 @@ body.welcome-open .welcome-source {
 /* En escritorio la tarjeta ocupa todo el alto, como con estación. En móvil deja ver el mapa debajo. */
 @media (min-width: 761px) {
   /*
-   * El pie se deshace (display: contents) para colocar sus piezas en la rejilla: buscador y sugerencias
-   * justo bajo la portada, y una fila vacía (.) que empuja el aviso y la fuente al fondo de la tarjeta.
+   * El pie se deshace (display: contents) para colocar sus piezas en la rejilla. La portada se estira
+   * con todo el alto que sobra; debajo van buscador, sugerencias, aviso y fuente, ajustados al fondo.
    */
   body.welcome-open .home {
     bottom: calc(var(--gap) + env(safe-area-inset-bottom, 0px));
-    grid-template-rows: auto auto auto 1fr auto auto;
+    grid-template-rows: 1fr auto auto auto auto;
     grid-template-areas:
       "head head"
       "search day"
       "picks picks"
-      ". ."
       "note note"
       "source source";
   }
 
   body.welcome-open .home:has(.bg-pill:not([hidden])) {
-    grid-template-rows: auto auto auto auto 1fr auto auto;
+    grid-template-rows: auto 1fr auto auto auto auto;
     grid-template-areas:
       "pill pill"
       "head head"
       "search day"
       "picks picks"
-      ". ."
       "note note"
       "source source";
   }
@@ -3007,16 +3072,51 @@ body.welcome-open .brand-help {
   overflow: hidden;
   min-height: 290px;
   border-radius: var(--radius-small);
-  background: #000;
+  /* Negro morado, el mismo tono que el fondo del vídeo. */
+  background: #1c1726;
   color: #fff;
 }
 
 /* La portada va a sangre: anula el relleno de la tarjeta (16px) y comparte sus esquinas, dentro del borde de 1px. */
 body.welcome-open .welcome-hero {
   display: flex;
-  margin: -16px -16px 0;
+  /*
+   * Se alarga por debajo de su fila (margen negativo, más el hueco de 16px entre filas) hasta cubrir
+   * buscador y día, que quedan dentro de la imagen. --hero-inputs es lo que ocupan con el relleno inferior.
+   * Todo dentro de la imagen va a 24px de sus bordes.
+   */
+  --hero-pad: 24px;
+  --hero-inputs: calc(52px + var(--hero-pad));
+  min-height: calc(290px + var(--hero-inputs));
+  align-self: stretch;
+  margin: -16px -16px calc(-1 * (var(--hero-inputs) + 16px));
   border-radius: calc(var(--radius) - 1px) calc(var(--radius) - 1px) 0 0;
 }
+
+body.welcome-open .welcome-hero-content {
+  padding: var(--hero-pad) var(--hero-pad) calc(var(--hero-inputs) + var(--hero-pad));
+}
+
+/* Buscador y día por encima de la portada, opacos para leerse sobre el vídeo. La tarjeta ya da 16px; faltan 8px. */
+body.welcome-open .search,
+body.welcome-open .day-nav {
+  z-index: 3;
+  margin-bottom: 24px;
+}
+
+body.welcome-open .search {
+  margin-left: 8px;
+}
+
+body.welcome-open .day-nav {
+  margin-right: 8px;
+}
+
+body.welcome-open .search input,
+body.welcome-open .day-nav {
+  background: var(--surface);
+}
+
 
 /*
  * El vídeo viene recortado a la zona que se ve (la parte izquierda y superior del original), así pesa mucho menos.
@@ -3024,23 +3124,27 @@ body.welcome-open .welcome-hero {
  * Se coloca para que el globo tenga el centro al 83% del ancho y al 68,8% del alto de la portada, con radio del 62,6% del alto.
  */
 .welcome-video {
+  transform:translate3d(0,0,0);
   position: absolute;
   top: 68.8%;
   left: 72%;
-  height: 132.6%;
+  height: 105%;
   aspect-ratio: 846 / 490;
   transform: translate(-75.65%, -65.3%);
-  /* Atenuado con filtro y no con opacidad, para que no se transparente nada por detrás. */
-  filter: brightness(0.75);
+  mix-blend-mode: exclusion;
+  /*
+   * El tinte morado viene ya en el vídeo (sacado del original en grises): Safari no aplica bien filtros SVG
+   * ni modos de fusión sobre vídeo.
+   */
   pointer-events: none;
 }
 
-.welcome-hero::after {
+/* .welcome-hero::after {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0.35) 55%, transparent 80%);
-}
+  background: linear-gradient(90deg, rgba(14, 20, 17, 0.75) 0%, rgba(14, 20, 17, 0.35) 55%, transparent 80%);
+} */
 
 .welcome-hero-content {
   position: relative;
@@ -3076,7 +3180,7 @@ body.welcome-open .welcome-hero {
   background: transparent;
   color: rgba(255, 255, 255, 0.85);
   font-size: 0.62rem;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.04em;
 }
 
 .welcome-hero .eyebrow {
@@ -3233,6 +3337,21 @@ body.welcome-open .welcome-hero {
 
   .welcome-hero {
     min-height: 300px;
+  }
+
+  /* En móvil buscador y día van en dos filas, ambas dentro de la portada. */
+  body.welcome-open .welcome-hero {
+    --hero-inputs: calc(2 * 52px + 16px + var(--hero-pad));
+    min-height: calc(300px + var(--hero-inputs));
+  }
+
+  body.welcome-open .search {
+    margin-bottom: 0;
+  }
+
+  body.welcome-open .search,
+  body.welcome-open .day-nav {
+    margin-inline: 8px;
   }
 
   body.welcome-open .day-nav {
