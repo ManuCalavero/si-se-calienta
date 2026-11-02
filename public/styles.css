@@ -3026,8 +3026,8 @@ body.welcome-open .welcome-hero {
 .welcome-video {
   position: absolute;
   top: 68.8%;
-  left: 83%;
-  height: 109.6%;
+  left: 72%;
+  height: 132.6%;
   aspect-ratio: 846 / 490;
   transform: translate(-75.65%, -65.3%);
   /* Atenuado con filtro y no con opacidad, para que no se transparente nada por detrás. */
