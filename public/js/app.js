@@ -26,6 +26,7 @@ const els = {
   dock: $("dock"),
   dockLocate: $("dock-locate"),
   locateBtn: $("locate-btn"),
+  searchLocate: $("search-locate"),
   panel: $("panel"),
   panelBody: $("panel-body"),
   sheetHandle: $("sheet-handle"),
@@ -364,6 +365,8 @@ function applyViewState(next) {
   els.backBtn.tabIndex = next === "station" ? 0 : -1;
   els.aboutBtn.tabIndex = next === "station" ? -1 : 0;
   if (next === "home") els.home.scrollTop = 0;
+  // En la bienvenida el buscador es la acción principal y pregunta; con estación, solo etiqueta.
+  els.searchInput.placeholder = next === "home" ? "Busca tu ciudad" : "Ciudad o estación";
 }
 
 function setViewState(next, { animate = true } = {}) {
@@ -1384,7 +1387,7 @@ function locateUser() {
     showToast("Tu navegador no permite obtener la ubicación. Busca la estación por nombre.", true);
     return;
   }
-  for (const button of [els.locateBtn, els.dockLocate]) {
+  for (const button of [els.locateBtn, els.dockLocate, els.searchLocate]) {
     button.disabled = true;
     button.classList.add("is-busy");
   }
@@ -1417,7 +1420,7 @@ function locateUser() {
 
 
 function resetLocateButton() {
-  for (const button of [els.locateBtn, els.dockLocate]) {
+  for (const button of [els.locateBtn, els.dockLocate, els.searchLocate]) {
     button.disabled = false;
     button.classList.remove("is-busy");
   }
@@ -1525,6 +1528,7 @@ function bindEvents() {
   els.expandBtn.addEventListener("click", () => toggleExpanded());
   els.sheetHandle.addEventListener("click", () => toggleExpanded());
   els.locateBtn.addEventListener("click", locateUser);
+  els.searchLocate.addEventListener("click", locateUser);
   els.dockLocate.addEventListener("click", locateUser);
   els.csvBtn.addEventListener("click", downloadCsv);
   els.toast.addEventListener("click", () => {
@@ -1621,6 +1625,16 @@ function bindEvents() {
   });
 }
 
+// ---------- Vídeo de la portada ----------
+
+// Con «reducir movimiento», el vídeo queda parado en el primer fotograma.
+function setupHeroVideo() {
+  const video = document.querySelector(".welcome-video");
+  if (!video || !reducedMotion()) return;
+  video.removeAttribute("autoplay");
+  video.pause();
+}
+
 // ---------- Tema ----------
 
 // theme-init.js ya puso el tema guardado antes de pintar; aquí solo se cambia y se recuerda.
@@ -1664,6 +1678,7 @@ async function init() {
   renderDonate();
   bindEvents();
   bindThemeToggle();
+  setupHeroVideo();
   createMap(els.map, {
     onSelect: selectStation,
     // En móvil la tarjeta tapa casi todo el mapa: al moverlo, se recoge en la barra para dejar sitio.

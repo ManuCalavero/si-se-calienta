@@ -58,8 +58,8 @@
   --kofi-ink: #b85208;
   --kofi-icon: #e8711a;
   --donate-cells: rgba(255, 255, 255, 0.7);
-  --radius: 12px;
-  --radius-small: 8px;
+  --radius: 18px;
+  --radius-small: 12px;
   --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
   --font: "Google Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
   /* Titulares en monoespaciada y mayúsculas, con aire de terminal o de instrumento de medida. */
@@ -118,7 +118,6 @@
   --kofi-icon: #ff8a3d;
   --donate-cells: rgba(255, 255, 255, 0.04);
 }
-
 
 * {
   box-sizing: border-box;
@@ -661,7 +660,6 @@ input {
 
 /* ---------- Bienvenida ---------- */
 
-
 .eyebrow {
   margin: 0 0 6px;
   color: var(--accent-ink);
@@ -671,21 +669,10 @@ input {
   text-transform: uppercase;
 }
 
-.welcome-image {
-  display: block;
-  width: 100%;
-  height: auto;
-  aspect-ratio: 16 / 9;
-  object-fit: cover;
-  object-position: 50% 60%;
-  margin: 4px 0 14px;
-  border-radius: var(--radius-small);
-}
-
 .welcome-head h1 {
   margin: 0 0 8px;
   font-family: var(--font-display);
-  font-size: 2rem;
+  font-size: 2.3rem;
   font-weight: 500;
   letter-spacing: 0.02em;
   line-height: 1.2;
@@ -1297,11 +1284,6 @@ td {
     justify-content: center;
   }
 
-  .welcome-image {
-    aspect-ratio: 21 / 9;
-    margin-bottom: 12px;
-  }
-
   .welcome-head h1 {
     font-size: 1.65rem;
   }
@@ -1664,12 +1646,6 @@ td {
 
 /* ---------- Bienvenida ---------- */
 
-
-.welcome-image {
-  margin-top: 0;
-}
-
-
 .btn svg {
   width: 16px;
   height: 16px;
@@ -1757,7 +1733,7 @@ td {
   gap: 12px;
   margin: 16px 0 0;
   padding: 16px 18px;
-  border-radius: var(--radius-small);
+  border-radius: 14px;
   background: var(--warm-soft);
   color: var(--ink-soft);
   font-size: 13px;
@@ -2719,8 +2695,6 @@ tr.is-coldest th::after {
     min-width: 0;
   }
 
-
-
   .dock {
     left: var(--gap);
     right: var(--gap);
@@ -2807,8 +2781,6 @@ tr.is-coldest th::after {
     bottom: calc(70dvh + 12px);
   }
 }
-
-
 
 /* ---------- Inicio: barra y bienvenida en un solo objeto ---------- */
 
@@ -2983,13 +2955,14 @@ body.has-selection .panel-header {
 body.welcome-open .home {
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   grid-template-areas:
+    "brand brand"
     "head head"
     "search day"
     "foot foot";
-  gap: 14px 10px;
+  /* Un solo ritmo en toda la bienvenida: 16px en vertical y 8px en horizontal, sin márgenes sueltos dentro. */
+  gap: 16px 8px;
   width: 560px;
-  /* Sin relleno arriba ni a los lados: la portada va a sangre hasta el borde de la tarjeta. */
-  padding: 0 0 var(--pad-x);
+  padding: 16px;
   max-height: calc(100dvh - 2 * var(--gap) - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
   overflow-y: auto;
   /* La última fila absorbe el alto sobrante para que la caja blanca llegue abajo sin abrir huecos entre filas. */
@@ -3009,31 +2982,32 @@ body.welcome-open .welcome-foot {
   display: flex;
   flex-direction: column;
   align-self: stretch;
-  margin-top: -4px;
+  gap: 16px;
 }
 
 body.welcome-open .welcome-foot .disclaimer {
   margin-top: auto;
 }
 
-body.welcome-open .welcome-foot .quick-picks:not([hidden]) {
-  margin-bottom: 24px;
+body.welcome-open .welcome-foot .quick-picks,
+body.welcome-open .welcome-foot .disclaimer,
+body.welcome-open .welcome-source {
+  margin: 0;
 }
 
 /* En escritorio la tarjeta ocupa todo el alto, como con estación. En móvil deja ver el mapa debajo. */
 @media (min-width: 761px) {
   /*
-   * Las acciones quedan centradas entre la portada y el aviso: el pie se deshace (display: contents)
-   * para colocar sus piezas en la rejilla, y dos filas vacías (.) se reparten a partes iguales el alto que sobra.
+   * El pie se deshace (display: contents) para colocar sus piezas en la rejilla: buscador y sugerencias
+   * justo bajo la portada, y una fila vacía (.) que empuja el aviso y la fuente al fondo de la tarjeta.
    */
   body.welcome-open .home {
     bottom: calc(var(--gap) + env(safe-area-inset-bottom, 0px));
-    grid-template-rows: auto 1fr auto auto auto 1fr auto auto;
+    grid-template-rows: auto auto auto auto 1fr auto auto;
     grid-template-areas:
+      "brand brand"
       "head head"
-      ". ."
       "search day"
-      "actions actions"
       "picks picks"
       ". ."
       "note note"
@@ -3041,13 +3015,12 @@ body.welcome-open .welcome-foot .quick-picks:not([hidden]) {
   }
 
   body.welcome-open .home:has(.bg-pill:not([hidden])) {
-    grid-template-rows: auto auto 1fr auto auto auto 1fr auto auto;
+    grid-template-rows: auto auto auto auto auto 1fr auto auto;
     grid-template-areas:
-      "head head"
+      "brand brand"
       "pill pill"
-      ". ."
+      "head head"
       "search day"
-      "actions actions"
       "picks picks"
       ". ."
       "note note"
@@ -3069,25 +3042,11 @@ body.welcome-open .welcome-foot .quick-picks:not([hidden]) {
 
   body.welcome-open .welcome-foot .disclaimer {
     grid-area: note;
-    margin: 0 var(--pad-x);
   }
 
   body.welcome-open .welcome-source {
     grid-area: source;
-    margin: -4px 0 0;
   }
-
-  body.welcome-open .welcome-actions,
-  body.welcome-open .quick-picks,
-  body.welcome-open .disclaimer,
-  body.welcome-open .welcome-source {
-    margin-inline: var(--pad-x);
-  }
-}
-
-body.welcome-open {
-  display: block;
-  margin-top: -4px;
 }
 
 body.welcome-open .day-nav {
@@ -3099,32 +3058,79 @@ body.welcome-open .search-kbd {
   display: none;
 }
 
-body.welcome-open .search input {
-  padding-right: 12px;
-}
-
 body.welcome-open .bg-pill {
   justify-self: end;
 }
 
-/* En la bienvenida la marca va dentro de la portada: se ocultan la de la cabecera y su línea. */
-body.welcome-open .brand,
+/* En la bienvenida la marca va encima de la portada, sin la línea de cabecera. */
 body.welcome-open .home::before {
   display: none;
 }
 
-/* Las piezas de abajo llevan el margen lateral; la portada llega al borde de la tarjeta. */
-body.welcome-open .welcome-foot {
-  margin-inline: var(--pad-x);
+/* Bienvenida: buscador y día más altos, con «Usar mi ubicación» dentro del buscador. En móvil van uno debajo del otro. */
+
+body.welcome-open .search input {
+  height: 52px;
+  padding: 0 52px 0 44px;
+  border-width: 1.5px;
+  font-size: 16px;
 }
 
-/* Buscador y día: margen solo por fuera, para que entre ellos quede el hueco normal de la rejilla. */
-body.welcome-open .search {
-  margin-left: var(--pad-x);
+body.welcome-open .search-icon {
+  left: 16px;
+  width: 18px;
+  height: 18px;
+  stroke: var(--ink-soft);
 }
 
+.search-locate {
+  display: none;
+}
+
+body.welcome-open .search-locate {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-small);
+  background: transparent;
+  color: var(--ink-soft);
+  cursor: pointer;
+  transform: translateY(-50%);
+  transition: background 0.2s var(--ease), color 0.2s var(--ease);
+}
+
+body.welcome-open .search-locate:hover {
+  background: rgba(var(--tint-rgb), 0.07);
+  color: var(--ink);
+}
+
+.search-locate svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+}
+
+.search-locate.is-busy svg {
+  animation: spin 1.2s linear infinite;
+}
+
+/* El botón negro y la pista del mapa sobran: la ubicación está en el buscador y el mapa se ve detrás. */
+body.welcome-open .welcome-actions {
+  display: none;
+}
+
+/* Día junto al buscador, con su caja, flechas y «Hoy», a la misma altura que el buscador. */
 body.welcome-open .day-nav {
-  margin-right: var(--pad-x);
+  height: 52px;
 }
 
 body.welcome-open .brand {
@@ -3147,8 +3153,8 @@ body.welcome-open .brand-help {
 .welcome-hero {
   position: relative;
   overflow: hidden;
-  min-height: 340px;
-  border-radius: 0;
+  min-height: 290px;
+  border-radius: var(--radius-small);
   background: #000;
   color: #fff;
 }
@@ -3157,16 +3163,21 @@ body.welcome-open .welcome-hero {
   display: flex;
 }
 
-.welcome-hero .welcome-image {
+/*
+ * En el vídeo el globo está centrado (al 47% de alto) y su radio mide el 41% del alto. En la imagen de portada
+ * el globo tiene el centro al 83% del ancho y al 73% del alto, con un radio del 66% del alto.
+ * Para encuadrar igual: alto = 66/41 ≈ 161% de la portada y el centro del globo llevado a ese punto.
+ */
+.welcome-video {
   position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  aspect-ratio: auto;
-  object-fit: cover;
-  object-position: 70% 50%;
-  border-radius: 0;
+  top: 73%;
+  left: 83%;
+  height: 161%;
+  aspect-ratio: 32 / 17;
+  transform: translate(-50%, -47%);
+  /* Atenuado con filtro y no con opacidad, para que no se transparente nada por detrás. */
+  filter: brightness(0.75);
+  pointer-events: none;
 }
 
 .welcome-hero::after {
@@ -3181,32 +3192,9 @@ body.welcome-open .welcome-hero {
   z-index: 1;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-end;
   width: 100%;
-  padding: 20px 22px 22px;
-}
-
-.hero-brand {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 0 0 auto;
-  font-weight: 600;
-  font-size: 15px;
-}
-
-.hero-brand .brand-mark {
-  width: 26px;
-  height: 26px;
-}
-
-.hero-brand .beta-tag {
-  padding: 1px 6px;
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  border-radius: 999px;
-  color: rgba(255, 255, 255, 0.85);
-  font-size: 0.62rem;
-  letter-spacing: 0.08em;
+  padding: 16px;
 }
 
 .welcome-hero .eyebrow {
@@ -3361,11 +3349,12 @@ body.welcome-open .welcome-hero {
     width: auto;
     grid-template-columns: auto minmax(0, 1fr);
     grid-template-areas:
+      "brand pill"
       "head head"
       "search search"
       "day day"
       "foot foot";
-    gap: 10px;
+    gap: 16px 8px;
     max-height: 76dvh;
     --pad-x: 18px;
   }
