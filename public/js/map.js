@@ -4,7 +4,7 @@ const TILE_ATTRIBUTION =
   'Mapa &copy; <a href="https://www.esri.com">Esri</a>, HERE, Garmin, &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
 
 // Mismos tonos que --station y --station-idle de styles.css.
-const ACTIVE = "#5a58e3";
+const ACTIVE = "#a05ddc";
 const IDLE = "#9a9a9a";
 
 let map;

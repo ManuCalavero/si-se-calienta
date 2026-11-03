@@ -22,7 +22,7 @@
   --labels-filter: none;
   --labels-opacity: 0.75;
   /* Estaciones del mapa: con datos y sin datos (mismos tonos en map.js). */
-  --station: #5a58e3;
+  --station: #a05ddc;
   --station-idle: #9a9a9a;
   /* Texto y neutros. */
   --ink: #111111;
