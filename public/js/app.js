@@ -638,6 +638,10 @@ function renderHeadline(station, analysis) {
   if (analysis.verdict !== "warming" && analysis.verdict !== "cooling") {
     parts.push("Tendencia poco clara.");
   }
+  if (analysis.pending) {
+    const { year, tmed, days, of } = analysis.pending;
+    parts.push(`${year}, pendiente: ${formatNumber(tmed)} °C con ${days} de ${of} días.`);
+  }
   els.subline.textContent = parts.join(" ");
 }
 
@@ -874,7 +878,7 @@ function renderTable(analysis) {
       if (row.year > lastComplete) {
         const tag = document.createElement("span");
         tag.className = "row-tag";
-        tag.textContent = "en curso";
+        tag.textContent = analysis.pending && row.year === analysis.pending.year ? "pendiente" : "en curso";
         yearCell.appendChild(tag);
         tr.classList.add("is-current");
       } else if (analysis.warmest && row.year === analysis.warmest.year) {

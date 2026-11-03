@@ -63,12 +63,15 @@ export function anomalyScale(analysis) {
   return Math.max(0.8, ...values);
 }
 
-function yearAxis(rows) {
+// El eje llega hasta el año pendiente, si lo hay, para que su punto quepa a la derecha.
+function yearAxis(analysis) {
+  const rows = analysis.complete;
+  const lastYear = analysis.pending ? analysis.pending.year : rows.length ? rows[rows.length - 1].year : undefined;
   return {
     type: "linear",
     offset: false,
     min: rows.length ? rows[0].year - 0.5 : undefined,
-    max: rows.length ? rows[rows.length - 1].year + 0.5 : undefined,
+    max: lastYear !== undefined ? lastYear + 0.5 : undefined,
     grid: { display: false },
     border: { color: C.grid },
     ticks: { maxTicksLimit: 8, maxRotation: 0, callback: (value) => (Number.isInteger(value) ? String(value) : null) },
@@ -213,18 +216,42 @@ function temperatureDatasets(analysis, visibility, width) {
 
   if (analysis.trend) {
     const { intercept, slope, firstYear, lastYear } = analysis.trend;
+    // Un valor por año, alineado con las demás series: el tooltip agrupa por posición, y con solo
+    // dos puntos juntaba el segundo con el segundo año de la serie.
     datasets.push({
       id: "trend",
       label: "Tendencia",
-      data: [
-        { x: firstYear, y: intercept + slope * firstYear },
-        { x: lastYear, y: intercept + slope * lastYear },
-      ],
+      data: rows.map((row) => ({
+        x: row.year,
+        y: row.year >= firstYear && row.year <= lastYear ? intercept + slope * row.year : null,
+      })),
       borderColor: C.ink,
       borderWidth: 2.4,
       borderDash: [6, 4],
       pointRadius: 0,
       order: 0,
+    });
+  }
+
+  // Año en curso con la ventana a medias: punto hueco, sin unir a la serie.
+  // Va en la posición siguiente a la última de las otras series (con huecos antes): el tooltip agrupa
+  // por posición y, si el punto fuera el primero, lo juntaría con los valores del primer año.
+  if (analysis.pending) {
+    const { year, tmed, days, of } = analysis.pending;
+    datasets.push({
+      id: "pending",
+      label: `T. media (pendiente, ${days} de ${of} días)`,
+      data: [...rows.map((row) => ({ x: row.year, y: null })), { x: year, y: tmed }],
+      showLine: false,
+      // Cae en el borde derecho del área: sin recorte, para que se vea el círculo entero.
+      clip: false,
+      pointRadius: radius + 0.6,
+      pointHoverRadius: radius + 2.6,
+      pointBackgroundColor: C.surface,
+      pointBorderColor: C.muted,
+      pointBorderWidth: 1.5,
+      pointHoverBorderColor: C.ink,
+      order: 1,
     });
   }
   return datasets;
@@ -258,7 +285,7 @@ export function renderTemperatureChart(canvas, analysis, visibility) {
 
   if (tempChart) {
     mergeDatasets(tempChart, datasets);
-    tempChart.options.scales.x = yearAxis(analysis.complete);
+    tempChart.options.scales.x = yearAxis(analysis);
     tempChart.options.scales.yRain = rainAxis(analysis);
     tempChart.options.plugins.annotation.annotations = annotations;
     tempChart.update();
@@ -283,7 +310,7 @@ export function renderTemperatureChart(canvas, analysis, visibility) {
         hoverHandler(year);
       },
       scales: {
-        x: yearAxis(analysis.complete),
+        x: yearAxis(analysis),
         y: {
           grid: { color: C.grid },
           border: { display: false },

@@ -68,8 +68,14 @@ function rowsForMode(rows, mode) {
 
 export function analyze(result, mode = "window") {
   const rows = rowsForMode(result.data || [], mode);
-  const lastCompleteYear = Number(result.endYear) - 1;
-  const complete = rows.filter((row) => row.year <= lastCompleteYear);
+  // El año en curso solo cuenta si su ventana ya está entera (en julio sí, la semana pasada todavía no).
+  // Si no, queda aparte como pendiente: se muestra, pero no entra en la tendencia ni en los récords.
+  const fullWindow = 2 * Number(result.windowHalfDays) + 1;
+  const endYear = Number(result.endYear);
+  const isPending = (row) => row.year === endYear && (mode === "day" ? !row.day : row.daysWithData < fullWindow);
+  const complete = rows.filter((row) => !isPending(row));
+  const pendingRow = rows.find((row) => isPending(row) && row.tmed !== null);
+  const pending = pendingRow ? { ...pendingRow, days: pendingRow.daysWithData, of: fullWindow } : null;
   const valid = complete.filter((row) => row.tmed !== null);
   const points = valid.map((row) => ({ x: row.year, y: row.tmed }));
 
@@ -143,6 +149,7 @@ export function analyze(result, mode = "window") {
     anomalies,
     warmest,
     latest,
+    pending,
     mode,
     precipMean: mean(valid.map((row) => row.prec)),
     gaps: compressYears(missingYears),

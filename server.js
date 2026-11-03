@@ -684,7 +684,9 @@ function computeYearRow(year, month, day, chunkMap) {
     }
   }
 
-  const windowValue = (field) => (samples[field].length >= MIN_WINDOW_DAYS ? round1(meanOf(samples[field])) : null);
+  // El año en curso se calcula con los días que haya (AEMET publica con unos días de retraso); la web lo marca como pendiente.
+  const minDays = year === currentYear() ? 1 : MIN_WINDOW_DAYS;
+  const windowValue = (field) => (samples[field].length >= minDays ? round1(meanOf(samples[field])) : null);
 
   let exactDay = null;
   if (isValidDateParts(year, month, day)) {
@@ -698,7 +700,7 @@ function computeYearRow(year, month, day, chunkMap) {
     tmax: windowValue("tmax"),
     tmin: windowValue("tmin"),
     tmed: windowValue("tmed"),
-    prec: samples.prec.length >= MIN_WINDOW_DAYS ? Math.round(meanOf(samples.prec) * 100) / 100 : null,
+    prec: samples.prec.length >= minDays ? Math.round(meanOf(samples.prec) * 100) / 100 : null,
     daysWithData,
     day: exactDay,
   };
