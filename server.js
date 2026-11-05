@@ -96,7 +96,7 @@ app.use(
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
-        connectSrc: ["'self'"],
+        connectSrc: ["'self'", "https://vitals.vercel-insights.com"],
         // Teselas del mapa (Esri); data: y blob: para los iconos de Leaflet y la imagen para compartir.
         imgSrc: ["'self'", "https://server.arcgisonline.com", "data:", "blob:"],
         mediaSrc: ["'self'"],
@@ -142,6 +142,10 @@ const evolutionStatusLimiter = rateLimit({
 });
 
 app.use(express.static(path.join(__dirname, "public")));
+
+// Serve Vercel Analytics script
+app.use("/analytics", express.static(path.join(__dirname, "node_modules/@vercel/analytics/dist")));
+
 app.use(baseLimiter);
 
 function isValidStationId(station) {
