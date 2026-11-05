@@ -96,7 +96,8 @@ app.use(
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
-        connectSrc: ["'self'"],
+        // Vercel Web Analytics: permite enviar datos a los endpoints de Vercel.
+        connectSrc: ["'self'", "https://vitals.vercel-insights.com"],
         // Teselas del mapa (Esri); data: y blob: para los iconos de Leaflet y la imagen para compartir.
         imgSrc: ["'self'", "https://server.arcgisonline.com", "data:", "blob:"],
         mediaSrc: ["'self'"],
