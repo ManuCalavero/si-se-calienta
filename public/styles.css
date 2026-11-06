@@ -2796,15 +2796,15 @@ tr.is-coldest th::after {
     padding: 8px 16px;
   }
 
-  /* «Cómo leer estos datos» se abre justo encima de la fila de controles, donde está el botón. */
+  /* «Cómo leer estos datos» se abre bajo el botón de información, arriba de la pantalla. */
   .popover {
     position: fixed;
-    top: auto;
+    top: calc(16px + 48px + 8px + env(safe-area-inset-top, 0px));
     left: 12px;
     right: 12px;
-    bottom: calc(var(--consent-h) + 112px + var(--inset-b));
+    bottom: auto;
     width: auto;
-    transform-origin: bottom right;
+    transform-origin: top right;
   }
 
   .popover.station-pop {
@@ -3449,7 +3449,7 @@ body.welcome-open .day-nav {
     padding: 8px;
   }
 
-  .home:has(.bg-pill:not([hidden])) {
+  body:not(.has-selection):not(.welcome-open) .home:has(.bg-pill:not([hidden])) {
     grid-template-areas:
       "pill pill"
       "day day"
@@ -3464,9 +3464,15 @@ body.welcome-open .day-nav {
     animation-name: drop-up;
   }
 
+  /* Bienvenida: hoja a todo el ancho pegada abajo, como la del resultado. */
   body.welcome-open .home {
     top: auto;
-    bottom: var(--bottom);
+    left: 0;
+    right: 0;
+    bottom: var(--consent-h);
+    width: 100%;
+    padding-bottom: calc(16px + var(--inset-b));
+    border-radius: var(--radius) var(--radius) 0 0;
   }
 
   .map .leaflet-bottom {
@@ -3482,8 +3488,23 @@ body.welcome-open .day-nav {
       "day day"
       "foot foot";
     gap: 16px 8px;
-    max-height: min(76dvh, calc(100dvh - var(--bottom) - var(--gap) - env(safe-area-inset-top, 0px)));
+    max-height: min(76dvh, calc(100dvh - var(--consent-h) - var(--gap) - env(safe-area-inset-top, 0px)));
     --pad-x: 18px;
+  }
+
+  /* Con la descarga en segundo plano visible, la pastilla tiene su fila encima de la portada (sin ella, crea columnas de más). */
+  body.welcome-open .home:has(.bg-pill:not([hidden])) {
+    grid-template-areas:
+      "pill pill"
+      "head head"
+      "search search"
+      "day day"
+      "foot foot";
+  }
+
+  body.welcome-open .bg-pill {
+    justify-self: stretch;
+    justify-content: center;
   }
 
   body.welcome-open .brand-name {
@@ -3530,14 +3551,14 @@ body.welcome-open .day-nav {
     bottom: var(--consent-h);
     width: 100%;
     height: calc(70dvh - var(--consent-h));
-    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr);
     grid-template-rows: auto minmax(0, 1fr) auto auto auto;
     grid-template-areas:
-      "handle handle"
-      "panel panel"
-      "pill pill"
-      "search search"
-      "back day";
+      "handle"
+      "panel"
+      "pill"
+      "search"
+      "day";
     gap: 8px;
     --pad-x: 14px;
     padding: 0 var(--pad-x) calc(10px + var(--inset-b));
@@ -3548,6 +3569,8 @@ body.welcome-open .day-nav {
   body.has-selection .home:has(.panel.expanded) {
     width: 100%;
     height: calc(100dvh - var(--gap) - var(--consent-h) - env(safe-area-inset-top, 0px));
+    /* Deja libre la franja donde flotan Volver e información. */
+    padding-top: 56px;
   }
 
   body.has-selection .panel {
@@ -3579,15 +3602,55 @@ body.welcome-open .day-nav {
     border-radius: 0;
   }
 
-  /* En la hoja la toolbar comparte fila con el día: Volver primero, a la izquierda. */
-  body.has-selection .toolbar {
-    justify-self: start;
-    gap: 4px;
+  /*
+   * Volver e información flotan en el borde superior de la pantalla, a 16px de los lados y del techo,
+   * fuera de la hoja. Más grandes que el resto de iconos para alcanzarlos bien.
+   */
+  body.has-selection .toolbar,
+  body.has-selection .rigor {
+    display: contents;
+  }
+
+  body.has-selection .back-btn,
+  body.has-selection #rigor-btn {
+    position: fixed;
+    top: calc(16px + env(safe-area-inset-top, 0px));
+    z-index: 30;
+    width: 48px;
+    height: 48px;
+    min-width: 0;
+    min-height: 0;
+    padding: 0;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-small);
+    background: var(--surface);
+    color: var(--ink);
+    box-shadow: var(--shadow);
   }
 
   body.has-selection .back-btn {
-    order: -1;
-    border-color: var(--line-strong);
+    left: 16px;
+    justify-content: center;
+  }
+
+  body.has-selection #rigor-btn {
+    right: 16px;
+  }
+
+  body.has-selection .back-btn svg,
+  body.has-selection #rigor-btn svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  body.has-selection .sheet-handle {
+    align-self: stretch;
+    height: auto;
+  }
+
+  /* El nombre de la estación, más pequeño. :root le da más peso a la regla de escritorio. */
+  :root .panel-header h2 {
+    font-size: 1.3rem;
   }
 
   .toolbar-divider {
