@@ -489,6 +489,19 @@ function toggleExpanded(force) {
   setTimeout(resizeCharts, reducedMotion() ? 0 : 480);
 }
 
+// En móvil la barra de inicio va abajo: su altura la usan el aviso, la atribución y el mapa para no quedar tapados.
+function watchBottomBar() {
+  const apply = () => {
+    const compact =
+      isMobile() && !document.body.classList.contains("has-selection") && !document.body.classList.contains("welcome-open");
+    document.body.style.setProperty("--bar-h", compact ? `${els.home.offsetHeight}px` : "0px");
+  };
+  new ResizeObserver(apply).observe(els.home);
+  new MutationObserver(apply).observe(document.body, { attributes: true, attributeFilter: ["class"] });
+  window.addEventListener("resize", apply);
+  apply();
+}
+
 // Desplazamiento para centrar la península en el hueco libre: a la izquierda de la tarjeta en escritorio,
 // por encima de la hoja en móvil. El margen derecho de la tarjeta (--gap) también cuenta como ocupado.
 function homeOffset() {
@@ -1656,6 +1669,7 @@ async function init() {
   // La tarjeta sale abierta en cada carga, salvo si se llega con una estación en el enlace.
   // Va antes del mapa: su tamaño decide dónde se centra la península.
   applyViewState(initialStation ? "station" : "home");
+  watchBottomBar();
   createMap(els.map, {
     onSelect: selectStation,
     homeOffset,

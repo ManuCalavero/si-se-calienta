@@ -2,8 +2,7 @@
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-N7Q7DCPW4L"></script>
-    <script src="js/analytics.js"></script>
+    <script src="js/analytics.js" defer></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
     <meta name="theme-color" content="#c7c7c7" />
@@ -168,6 +167,7 @@
         <p class="welcome-source">
           Datos diarios de las estaciones de la Agencia Estatal de Meteorología, vía
           <a data-link="aemetOpenData" target="_blank" rel="noopener noreferrer">AEMET OpenData</a>.
+          <button id="consent-reopen" class="consent-reopen" type="button">Preferencias de cookies</button>
         </p>
       </div>
 
@@ -359,6 +359,15 @@
         </div>
       </div>
     </dialog>
+
+    <!-- Consentimiento: hasta que se acepte no se carga Google Tag Manager. La lógica está en js/analytics.js. -->
+    <div id="consent" class="consent" role="region" aria-label="Preferencias de cookies" hidden>
+      <p class="consent-text">Recogemos datos anónimos para diseñar la mejor experiencia posible.</p>
+      <div class="consent-actions">
+        <button id="consent-decline" class="consent-btn" type="button">Declinar</button>
+        <button id="consent-accept" class="consent-btn consent-btn-primary" type="button">Aceptar</button>
+      </div>
+    </div>
 
     <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 

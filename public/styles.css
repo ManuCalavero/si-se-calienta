@@ -216,6 +216,11 @@ input {
   font-size: 10px;
 }
 
+/* Atribución del mapa por encima del banner de cookies y de la barra inferior del móvil. */
+.map .leaflet-bottom {
+  bottom: calc(var(--consent-h) + var(--bar-h));
+}
+
 .leaflet-control-attribution a {
   color: var(--accent-ink) !important;
 }
@@ -485,6 +490,13 @@ input {
   from {
     opacity: 0;
     transform: translateY(-4px);
+  }
+}
+
+@keyframes drop-up {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
   }
 }
 
@@ -1160,12 +1172,135 @@ td {
   font-variant-numeric: tabular-nums;
 }
 
+/* ---------- Consentimiento ---------- */
+
+/*
+ * --consent-h lo escribe js/analytics.js con la altura del banner (0 si no se ve). Todo lo que se ancla abajo
+ * parte de --bottom, que ya descuenta el banner y, si este no se ve, el área segura del móvil.
+ * --bar-h lo escribe app.js: en móvil, la altura de la barra inferior de inicio (0 en el resto de estados).
+ */
+body {
+  --consent-h: 0px;
+  --bar-h: 0px;
+  --inset-b: env(safe-area-inset-bottom, 0px);
+  --bottom: calc(var(--gap) + var(--inset-b) + var(--consent-h));
+  --stack: calc(var(--bottom) + var(--bar-h));
+}
+
+body.has-consent {
+  --inset-b: 0px;
+}
+
+.consent {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px 20px;
+  flex-wrap: wrap;
+  padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px));
+  background: #000;
+  color: #fff;
+  font-size: 13.5px;
+  line-height: 1.35;
+  animation: consent-in 0.3s var(--ease);
+}
+
+.consent[hidden] {
+  display: none;
+}
+
+@keyframes consent-in {
+  from {
+    transform: translateY(100%);
+  }
+}
+
+.consent-text {
+  margin: 0;
+}
+
+.consent-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.consent-btn {
+  min-width: 96px;
+  height: 40px;
+  padding: 0 18px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: var(--radius-small);
+  background: transparent;
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s var(--ease), color 0.2s var(--ease), border-color 0.2s var(--ease);
+}
+
+.consent-btn:hover {
+  border-color: #fff;
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.consent-btn-primary {
+  border-color: #fff;
+  background: #fff;
+  color: #000;
+}
+
+.consent-btn-primary:hover {
+  background: rgba(255, 255, 255, 0.86);
+}
+
+.consent-btn:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+.consent-reopen {
+  display: inline;
+  margin-left: 6px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--accent-ink);
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+@media (max-width: 760px) {
+  .consent {
+    justify-content: space-between;
+    gap: 10px;
+    padding-top: 12px;
+  }
+
+  .consent-text {
+    flex: 1 1 100%;
+  }
+
+  .consent-actions {
+    flex: 1 1 100%;
+  }
+
+  .consent-btn {
+    flex: 1;
+  }
+}
+
 /* ---------- Aviso ---------- */
 
 .toast {
   position: fixed;
   left: 50%;
-  bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  bottom: calc(var(--stack) + 8px);
   z-index: 1000;
   max-width: min(440px, calc(100vw - 32px));
   padding: 12px 16px 12px 14px;
@@ -1527,7 +1662,7 @@ td {
 .attribution {
   position: fixed;
   left: var(--gap);
-  bottom: calc(var(--gap) + env(safe-area-inset-bottom, 0px));
+  bottom: var(--stack);
   z-index: 12;
   padding: 5px 10px;
   border: 1px solid var(--line);
@@ -1684,7 +1819,7 @@ td {
 .dock {
   position: fixed;
   left: 50%;
-  bottom: calc(var(--gap) + 36px + env(safe-area-inset-bottom, 0px));
+  bottom: calc(var(--stack) + 36px);
   z-index: 11;
   display: flex;
   align-items: center;
@@ -2628,7 +2763,7 @@ tr.is-coldest th::after {
     justify-content: space-between;
     transform: none;
     border-radius: var(--radius);
-    bottom: calc(var(--gap) + 34px + env(safe-area-inset-bottom, 0px));
+    bottom: calc(var(--stack) + 46px);
   }
 
   body.has-selection .dock,
@@ -2644,6 +2779,7 @@ tr.is-coldest th::after {
 
   .attribution {
     left: 50%;
+    bottom: calc(var(--stack) + 8px);
     transform: translateX(-50%);
     white-space: nowrap;
   }
@@ -2657,16 +2793,18 @@ tr.is-coldest th::after {
   }
 
   .panel-foot {
-    padding: 8px 16px calc(8px + env(safe-area-inset-bottom, 0px));
+    padding: 8px 16px;
   }
 
+  /* «Cómo leer estos datos» se abre justo encima de la fila de controles, donde está el botón. */
   .popover {
     position: fixed;
     top: auto;
     left: 12px;
     right: 12px;
-    bottom: calc(70dvh - 40px);
+    bottom: calc(var(--consent-h) + 112px + var(--inset-b));
     width: auto;
+    transform-origin: bottom right;
   }
 
   .popover.station-pop {
@@ -2814,7 +2952,7 @@ body.has-selection .home::before {
 
 /* Estación elegida: el panel ocupa toda la altura y el resultado llena lo que queda bajo la barra. */
 body.has-selection .home {
-  bottom: calc(var(--gap) + env(safe-area-inset-bottom, 0px));
+  bottom: var(--bottom);
   /* Dos columnas iguales: buscador y día miden lo mismo. */
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   grid-template-rows: auto auto minmax(0, 1fr);
@@ -2927,7 +3065,7 @@ body.welcome-open .welcome-source {
    * con todo el alto que sobra; debajo van buscador, sugerencias, aviso y fuente, ajustados al fondo.
    */
   body.welcome-open .home {
-    bottom: calc(var(--gap) + env(safe-area-inset-bottom, 0px));
+    bottom: var(--bottom);
     grid-template-rows: 1fr auto auto auto auto;
     grid-template-areas:
       "head head"
@@ -3296,17 +3434,43 @@ body.welcome-open .day-nav {
 }
 
 @media (max-width: 760px) {
+  /* Barra inferior (al alcance del pulgar): el día arriba, la marca y el buscador debajo. */
   .home {
+    top: auto;
+    bottom: var(--bottom);
     left: var(--gap);
     right: var(--gap);
     width: auto;
     grid-template-columns: auto minmax(0, 1fr);
     grid-template-areas:
-      "brand search"
       "day day"
-      "pill pill";
+      "brand search";
     gap: 8px;
     padding: 8px;
+  }
+
+  .home:has(.bg-pill:not([hidden])) {
+    grid-template-areas:
+      "pill pill"
+      "day day"
+      "brand search";
+  }
+
+  /* El buscador queda abajo: los resultados se abren hacia arriba. */
+  body:not(.welcome-open) .search-results {
+    top: auto;
+    bottom: calc(100% + 8px);
+    max-height: min(50dvh, 380px);
+    animation-name: drop-up;
+  }
+
+  body.welcome-open .home {
+    top: auto;
+    bottom: var(--bottom);
+  }
+
+  .map .leaflet-bottom {
+    bottom: calc(var(--stack) - var(--gap) + 6px);
   }
 
   body.welcome-open .home {
@@ -3318,7 +3482,7 @@ body.welcome-open .day-nav {
       "day day"
       "foot foot";
     gap: 16px 8px;
-    max-height: 76dvh;
+    max-height: min(76dvh, calc(100dvh - var(--bottom) - var(--gap) - env(safe-area-inset-top, 0px)));
     --pad-x: 18px;
   }
 
@@ -3355,31 +3519,51 @@ body.welcome-open .day-nav {
   }
 
   /* En móvil la caja con estación es una hoja inferior: buscador arriba, «Volver» junto al día. */
+  /*
+   * Hoja inferior: asa arriba, el resultado ocupa el centro y buscador, «Volver» y día quedan fijos
+   * abajo, al alcance del pulgar. Sube desde la misma posición que la barra de inicio.
+   */
   body.has-selection .home {
     top: auto;
     left: 0;
     right: 0;
-    bottom: 0;
+    bottom: var(--consent-h);
     width: 100%;
-    height: 70dvh;
+    height: calc(70dvh - var(--consent-h));
     grid-template-columns: auto minmax(0, 1fr);
-    grid-template-rows: auto auto auto auto minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr) auto auto auto;
     grid-template-areas:
       "handle handle"
-      "search search"
-      "back day"
+      "panel panel"
       "pill pill"
-      "panel panel";
+      "search search"
+      "back day";
     gap: 8px;
     --pad-x: 14px;
-    padding: 0 var(--pad-x);
+    padding: 0 var(--pad-x) calc(10px + var(--inset-b));
     border-radius: var(--radius) var(--radius) 0 0;
     transition: height 0.45s var(--ease);
   }
 
   body.has-selection .home:has(.panel.expanded) {
     width: 100%;
-    height: calc(100dvh - 2 * var(--gap) - env(safe-area-inset-top, 0px));
+    height: calc(100dvh - var(--gap) - var(--consent-h) - env(safe-area-inset-top, 0px));
+  }
+
+  body.has-selection .panel {
+    border-bottom: 1px solid var(--line);
+  }
+
+  /* Un día con flechas y «Hoy» necesita sitio: el buscador va a todo el ancho y el día comparte fila con Volver. */
+  body.has-selection .search input,
+  body.has-selection .day-nav,
+  body.has-selection .back-btn,
+  body.has-selection .toolbar .icon-btn {
+    min-height: 44px;
+  }
+
+  body.has-selection .toolbar .icon-btn {
+    min-width: 44px;
   }
 
   body.has-selection .brand {
