@@ -96,14 +96,14 @@ app.use(
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
-        connectSrc: ["'self'"],
+        connectSrc: ["'self'", "https://*.google-analytics.com", "https://*.analytics.google.com", "https://www.googletagmanager.com"],
         // Teselas del mapa (Esri); data: y blob: para los iconos de Leaflet y la imagen para compartir.
-        imgSrc: ["'self'", "https://server.arcgisonline.com", "data:", "blob:"],
+        imgSrc: ["'self'", "https://server.arcgisonline.com", "https://*.google-analytics.com", "https://www.googletagmanager.com", "data:", "blob:"],
         mediaSrc: ["'self'"],
         // 'unsafe-inline' solo en estilos: Leaflet y Chart.js colocan elementos con style="…".
         styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://unpkg.com"],
         fontSrc: ["'self'", "https://fonts.gstatic.com"],
-        scriptSrc: ["'self'", "https://cdn.jsdelivr.net", "https://unpkg.com"],
+        scriptSrc: ["'self'", "https://cdn.jsdelivr.net", "https://unpkg.com", "https://www.googletagmanager.com"],
         objectSrc: ["'none'"],
         baseUri: ["'self'"],
         formAction: ["'self'"],

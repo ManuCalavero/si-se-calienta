@@ -81,3 +81,10 @@ Solo se aceptan estaciones que existan en el inventario de AEMET, para no gastar
 
 - La tendencia se marca como clara cuando la pendiente es al menos el doble de su error estándar; si no, la app lo dice.
 - Mapa base: Esri World Light Gray (sin clave). Datos: AEMET OpenData.
+
+## Google Analytics
+
+- Google Analytics 4 está configurado con el ID de medición `G-N7Q7DCPW4L` para la web https://si-se-calienta-bdti.vercel.app.
+- La etiqueta se carga desde `public/index.html` y se inicializa en `public/js/analytics.js`. La política CSP en `server.js` permite los dominios necesarios sin habilitar scripts inline.
+- Se activa al abrir la página, también en desarrollo, sin aviso ni gestión de consentimiento de cookies.
+- Tras desplegar, se puede comprobar la recepción de visitas en el informe «En tiempo real» de Google Analytics (los bloqueadores pueden impedir el envío).
