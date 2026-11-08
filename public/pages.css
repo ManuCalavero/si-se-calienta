@@ -1,0 +1,197 @@
+/* Páginas de contenido (/temperaturas y 404). La app del mapa usa styles.css; esta hoja solo da lo básico con la misma identidad. */
+:root {
+  color-scheme: light;
+  --paper: #f1f0ea;
+  --surface: #faf9f5;
+  --ink: #111111;
+  --ink-soft: #3a3a36;
+  --muted: #6a6962;
+  --line: rgba(17, 17, 17, 0.1);
+  --accent-ink: #7a3bb5;
+  --warm-ink: #d41f33;
+  --font: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Inter Tight", "Inter", system-ui, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent-ink);
+  outline-offset: 2px;
+}
+
+.skip-link {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  z-index: 10;
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--paper);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  transform: translateY(-200%);
+}
+
+.skip-link:focus-visible {
+  transform: none;
+}
+
+.site-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: 17px;
+  text-decoration: none;
+}
+
+.brand-mark {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: linear-gradient(
+    90deg,
+    #029dff 0 12.5%,
+    #4db9ff 12.5% 25%,
+    #9ad6ff 25% 37.5%,
+    #efefef 37.5% 50%,
+    #fbb3ba 50% 62.5%,
+    #f9808b 62.5% 75%,
+    #f85c6a 75% 87.5%,
+    #f7394b 87.5%
+  );
+  box-shadow: inset 0 0 0 1px rgba(17, 17, 17, 0.15);
+}
+
+.open-map {
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: var(--ink);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.page {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 16px 16px 64px;
+}
+
+h1 {
+  margin: 8px 0 12px;
+  font-family: var(--font-display);
+  font-size: clamp(1.9rem, 5vw, 2.8rem);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+}
+
+.lead {
+  max-width: 62ch;
+  margin: 0 0 24px;
+  color: var(--ink-soft);
+  font-size: 1.05rem;
+}
+
+.page a {
+  color: var(--accent-ink);
+  font-weight: 600;
+  text-decoration-color: rgba(17, 17, 17, 0.25);
+  text-underline-offset: 2px;
+}
+
+.table-wrap {
+  overflow-x: auto;
+  border-radius: 14px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+}
+
+.capitals {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15px;
+  font-variant-numeric: tabular-nums;
+}
+
+.capitals caption {
+  padding: 14px 16px 6px;
+  color: var(--muted);
+  font-size: 13px;
+  text-align: left;
+}
+
+.capitals th,
+.capitals td {
+  padding: 10px 16px;
+  border-top: 1px solid var(--line);
+  text-align: left;
+  vertical-align: baseline;
+}
+
+.capitals thead th {
+  color: var(--muted);
+  font-size: 12.5px;
+  font-weight: 500;
+}
+
+.capitals tbody th {
+  font-weight: 600;
+}
+
+.capitals .num {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.capitals .short {
+  color: var(--muted);
+  font-size: 12.5px;
+}
+
+.note {
+  max-width: 70ch;
+  margin: 20px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+/* En pantallas estrechas se esconde el nombre de la estación para que la tabla no desborde. */
+@media (max-width: 640px) {
+  .col-station {
+    display: none;
+  }
+
+  .capitals th,
+  .capitals td {
+    padding: 10px 12px;
+  }
+}

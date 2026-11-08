@@ -5,6 +5,7 @@ const { rateLimit } = require("express-rate-limit");
 const path = require("path");
 const fs = require("fs/promises");
 const { MongoClient } = require("mongodb");
+const seoPages = require("./lib/seo-pages");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -153,15 +154,33 @@ app.get("/robots.txt", (_req, res) => {
 });
 
 app.get("/sitemap.xml", (_req, res) => {
-  // Por ahora solo la portada; cuando existan paginas por estacion se anaden aqui.
-  const urls = [{ loc: `${SITE_URL}/`, priority: "1.0" }];
-  const body = urls
+  const body = seoPages
+    .sitemapUrls(SITE_URL)
     .map((u) => `  <url><loc>${u.loc}</loc><priority>${u.priority}</priority></url>`)
     .join("\n");
   res
     .type("application/xml")
     .set("Cache-Control", "public, max-age=3600")
     .send(`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${body}\n</urlset>\n`);
+});
+
+// Páginas indexables por capital. Salen del mismo HTML de la app con texto propio; la CDN las guarda un día.
+const PAGE_CACHE = "public, s-maxage=86400, stale-while-revalidate=604800";
+
+app.get("/temperaturas", (_req, res) => {
+  res.set("Cache-Control", PAGE_CACHE).type("html").send(seoPages.renderIndexPage(SITE_URL));
+});
+
+app.get("/estacion", (_req, res) => res.redirect(301, "/temperaturas"));
+
+app.get("/estacion/:slug", (req, res) => {
+  const capital = seoPages.getCapital(req.params.slug);
+  if (!capital) return res.status(404).type("html").send(seoPages.renderNotFoundPage());
+  if (req.params.slug !== capital.slug) return res.redirect(301, `/estacion/${capital.slug}`);
+  const html = seoPages.renderStationPage(capital.slug, SITE_URL);
+  // Si la plantilla no se pudo preparar, la app normal sigue funcionando con esa estación.
+  if (!html) return res.redirect(302, `/?estacion=${encodeURIComponent(capital.id)}`);
+  res.set("Cache-Control", PAGE_CACHE).type("html").send(html);
 });
 
 app.use(express.static(path.join(__dirname, "public")));

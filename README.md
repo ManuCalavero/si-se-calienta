@@ -88,3 +88,10 @@ Solo se aceptan estaciones que existan en el inventario de AEMET, para no gastar
 - `public/js/analytics.js` carga GTM solo después de que el visitante pulse «Aceptar» en la barra negra inferior. «Declinar» no carga nada. La decisión se guarda en `localStorage` (`secalienta-consent`) y se puede cambiar con «Preferencias de cookies» en la pantalla de bienvenida; al retirar el consentimiento se borran las cookies `_ga*` y se recarga la página.
 - La CSP en `server.js` permite los dominios de Google necesarios sin habilitar scripts inline.
 - Tras desplegar, se puede comprobar la recepción de visitas en el informe «En tiempo real» de Google Analytics (los bloqueadores pueden impedir el envío).
+
+## Páginas por capital (SEO)
+
+- `/estacion/<slug>` abre la misma app con la estación ya elegida, más un título, una descripción y un texto con las cifras reales de esa estación (para buscadores y para el usuario). `/temperaturas` lista todas las capitales. Ambas entran en `/sitemap.xml`.
+- Las capitales y su estación están en `data/capitals.json` (una a mano por capital; Palencia queda fuera hasta cargar el histórico de su estación 2401X).
+- Las cifras anuales (media por década, tendencia, año más cálido…) están en `data/capital-stats.json`. Se regeneran con `node scripts/build-capital-stats.js` (lee Atlas con `MONGODB_URI_READ`); conviene repetirlo cada año o al cargar estaciones nuevas, y hacer commit del resultado.
+- El servidor rellena la plantilla `public/index.html` (`lib/seo-pages.js`). Si algo no encaja, redirige a `/?estacion=<id>` y la app sigue funcionando.

@@ -1,0 +1,3712 @@
+{
+ "generatedAt": "2026-11-08T20:19:59.213Z",
+ "minDaysPerYear": 330,
+ "stats": {
+  "a-coruna": {
+   "id": "1387",
+   "years": 94,
+   "firstYear": 1931,
+   "lastYear": 2025,
+   "warmest": {
+    "year": 2023,
+    "value": 16.5
+   },
+   "coldest": {
+    "year": 1956,
+    "value": 13.3
+   },
+   "latest": {
+    "year": 2025,
+    "value": 16,
+    "rank": 2
+   },
+   "trend": {
+    "perDecade": 0.21,
+    "stderrPerDecade": 0.02,
+    "t": 12.7
+   },
+   "compare": {
+    "first": {
+     "from": 1931,
+     "to": 1941,
+     "value": 13.7
+    },
+    "last": {
+     "from": 2016,
+     "to": 2025,
+     "value": 15.6
+    }
+   },
+   "decades": [
+    {
+     "decade": 1930,
+     "value": 13.7,
+     "years": 8
+    },
+    {
+     "decade": 1940,
+     "value": 14.1,
+     "years": 10
+    },
+    {
+     "decade": 1950,
+     "value": 14,
+     "years": 10
+    },
+    {
+     "decade": 1960,
+     "value": 14,
+     "years": 10
+    },
+    {
+     "decade": 1970,
+     "value": 13.8,
+     "years": 10
+    },
+    {
+     "decade": 1980,
+     "value": 14.4,
+     "years": 10
+    },
+    {
+     "decade": 1990,
+     "value": 14.9,
+     "years": 10
+    },
+    {
+     "decade": 2000,
+     "value": 15.1,
+     "years": 10
+    },
+    {
+     "decade": 2010,
+     "value": 15.2,
+     "years": 10
+    },
+    {
+     "decade": 2020,
+     "value": 15.9,
+     "years": 6
+    }
+   ]
+  },
+  "albacete-base-aerea": {
+   "id": "8175",
+   "years": 86,
+   "firstYear": 1940,
+   "lastYear": 2025,
+   "warmest": {
+    "year": 2022,
+    "value": 16.3
+   },
+   "coldest": {
+    "year": 1971,
+    "value": 12.1
+   },
+   "latest": {
+    "year": 2025,
+    "value": 16,
+    "rank": 4
+   },
+   "trend": {
+    "perDecade": 0.28,
+    "stderrPerDecade": 0.03,
+    "t": 9.6
+   },
+   "compare": {
+    "first": {
+     "from": 1940,
+     "to": 1949,
+     "value": 13.4
+    },
+    "last": {
+     "from": 2016,
+     "to": 2025,
+     "value": 15.5
+    }
+   },
+   "decades": [
+    {
+     "decade": 1940,
+     "value": 13.4,
+     "years": 10
+    },
+    {
+     "decade": 1950,
+     "value": 13.5,
+     "years": 10
+    },
+    {
+     "decade": 1960,
+     "value": 13.6,
+     "years": 10
+    },
+    {
+     "decade": 1970,
+     "value": 12.9,
+     "years": 10
+    },
+    {
+     "decade": 1980,
+     "value": 13.9,
+     "years": 10
+    },
+    {
+     "decade": 1990,
+     "value": 14.1,
+     "years": 10
+    },
+    {
+     "decade": 2000,
+     "value": 14.7,
+     "years": 10
+    },
+    {
+     "decade": 2010,
+     "value": 15,
+     "years": 10
+    },
+    {
+     "decade": 2020,
+     "value": 15.8,
+     "years": 6
+    }
+   ]
+  },
+  "alicante-alacant": {
+   "id": "8025",
+   "years": 87,
+   "firstYear": 1939,
+   "lastYear": 2025,
+   "warmest": {
+    "year": 2024,
+    "value": 19.9
+   },
+   "coldest": {
+    "year": 1972,
+    "value": 16.8
+   },
+   "latest": {
+    "year": 2025,
+    "value": 19.9,
+    "rank": 2
+   },
+   "trend": {
+    "perDecade": 0.14,
+    "stderrPerDecade": 0.02,
+    "t": 5.8
+   },
+   "compare": {
+    "first": {
+     "from": 1939,
+     "to": 1948,
+     "value": 17.9
+    },
+    "last": {
+     "from": 2016,
+     "to": 2025,
+     "value": 19.2
+    }
+   },
+   "decades": [
+    {
+     "decade": 1940,
+     "value": 17.9,
+     "years": 10
+    },
+    {
+     "decade": 1950,
+     "value": 18.3,
+     "years": 10
+    },
+    {
+     "decade": 1960,
+     "value": 18.3,
+     "years": 10
+    },
+    {
+     "decade": 1970,
+     "value": 17.4,
+     "years": 10
+    },
+    {
+     "decade": 1980,
+     "value": 17.9,
+     "years": 10
+    },
+    {
+     "decade": 1990,
+     "value": 18.2,
+     "years": 10
+    },
+    {
+     "decade": 2000,
+     "value": 18.6,
+     "years": 10
+    },
+    {
+     "decade": 2010,
+     "value": 18.7,
+     "years": 10
+    },
+    {
+     "decade": 2020,
+     "value": 19.5,
+     "years": 6
+    }
+   ]
+  },
+  "almeria-aeropuerto": {
+   "id": "6325O",
+   "years": 57,
+   "firstYear": 1969,
+   "lastYear": 2025,
+   "warmest": {
+    "year": 2025,
+    "value": 20.7
+   },
+   "coldest": {
+    "year": 1972,
+    "value": 17.6
+   },
+   "latest": {
+    "year": 2025,
+    "value": 20.7,
+    "rank": 1
+   },
+   "trend": {
+    "perDecade": 0.34,
+    "stderrPerDecade": 0.03,
+    "t": 10.5
+   },
+   "compare": {
+    "first": {
+     "from": 1969,
+     "to": 1978,
+     "value": 18.1
+    },
+    "last": {
+     "from": 2016,
+     "to": 2025,
+     "value": 19.9
+    }
+   },
+   "decades": [
+    {
+     "decade": 1970,
+     "value": 18.1,
+     "years": 10
+    },
+    {
+     "decade": 1980,
+     "value": 18.9,
+     "years": 10
+    },
+    {
+     "decade": 1990,
+     "value": 19.1,
+     "years": 10
+    },
+    {
+     "decade": 2000,
+     "value": 19.2,
+     "years": 10
+    },
+    {
+     "decade": 2010,
+     "value": 19.4,
+     "years": 10
+    },
+    {
+     "decade": 2020,
+     "value": 20.2,
+     "years": 6
+    }
+   ]
+  },
+  "vitoria-gasteiz-foronda": {
+   "id": "9091O",
+   "years": 47,
+   "firstYear": 1976,
+   "lastYear": 2025,
+   "warmest": {
+    "year": 2022,
+    "value": 13.5
+   },
+   "coldest": {
+    "year": 1984,
+    "value": 10.4
+   },
+   "latest": {
+    "year": 2025,
+    "value": 13.2,
+    "rank": 3
+   },
+   "trend": {
+    "perDecade": 0.37,
+    "stderrPerDecade": 0.05,
+    "t": 6.8
+   },
+   "compare": {
+    "first": {
+     "from": 1976,
+     "to": 1988,
+     "value": 11.1
+    },
+    "last": {
+     "from": 2016,
+     "to": 2025,
+     "value": 12.7
+    }
+   },
+   "decades": [
+    {
+     "decade": 1980,
+     "value": 11.3,
+     "years": 9
+    },
+    {
+     "decade": 1990,
+     "value": 11.8,
+     "years": 10
+    },
+    {
+     "decade": 2000,
+     "value": 11.9,
+     "years": 10
+    },
+    {
+     "decade": 2010,
+     "value": 12.2,
+     "years": 10
+    },
+    {
+     "decade": 2020,
+     "value": 13,
+     "years": 6
+    }
+   ]
+  },
+  "oviedo-asturias-aeropuerto": {
+   "id": "1212E",
+   "years": 56,
+   "firstYear": 1969,
+   "lastYear": 2025,
+   "warmest": {
+    "year": 2023,
+    "value": 15
+   },
+   "coldest": {
+    "year": 1972,
+    "value": 12
+   },
+   "latest": {
+    "year": 2025,
+    "value": 14.5,
+    "rank": 5
+   },
+   "trend": {
+    "perDecade": 0.33,
+    "stderrPerDecade": 0.03,
+    "t": 9.5
+   },
+   "compare": {
+    "first": {
+     "from": 1969,
+     "to": 1978,
+     "value": 12.6
+    },
+    "last": {
+     "from": 2016,
+     "to": 2025,
+     "value": 14.3
+    }
+   },
+   "decades": [
+    {
+     "decade": 1970,
+     "value": 12.7,
+     "years": 10
+    },
+    {
+     "decade": 1980,
+     "value": 13.2,
+     "years": 10
+    },
+    {
+     "decade": 1990,
+     "value": 13.7,
+     "years": 10
+    },
+    {
+     "decade": 2000,
+     "value": 13.6,
+     "years": 9
+    },
+    {
+     "decade": 2010,
+     "value": 13.9,
+     "years": 10
+    },
+    {
+     "decade": 2020,
+     "value": 14.5,
+     "years": 6
+    }
+   ]
+  },
+  "avila": {
+   "id": "2444",
+   "years": 43,
+   "firstYear": 1983,
+   "lastYear": 2025,
+   "warmest": {
+    "year": 2022,
+    "value": 13.3
+   },
+   "coldest": {
+    "year": 1984,
+    "value": 9.2
+   },
+   "latest": {
+    "year": 2025,
+    "value": 12.9,
+    "rank": 4
+   },
+   "trend": {
+    "perDecade": 0.69,
+    "stderrPerDecade": 0.07,
+    "t": 10.4
+   },
+   "compare": {
+    "first": {
+     "from": 1983,
+     "to": 1992,
+     "value": 10.4
+    },
+    "last": {
+     "from": 2016,
+     "to": 2025,
+     "value": 12.6
+    }
+   },
+   "decades": [
+    {
+     "decade": 1980,
+     "value": 10.3,
+     "years": 7
+    },
+    {
+     "decade": 1990,
+     "value": 10.7,
+     "years": 10
+    },
+    {
+     "decade": 2000,
+     "value": 11.6,
+     "years": 10
+    },
+    {
+     "decade": 2010,
+     "value": 12,
+     "years": 10
+    },
+    {
+     "decade": 2020,
+     "value": 12.9,
+     "years": 6
+    }
+   ]
+  },
+  "badajoz-aeropuerto": {
+   "id": "4452",
+   "years": 71,
+   "firstYear": 1955,
+   "lastYear": 2025,
+   "warmest": {
+    "year": 2022,
+    "value": 18.5
+   },
+   "coldest": {
+    "year": 1956,
+    "value": 15.3
+   },
+   "latest": {
+    "year": 2025,
+    "value": 18.3,
+    "rank": 5
+   },
+   "trend": {
+    "perDecade": 0.29,
+    "stderrPerDecade": 0.03,
+    "t": 9.6
+   },
+   "compare": {
+    "first": {
+     "from": 1955,
+     "to": 1964,
+     "value": 16.5
+    },
+    "last": {
+     "from": 2016,
+     "to": 2025,
+     "value": 18
+    }
+   },
+   "decades": [
+    {
+     "decade": 1950,
+     "value": 16.4,
+     "years": 5
+    },
+    {
+     "decade": 1960,
+     "value": 16.3,
+     "years": 10
+    },
+    {
+     "decade": 1970,
+     "value": 16,
+     "years": 10
+    },
+    {
+     "decade": 1980,
+     "value": 16.8,
+     "years": 10
+    },
+    {
+     "decade": 1990,
+     "value": 17.1,
+     "years": 10
+    },
+    {
+     "decade": 2000,
+     "value": 17.3,
+     "years": 10
+    },
+    {
+     "decade": 2010,
+     "value": 17.6,
+     "years": 10
+    },
+    {
+     "decade": 2020,
+     "value": 18.2,
+     "years": 6
+    }
+   ]
+  },
+  "palma-aeropuerto": {
+   "id": "B278",
+   "years": 51,
+   "firstYear": 1975,
+   "lastYear": 2025,
+   "warmest": {
+    "year": 2022,
+    "value": 18.5
+   },
+   "coldest": {
+    "year": 1976,
+    "value": 15.1
+   },
+   "latest": {
+    "year": 2025,
+    "value": 18.2,
+    "rank": 2
+   },
+   "trend": {
+    "perDecade": 0.5,
+    "stderrPerDecade": 0.04,
+    "t": 12.7
+   },
+   "compare": {
+    "first": {
+     "from": 1975,
+     "to": 1984,
+     "value": 15.6
+    },
+    "last": {
+     "from": 2016,
+     "to": 2025,
+     "value": 17.8
+    }
+   },
+   "decades": [
+    {
+     "decade": 1970,
+     "value": 15.4,
+     "years": 5
+    },
+    {
+     "decade": 1980,
+     "value": 16.1,
+     "years": 10
+    },
+    {
+     "decade": 1990,
+     "value": 16.5,
+     "years": 10
+    },
+    {
+     "decade": 2000,
+     "value": 17,
+     "years": 10
+    },
+    {
+     "decade": 2010,
+     "value": 17.3,
+     "years": 10
+    },
+    {
+     "decade": 2020,
+     "value": 18,
+     "years": 6
+    }
+   ]
+  },
+  "barcelona-fabra": {
+   "id": "0200E",
+   "years": 100,
+   "firstYear": 1926,
+   "lastYear": 2025,
+   "warmest": {
+    "year": 2022,
+    "value": 18.2
+   },
+   "coldest": {
+    "year": 1972,
+    "value": 13.4
+   },
+   "latest": {
+    "year": 2025,
+    "value": 17.4,
+    "rank": 3
+   },
+   "trend": {
+    "perDecade": 0.25,
+    "stderrPerDecade": 0.02,
+    "t": 10.6
+   },
+   "compare": {
+    "first": {
+     "from": 1926,
+     "to": 1935,
+     "value": 14.5
+    },
+    "last": {
+     "from": 2016,
+     "to": 2025,
+     "value": 17
+    }
+   },
+   "decades": [
+    {
+     "decade": 1930,
+     "value": 14.4,
+     "years": 10
+    },
+    {
+     "decade": 1940,
+     "value": 14.7,
+     "years": 10
+    },
+    {
+     "decade": 1950,
+     "value": 14.4,
+     "years": 10
+    },
+    {
+     "decade": 1960,
+     "value": 14.5,
+     "years": 10
+    },
+    {
+     "decade": 1970,
+     "value": 14.2,
+     "years": 10
+    },
+    {
+     "decade": 1980,
+     "value": 14.9,
+     "years": 10
+    },
+    {
+     "decade": 1990,
+     "value": 15.3,
+     "years": 10
+    },
+    {
+     "decade": 2000,
+     "value": 16,
+     "years": 10
+    },
+    {
+     "decade": 2010,
+     "value": 16.2,
+     "years": 10
+    },
+    {
+     "decade": 2020,
+     "value": 17.3,
+     "years": 6
+    }
+   ]
+  },
+  "bilbao-aeropuerto": {
+   "id": "1082",
+   "years": 76,
+   "firstYear": 1948,
+   "lastYear": 2025,
+   "warmest": {
+    "year": 2022,
+    "value": 16.3
+   },
+   "coldest": {
+    "year": 1956,
+    "value": 12.8
+   },
+   "latest": {
+    "year": 2025,
+    "value": 16.2,
+    "rank": 3
+   },
+   "trend": {
+    "perDecade": 0.26,
+    "stderrPerDecade": 0.03,
+    "t": 9.2
+   },
+   "compare": {
+    "first": {
+     "from": 1948,
+     "to": 1957,
+     "value": 13.9
+    },
+    "last": {
+     "from": 2016,
+     "to": 2025,
+     "value": 15.6
+    }
+   },
+   "decades": [
+    {
+     "decade": 1950,
+     "value": 13.9,
+     "years": 9
+    },
+    {
+     "decade": 1960,
+     "value": 13.9,
+     "years": 10
+    },
+    {
+     "decade": 1970,
+     "value": 13.6,
+     "years": 10
+    },
+    {
+     "decade": 1980,
+     "value": 14.6,
+     "years": 10
+    },
+    {
+     "decade": 1990,
+     "value": 14.6,
+     "years": 10
+    },
+    {
+     "decade": 2000,
+     "value": 15,
+     "years": 9
+    },
+    {
+     "decade": 2010,
+     "value": 15.2,
+     "years": 10
+    },
+    {
+     "decade": 2020,
+     "value": 15.9,
+     "years": 6
+    }
+   ]
+  },
+  "burgos-aeropuerto": {
+   "id": "2331",
+   "years": 82,
+   "firstYear": 1944,
+   "lastYear": 2025,
+   "warmest": {
+    "year": 2022,
+    "value": 12.3
+   },
+   "coldest": {
+    "year": 1956,
+    "value": 8.8
+   },
+   "latest": {
+    "year": 2025,
+    "value": 12,
+    "rank": 4
+   },
+   "trend": {
+    "perDecade": 0.25,
+    "stderrPerDecade": 0.03,
+    "t": 8.4
+   },
+   "compare": {
+    "first": {
+     "from": 1944,
+     "to": 1953,
+     "value": 10.1
+    },
+    "last": {
+     "from": 2016,
+     "to": 2025,
+     "value": 11.7
+    }
+   },
+   "decades": [
+    {
+     "decade": 1940,
+     "value": 10.2,
+     "years": 6
+    },
+    {
+     "decade": 1950,
+     "value": 9.9,
+     "years": 10
+    },
+    {
+     "decade": 1960,
+     "value": 10,
+     "years": 10
+    },
+    {
+     "decade": 1970,
+     "value": 9.5,
+     "years": 10
+    },
+    {
+     "decade": 1980,
+     "value": 10.2,
+     "years": 10
+    },
+    {
+     "decade": 1990,
+     "value": 10.7,
+     "years": 10
+    },
+    {
+     "decade": 2000,
+     "value": 11.3,
+     "years": 10
+    },
+    {
+     "decade": 2010,
+     "value": 11.1,
+     "years": 10
+    },
+    {
+     "decade": 2020,
+     "value": 11.9,
+     "years": 6
+    }
+   ]
+  },
+  "caceres": {
+   "id": "3469A",
+   "years": 43,
+   "firstYear": 1983,
+   "lastYear": 2025,
+   "warmest": {
+    "year": 2022,
+    "value": 17.9
+   },
+   "coldest": {
+    "year": 1993,
+    "value": 15
+   },
+   "latest": {
+    "year": 2025,
+    "value": 17.6,
+    "rank": 3
+   },
+   "trend": {
+    "perDecade": 0.3,
+    "stderrPerDecade": 0.07,
+    "t": 4.7
+   },
+   "compare": {
+    "first": {
+     "from": 1983,
+     "to": 1992,
+     "value": 16.2
+    },
+    "last": {
+     "from": 2016,
+     "to": 2025,
+     "value": 17.2
+    }
+   },
+   "decades": [
+    {
+     "decade": 1980,
+     "value": 16.1,
+     "years": 7
+    },
+    {
+     "decade": 1990,
+     "value": 16.4,
+     "years": 10
+    },
+    {
+     "decade": 2000,
+     "value": 16.4,
+     "years": 10
+    },
+    {
+     "decade": 2010,
+     "value": 16.7,
+     "years": 10
+    },
+    {
+     "decade": 2020,
+     "value": 17.4,
+     "years": 6
+    }
+   ]
+  },
+  "cadiz": {
+   "id": "5973",
+   "years": 65,
+   "firstYear": 1956,
+   "lastYear": 2025,
+   "warmest": {
+    "year": 2023,
+    "value": 20
+   },
+   "coldest": {
+    "year": 1972,
+    "value": 17
+   },
+   "latest": {
+    "year": 2025,
+    "value": 20,
+    "rank": 3
+   },
+   "trend": {
+    "perDecade": 0.22,
+    "stderrPerDecade": 0.03,
+    "t": 7.4
+   },
+   "compare": {
+    "first": {
+     "from": 1956,
+     "to": 1965,
+     "value": 18.3
+    },
+    "last": {
+     "from": 2016,
+     "to": 2025,
+     "value": 19.5
+    }
+   },
+   "decades": [
+    {
+     "decade": 1960,
+     "value": 18.2,
+     "years": 10
+    },
+    {
+     "decade": 1970,
+     "value": 18,
+     "years": 9
+    },
+    {
+     "decade": 1980,
+     "value": 18.4,
+     "years": 8
+    },
+    {
+     "decade": 1990,
+     "value": 18.5,
+     "years": 10
+    },
+    {
+     "decade": 2000,
+     "value": 18.7,
+     "years": 10
+    },
+    {
+     "decade": 2010,
+     "value": 19,
+     "years": 8
+    },
+    {
+     "decade": 2020,
+     "value": 19.8,
+     "years": 6
+    }
+   ]
+  },
+  "santander-aeropuerto": {
+   "id": "1109",
+   "years": 59,
+   "firstYear": 1961,
+   "lastYear": 2023,
+   "warmest": {
+    "year": 2022,
+    "value": 16.3
+   },
+   "coldest": {
+    "year": 1972,
+    "value": 12.8
+   },
+   "latest": {
+    "year": 2023,
+    "value": 16.3,
+    "rank": 2
+   },
+   "trend": {
+    "perDecade": 0.36,
+    "stderrPerDecade": 0.03,
+    "t": 11
+   },
+   "compare": {
+    "first": {
+     "from": 1961,
+     "to": 1970,
+     "value": 13.6
+    },
+    "last": {
+     "from": 2013,
+     "to": 2023,
+     "value": 15.4
+    }
+   },
+   "decades": [
+    {
+     "decade": 1960,
+     "value": 13.6,
+     "years": 9
+    },
+    {
+     "decade": 1970,
+     "value": 13.4,
+     "years": 7
+    },
+    {
+     "decade": 1980,
+     "value": 14.2,
+     "years": 10
+    },
+    {
+     "decade": 1990,
+     "value": 14.6,
+     "years": 10
+    },
+    {
+     "decade": 2000,
+     "value": 14.7,
+     "years": 10
+    },
+    {
+     "decade": 2010,
+     "value": 15.1,
+     "years": 10
+    }
+   ]
+  },
+  "castellon-almassora": {
+   "id": "8500A",
+   "years": 50,
+   "firstYear": 1976,
+   "lastYear": 2025,
+   "warmest": {
+    "year": 2022,
+    "value": 19.3
+   },
+   "coldest": {
+    "year": 1976,
+    "value": 15.9
+   },
+   "latest": {
+    "year": 2025,
+    "value": 19.3,
+    "rank": 3
+   },
+   "trend": {
+    "perDecade": 0.56,
+    "stderrPerDecade": 0.04,
+    "t": 15.3
+   },
+   "compare": {
+    "first": {
+     "from": 1976,
+     "to": 1985,
+     "value": 16.5
+    },
+    "last": {
+     "from": 2016,
+     "to": 2025,
+     "value": 18.8
+    }
+   },
+   "decades": [
+    {
+     "decade": 1980,
+     "value": 16.8,
+     "years": 10
+    },
+    {
+     "decade": 1990,
+     "value": 17.5,
+     "years": 10
+    },
+    {
+     "decade": 2000,
+     "value": 18.2,
+     "years": 10
+    },
+    {
+     "decade": 2010,
+     "value": 18.3,
+     "years": 10
+    },
+    {
+     "decade": 2020,
+     "value": 19,
+     "years": 6
+    }
+   ]
+  },
+  "ceuta": {
+   "id": "5000C",
+   "years": 21,
+   "firstYear": 2004,
+   "lastYear": 2025,
+   "warmest": {
+    "year": 2023,
+    "value": 20.1
+   },
+   "coldest": {
+    "year": 2005,
+    "value": 18.2
+   },
+   "latest": {
+    "year": 2025,
+    "value": 19.6,
+    "rank": 3
+   },
+   "trend": {
+    "perDecade": 0.62,
+    "stderrPerDecade": 0.1,
+    "t": 6.1
+   },
+   "compare": {
+    "first": {
+     "from": 2004,
+     "to": 2014,
+     "value": 18.7
+    },
+    "last": {
+     "from": 2016,
+     "to": 2025,
+     "value": 19.4
+    }
+   },
+   "decades": [
+    {
+     "decade": 2000,
+     "value": 18.6,
+     "years": 5
+    },
+    {
+     "decade": 2010,
+     "value": 18.9,
+     "years": 10
+    },
+    {
+     "decade": 2020,
+     "value": 19.6,
+     "years": 6
+    }
+   ]
+  },
+  "ciudad-real": {
+   "id": "4121",
+   "years": 55,
+   "firstYear": 1971,
+   "lastYear": 2025,
+   "warmest": {
+    "year": 2023,
+    "value": 17.4
+   },
+   "coldest": {
+    "year": 1972,
+    "value": 12.6
+   },
+   "latest": {
+    "year": 2025,
+    "value": 17.3,
+    "rank": 2
+   },
+   "trend": {
+    "perDecade": 0.66,
+    "stderrPerDecade": 0.05,
+    "t": 12.1
+   },
+   "compare": {
+    "first": {
+     "from": 1971,
+     "to": 1980,
+     "value": 13.4
+    },
+    "last": {
+     "from": 2016,
+     "to": 2025,
+     "value": 16.8
+    }
+   },
+   "decades": [
+    {
+     "decade": 1970,
+     "value": 13.3,
+     "years": 9
+    },
+    {
+     "decade": 1980,
+     "value": 15.1,
+     "years": 10
+    },
+    {
+     "decade": 1990,
+     "value": 15.6,
+     "years": 10
+    },
+    {
+     "decade": 2000,
+     "value": 16,
+     "years": 10
+    },
+    {
+     "decade": 2010,
+     "value": 16.2,
+     "years": 10
+    },
+    {
+     "decade": 2020,
+     "value": 17,
+     "years": 6
+    }
+   ]
+  },
+  "cordoba-aeropuerto": {
+   "id": "5402",
+   "years": 60,
+   "firstYear": 1960,
+   "lastYear": 2025,
+   "warmest": {
+    "year": 2017,
+    "value": 19.5
+   },
+   "coldest": {
+    "year": 1972,
+    "value": 16.4
+   },
+   "latest": {
+    "year": 2025,
+    "value": 18.9,
+    "rank": 10
+   },
+   "trend": {
+    "perDecade": 0.31,
+    "stderrPerDecade": 0.03,
+    "t": 9.7
+   },
+   "compare": {
+    "first": {
+     "from": 1960,
+     "to": 1970,
+     "value": 17.5
+    },
+    "last": {
+     "from": 2016,
+     "to": 2025,
+     "value": 19
+    }
+   },
+   "decades": [
+    {
+     "decade": 1960,
+     "value": 17.6,
+     "years": 9
+    },
+    {
+     "decade": 1970,
+     "value": 17.1,
+     "years": 10
+    },
+    {
+     "decade": 1980,
+     "value": 18,
+     "years": 5
+    },
+    {
+     "decade": 1990,
+     "value": 18.1,
+     "years": 10
+    },
+    {
+     "decade": 2000,
+     "value": 18.5,
+     "years": 10
+    },
+    {
+     "decade": 2010,
+     "value": 18.7,
+     "years": 10
+    },
+    {
+     "decade": 2020,
+     "value": 19.1,
+     "years": 6
+    }
+   ]
+  },
+  "cuenca": {
+   "id": "8096",
+   "years": 65,
+   "firstYear": 1961,
+   "lastYear": 2025,
+   "warmest": {
+    "year": 2022,
+    "value": 15.7
+   },
+   "coldest": {
+    "year": 1971,
+    "value": 10.8
+   },
+   "latest": {
+    "year": 2025,
+    "value": 15,
+    "rank": 4
+   },
+   "trend": {
+    "perDecade": 0.5,
+    "stderrPerDecade": 0.04,
+    "t": 12.9
+   },
+   "compare": {
+    "first": {
+     "from": 1961,
+     "to": 1970,
+     "value": 12.3
+    },
+    "last": {
+     "from": 2016,
+     "to": 2025,
+     "value": 14.8
+    }
+   },
+   "decades": [
+    {
+     "decade": 1960,
+     "value": 12.3,
+     "years": 9
+    },
+    {
+     "decade": 1970,
+     "value": 11.8,
+     "years": 10
+    },
+    {
+     "decade": 1980,
+     "value": 12.7,
+     "years": 10
+    },
+    {
+     "decade": 1990,
+     "value": 13,
+     "years": 10
+    },
+    {
+     "decade": 2000,
+     "value": 13.7,
+     "years": 10
+    },
+    {
+     "decade": 2010,
+     "value": 14.2,
+     "years": 10
+    },
+    {
+     "decade": 2020,
+     "value": 15,
+     "years": 6
+    }
+   ]
+  },
+  "san-sebastian-igeldo": {
+   "id": "1024E",
+   "years": 97,
+   "firstYear": 1929,
+   "lastYear": 2025,
+   "warmest": {
+    "year": 2022,
+    "value": 15.2
+   },
+   "coldest": {
+    "year": 1956,
+    "value": 12
+   },
+   "latest": {
+    "year": 2025,
+    "value": 14.9,
+    "rank": 3
+   },
+   "trend": {
+    "perDecade": 0.14,
+    "stderrPerDecade": 0.02,
+    "t": 6.8
+   },
+   "compare": {
+    "first": {
+     "from": 1929,
+     "to": 1938,
+     "value": 12.9
+    },
+    "last": {
+     "from": 2016,
+     "to": 2025,
+     "value": 14.4
+    }
+   },
+   "decades": [
+    {
+     "decade": 1930,
+     "value": 12.9,
+     "years": 10
+    },
+    {
+     "decade": 1940,
+     "value": 13.3,
+     "years": 10
+    },
+    {
+     "decade": 1950,
+     "value": 13.2,
+     "years": 10
+    },
+    {
+     "decade": 1960,
+     "value": 13,
+     "years": 10
+    },
+    {
+     "decade": 1970,
+     "value": 12.7,
+     "years": 10
+    },
+    {
+     "decade": 1980,
+     "value": 13.2,
+     "years": 10
+    },
+    {
+     "decade": 1990,
+     "value": 13.6,
+     "years": 10
+    },
+    {
+     "decade": 2000,
+     "value": 13.8,
+     "years": 10
+    },
+    {
+     "decade": 2010,
+     "value": 13.9,
+     "years": 10
+    },
+    {
+     "decade": 2020,
+     "value": 14.7,
+     "years": 6
+    }
+   ]
+  },
+  "girona-aeropuerto": {
+   "id": "0367",
+   "years": 52,
+   "firstYear": 1973,
+   "lastYear": 2025,
+   "warmest": {
+    "year": 2025,
+    "value": 17.2
+   },
+   "coldest": {
+    "year": 1980,
+    "value": 13.2
+   },
+   "latest": {
+    "year": 2025,
+    "value": 17.2,
+    "rank": 1
+   },
+   "trend": {
+    "perDecade": 0.52,
+    "stderrPerDecade": 0.04,
+    "t": 12.1
+   },
+   "compare": {
+    "first": {
+     "from": 1973,
+     "to": 1982,
+     "value": 13.8
+    },
+    "last": {
+     "from": 2016,
+     "to": 2025,
+     "value": 16.2
+    }
+   },
+   "decades": [
+    {
+     "decade": 1970,
+     "value": 13.7,
+     "years": 7
+    },
+    {
+     "decade": 1980,
+     "value": 14.4,
+     "years": 10
+    },
+    {
+     "decade": 1990,
+     "value": 14.6,
+     "years": 10
+    },
+    {
+     "decade": 2000,
+     "value": 15,
+     "years": 9
+    },
+    {
+     "decade": 2010,
+     "value": 15.6,
+     "years": 10
+    },
+    {
+     "decade": 2020,
+     "value": 16.4,
+     "years": 6
+    }
+   ]
+  },
+  "granada-base-aerea": {
+   "id": "5514",
+   "years": 72,
+   "firstYear": 1951,
+   "lastYear": 2025,
+   "warmest": {
+    "year": 2024,
+    "value": 17.4
+   },
+   "coldest": {
+    "year": 1972,
+    "value": 13.9
+   },
+   "latest": {
+    "year": 2025,
+    "value": 17.1,
+    "rank": 4
+   },
+   "trend": {
+    "perDecade": 0.23,
+    "stderrPerDecade": 0.03,
+    "t": 7.3
+   },
+   "compare": {
+    "first": {
+     "from": 1951,
+     "to": 1960,
+     "value": 15.1
+    },
+    "last": {
+     "from": 2016,
+     "to": 2025,
+     "value": 16.7
+    }
+   },
+   "decades": [
+    {
+     "decade": 1950,
+     "value": 15.1,
+     "years": 9
+    },
+    {
+     "decade": 1960,
+     "value": 15.3,
+     "years": 10
+    },
+    {
+     "decade": 1970,
+     "value": 14.6,
+     "years": 10
+    },
+    {
+     "decade": 1980,
+     "value": 15.4,
+     "years": 7
+    },
+    {
+     "decade": 1990,
+     "value": 15.5,
+     "years": 10
+    },
+    {
+     "decade": 2000,
+     "value": 15.9,
+     "years": 10
+    },
+    {
+     "decade": 2010,
+     "value": 16.1,
+     "years": 10
+    },
+    {
+     "decade": 2020,
+     "value": 17,
+     "years": 6
+    }
+   ]
+  },
+  "guadalajara": {
+   "id": "3168D",
+   "years": 14,
+   "firstYear": 2012,
+   "lastYear": 2025,
+   "warmest": {
+    "year": 2022,
+    "value": 16.3
+   },
+   "coldest": {
+    "year": 2013,
+    "value": 14
+   },
+   "latest": {
+    "year": 2025,
+    "value": 15.8,
+    "rank": 4
+   },
+   "decades": [
+    {
+     "decade": 2010,
+     "value": 15.1,
+     "years": 8
+    },
+    {
+     "decade": 2020,
+     "value": 15.7,
+     "years": 6
+    }
+   ]
+  },
+  "huelva-ronda-este": {
+   "id": "4642E",
+   "years": 41,
+   "firstYear": 1985,
+   "lastYear": 2025,
+   "warmest": {
+    "year": 2023,
+    "value": 19.7
+   },
+   "coldest": {
+    "year": 1993,
+    "value": 17.1
+   },
+   "latest": {
+    "year": 2025,
+    "value": 19.4,
+    "rank": 3
+   },
+   "trend": {
+    "perDecade": 0.33,
+    "stderrPerDecade": 0.05,
+    "t": 6.1
+   },
+   "compare": {
+    "first": {
+     "from": 1985,
+     "to": 1994,
+     "value": 17.9
+    },
+    "last": {
+     "from": 2016,
+     "to": 2025,
+     "value": 19.1
+    }
+   },
+   "decades": [
+    {
+     "decade": 1980,
+     "value": 18,
+     "years": 5
+    },
+    {
+     "decade": 1990,
+     "value": 18.2,
+     "years": 10
+    },
+    {
+     "decade": 2000,
+     "value": 18.3,
+     "years": 10
+    },
+    {
+     "decade": 2010,
+     "value": 18.7,
+     "years": 10
+    },
+    {
+     "decade": 2020,
+     "value": 19.3,
+     "years": 6
+    }
+   ]
+  },
+  "huesca-aeropuerto": {
+   "id": "9898",
+   "years": 80,
+   "firstYear": 1944,
+   "lastYear": 2025,
+   "warmest": {
+    "year": 2022,
+    "value": 16.1
+   },
+   "coldest": {
+    "year": 1978,
+    "value": 12.1
+   },
+   "latest": {
+    "year": 2025,
+    "value": 15.2,
+    "rank": 6
+   },
+   "trend": {
+    "perDecade": 0.22,
+    "stderrPerDecade": 0.03,
+    "t": 7
+   },
+   "compare": {
+    "first": {
+     "from": 1944,
+     "to": 1953,
+     "value": 13.8
+    },
+    "last": {
+     "from": 2016,
+     "to": 2025,
+     "value": 14.9
+    }
+   },
+   "decades": [
+    {
+     "decade": 1940,
+     "value": 14,
+     "years": 6
+    },
+    {
+     "decade": 1950,
+     "value": 13.3,
+     "years": 10
+    },
+    {
+     "decade": 1960,
+     "value": 13.3,
+     "years": 10
+    },
+    {
+     "decade": 1970,
+     "value": 12.9,
+     "years": 10
+    },
+    {
+     "decade": 1980,
+     "value": 13.8,
+     "years": 10
+    },
+    {
+     "decade": 1990,
+     "value": 14.1,
+     "years": 9
+    },
+    {
+     "decade": 2000,
+     "value": 14.3,
+     "years": 9
+    },
+    {
+     "decade": 2010,
+     "value": 14.8,
+     "years": 10
+    },
+    {
+     "decade": 2020,
+     "value": 15.2,
+     "years": 6
+    }
+   ]
+  },
+  "jaen": {
+   "id": "5270B",
+   "years": 36,
+   "firstYear": 1989,
+   "lastYear": 2025,
+   "warmest": {
+    "year": 2022,
+    "value": 19.1
+   },
+   "coldest": {
+    "year": 1996,
+    "value": 16.3
+   },
+   "latest": {
+    "year": 2025,
+    "value": 18.8,
+    "rank": 2
+   },
+   "trend": {
+    "perDecade": 0.45,
+    "stderrPerDecade": 0.09,
+    "t": 5
+   },
+   "compare": {
+    "first": {
+     "from": 1989,
+     "to": 1999,
+     "value": 17.1
+    },
+    "last": {
+     "from": 2016,
+     "to": 2025,
+     "value": 18.3
+    }
+   },
+   "decades": [
+    {
+     "decade": 1990,
+     "value": 17,
+     "years": 9
+    },
+    {
+     "decade": 2000,
+     "value": 17.2,
+     "years": 10
+    },
+    {
+     "decade": 2010,
+     "value": 17.6,
+     "years": 10
+    },
+    {
+     "decade": 2020,
+     "value": 18.6,
+     "years": 6
+    }
+   ]
+  },
+  "logrono-aeropuerto": {
+   "id": "9170",
+   "years": 77,
+   "firstYear": 1949,
+   "lastYear": 2025,
+   "warmest": {
+    "year": 2022,
+    "value": 15.7
+   },
+   "coldest": {
+    "year": 1956,
+    "value": 11.9
+   },
+   "latest": {
+    "year": 2025,
+    "value": 14.8,
+    "rank": 8
+   },
+   "trend": {
+    "perDecade": 0.2,
+    "stderrPerDecade": 0.03,
+    "t": 6.8
+   },
+   "compare": {
+    "first": {
+     "from": 1949,
+     "to": 1958,
+     "value": 13.5
+    },
+    "last": {
+     "from": 2016,
+     "to": 2025,
+     "value": 14.8
+    }
+   },
+   "decades": [
+    {
+     "decade": 1950,
+     "value": 13.4,
+     "years": 10
+    },
+    {
+     "decade": 1960,
+     "value": 13.5,
+     "years": 10
+    },
+    {
+     "decade": 1970,
+     "value": 13,
+     "years": 10
+    },
+    {
+     "decade": 1980,
+     "value": 13.7,
+     "years": 10
+    },
+    {
+     "decade": 1990,
+     "value": 13.8,
+     "years": 10
+    },
+    {
+     "decade": 2000,
+     "value": 14.2,
+     "years": 10
+    },
+    {
+     "decade": 2010,
+     "value": 14.4,
+     "years": 10
+    },
+    {
+     "decade": 2020,
+     "value": 14.8,
+     "years": 6
+    }
+   ]
+  },
+  "las-palmas-gran-canaria-aeropuerto": {
+   "id": "C649I",
+   "years": 73,
+   "firstYear": 1951,
+   "lastYear": 2025,
+   "warmest": {
+    "year": 2023,
+    "value": 22.7
+   },
+   "coldest": {
+    "year": 1954,
+    "value": 19.5
+   },
+   "latest": {
+    "year": 2025,
+    "value": 22.1,
+    "rank": 6
+   },
+   "trend": {
+    "perDecade": 0.27,
+    "stderrPerDecade": 0.03,
+    "t": 10.3
+   },
+   "compare": {
+    "first": {
+     "from": 1951,
+     "to": 1962,
+     "value": 20.2
+    },
+    "last": {
+     "from": 2016,
+     "to": 2025,
+     "value": 21.8
+    }
+   },
+   "decades": [
+    {
+     "decade": 1950,
+     "value": 20.1,
+     "years": 8
+    },
+    {
+     "decade": 1960,
+     "value": 20.5,
+     "years": 9
+    },
+    {
+     "decade": 1970,
+     "value": 20.1,
+     "years": 10
+    },
+    {
+     "decade": 1980,
+     "value": 20.8,
+     "years": 10
+    },
+    {
+     "decade": 1990,
+     "value": 21.3,
+     "years": 10
+    },
+    {
+     "decade": 2000,
+     "value": 21.1,
+     "years": 10
+    },
+    {
+     "decade": 2010,
+     "value": 21.6,
+     "years": 10
+    },
+    {
+     "decade": 2020,
+     "value": 22.1,
+     "years": 6
+    }
+   ]
+  },
+  "leon-virgen-del-camino": {
+   "id": "2661",
+   "years": 88,
+   "firstYear": 1938,
+   "lastYear": 2025,
+   "warmest": {
+    "year": 2022,
+    "value": 13
+   },
+   "coldest": {
+    "year": 1956,
+    "value": 9.6
+   },
+   "latest": {
+    "year": 2025,
+    "value": 12.3,
+    "rank": 4
+   },
+   "trend": {
+    "perDecade": 0.08,
+    "stderrPerDecade": 0.03,
+    "t": 3
+   },
+   "compare": {
+    "first": {
+     "from": 1938,
+     "to": 1947,
+     "value": 11.3
+    },
+    "last": {
+     "from": 2016,
+     "to": 2025,
+     "value": 12
+    }
+   },
+   "decades": [
+    {
+     "decade": 1940,
+     "value": 11.3,
+     "years": 10
+    },
+    {
+     "decade": 1950,
+     "value": 10.9,
+     "years": 10
+    },
+    {
+     "decade": 1960,
+     "value": 10.8,
+     "years": 10
+    },
+    {
+     "decade": 1970,
+     "value": 10.4,
+     "years": 10
+    },
+    {
+     "decade": 1980,
+     "value": 11.1,
+     "years": 10
+    },
+    {
+     "decade": 1990,
+     "value": 11.2,
+     "years": 10
+    },
+    {
+     "decade": 2000,
+     "value": 11.1,
+     "years": 10
+    },
+    {
+     "decade": 2010,
+     "value": 11.3,
+     "years": 10
+    },
+    {
+     "decade": 2020,
+     "value": 12.3,
+     "years": 6
+    }
+   ]
+  },
+  "lleida": {
+   "id": "9771C",
+   "years": 43,
+   "firstYear": 1983,
+   "lastYear": 2025,
+   "warmest": {
+    "year": 2022,
+    "value": 17.3
+   },
+   "coldest": {
+    "year": 1993,
+    "value": 13.9
+   },
+   "latest": {
+    "year": 2025,
+    "value": 16.8,
+    "rank": 3
+   },
+   "trend": {
+    "perDecade": 0.45,
+    "stderrPerDecade": 0.06,
+    "t": 7
+   },
+   "compare": {
+    "first": {
+     "from": 1983,
+     "to": 1992,
+     "value": 14.8
+    },
+    "last": {
+     "from": 2016,
+     "to": 2025,
+     "value": 16.3
+    }
+   },
+   "decades": [
+    {
+     "decade": 1980,
+     "value": 14.9,
+     "years": 7
+    },
+    {
+     "decade": 1990,
+     "value": 14.9,
+     "years": 10
+    },
+    {
+     "decade": 2000,
+     "value": 15.4,
+     "years": 10
+    },
+    {
+     "decade": 2010,
+     "value": 15.8,
+     "years": 10
+    },
+    {
+     "decade": 2020,
+     "value": 16.6,
+     "years": 6
+    }
+   ]
+  },
+  "lugo-aeropuerto": {
+   "id": "1505",
+   "years": 38,
+   "firstYear": 1986,
+   "lastYear": 2025,
+   "warmest": {
+    "year": 2023,
+    "value": 13.8
+   },
+   "coldest": {
+    "year": 1993,
+    "value": 11.2
+   },
+   "latest": {
+    "year": 2025,
+    "value": 13.6,
+    "rank": 2
+   },
+   "trend": {
+    "perDecade": 0.4,
+    "stderrPerDecade": 0.06,
+    "t": 6.1
+   },
+   "compare": {
+    "first": {
+     "from": 1986,
+     "to": 1995,
+     "value": 11.8
+    },
+    "last": {
+     "from": 2016,
+     "to": 2025,
+     "value": 13
+    }
+   },
+   "decades": [
+    {
+     "decade": 1990,
+     "value": 11.9,
+     "years": 10
+    },
+    {
+     "decade": 2000,
+     "value": 12.1,
+     "years": 8
+    },
+    {
+     "decade": 2010,
+     "value": 12.6,
+     "years": 10
+    },
+    {
+     "decade": 2020,
+     "value": 13.3,
+     "years": 6
+    }
+   ]
+  },
+  "madrid-retiro": {
+   "id": "3195",
+   "years": 103,
+   "firstYear": 1920,
+   "lastYear": 2024,
+   "warmest": {
+    "year": 2022,
+    "value": 17.1
+   },
+   "coldest": {
+    "year": 1925,
+    "value": 12.6
+   },
+   "latest": {
+    "year": 2024,
+    "value": 16.7,
+    "rank": 2
+   },
+   "trend": {
+    "perDecade": 0.25,
+    "stderrPerDecade": 0.02,
+    "t": 13.3
+   },
+   "compare": {
+    "first": {
+     "from": 1920,
+     "to": 1929,
+     "value": 13.6
+    },
+    "last": {
+     "from": 2015,
+     "to": 2024,
+     "value": 16.3
+    }
+   },
+   "decades": [
+    {
+     "decade": 1920,
+     "value": 13.6,
+     "years": 10
+    },
+    {
+     "decade": 1930,
+     "value": 13.9,
+     "years": 8
+    },
+    {
+     "decade": 1940,
+     "value": 14,
+     "years": 10
+    },
+    {
+     "decade": 1950,
+     "value": 13.9,
+     "years": 10
+    },
+    {
+     "decade": 1960,
+     "value": 14.2,
+     "years": 10
+    },
+    {
+     "decade": 1970,
+     "value": 13.9,
+     "years": 10
+    },
+    {
+     "decade": 1980,
+     "value": 14.8,
+     "years": 10
+    },
+    {
+     "decade": 1990,
+     "value": 15.1,
+     "years": 10
+    },
+    {
+     "decade": 2000,
+     "value": 15.3,
+     "years": 10
+    },
+    {
+     "decade": 2010,
+     "value": 15.9,
+     "years": 10
+    },
+    {
+     "decade": 2020,
+     "value": 16.4,
+     "years": 5
+    }
+   ]
+  },
+  "malaga-aeropuerto": {
+   "id": "6155A",
+   "years": 79,
+   "firstYear": 1943,
+   "lastYear": 2025,
+   "warmest": {
+    "year": 2023,
+    "value": 20.3
+   },
+   "coldest": {
+    "year": 1956,
+    "value": 16.5
+   },
+   "latest": {
+    "year": 2025,
+    "value": 20.1,
+    "rank": 4
+   },
+   "trend": {
+    "perDecade": 0.22,
+    "stderrPerDecade": 0.03,
+    "t": 7.6
+   },
+   "compare": {
+    "first": {
+     "from": 1943,
+     "to": 1953,
+     "value": 18.3
+    },
+    "last": {
+     "from": 2016,
+     "to": 2025,
+     "value": 19.8
+    }
+   },
+   "decades": [
+    {
+     "decade": 1940,
+     "value": 18.3,
+     "years": 6
+    },
+    {
+     "decade": 1950,
+     "value": 18.2,
+     "years": 10
+    },
+    {
+     "decade": 1960,
+     "value": 18.2,
+     "years": 7
+    },
+    {
+     "decade": 1970,
+     "value": 17.5,
+     "years": 10
+    },
+    {
+     "decade": 1980,
+     "value": 18.1,
+     "years": 10
+    },
+    {
+     "decade": 1990,
+     "value": 18.4,
+     "years": 10
+    },
+    {
+     "decade": 2000,
+     "value": 18.9,
+     "years": 10
+    },
+    {
+     "decade": 2010,
+     "value": 19.3,
+     "years": 10
+    },
+    {
+     "decade": 2020,
+     "value": 20,
+     "years": 6
+    }
+   ]
+  },
+  "melilla": {
+   "id": "6000A",
+   "years": 55,
+   "firstYear": 1971,
+   "lastYear": 2025,
+   "warmest": {
+    "year": 2023,
+    "value": 20.7
+   },
+   "coldest": {
+    "year": 1972,
+    "value": 17.5
+   },
+   "latest": {
+    "year": 2025,
+    "value": 20.3,
+    "rank": 3
+   },
+   "trend": {
+    "perDecade": 0.36,
+    "stderrPerDecade": 0.03,
+    "t": 10.4
+   },
+   "compare": {
+    "first": {
+     "from": 1971,
+     "to": 1980,
+     "value": 18.1
+    },
+    "last": {
+     "from": 2016,
+     "to": 2025,
+     "value": 19.9
+    }
+   },
+   "decades": [
+    {
+     "decade": 1970,
+     "value": 18,
+     "years": 9
+    },
+    {
+     "decade": 1980,
+     "value": 18.8,
+     "years": 10
+    },
+    {
+     "decade": 1990,
+     "value": 19,
+     "years": 10
+    },
+    {
+     "decade": 2000,
+     "value": 19,
+     "years": 10
+    },
+    {
+     "decade": 2010,
+     "value": 19.4,
+     "years": 10
+    },
+    {
+     "decade": 2020,
+     "value": 20.2,
+     "years": 6
+    }
+   ]
+  },
+  "murcia": {
+   "id": "7178I",
+   "years": 41,
+   "firstYear": 1985,
+   "lastYear": 2025,
+   "warmest": {
+    "year": 2024,
+    "value": 20.9
+   },
+   "coldest": {
+    "year": 1985,
+    "value": 17.6
+   },
+   "latest": {
+    "year": 2025,
+    "value": 20.6,
+    "rank": 3
+   },
+   "trend": {
+    "perDecade": 0.63,
+    "stderrPerDecade": 0.05,
+    "t": 12.4
+   },
+   "compare": {
+    "first": {
+     "from": 1985,
+     "to": 1994,
+     "value": 18.1
+    },
+    "last": {
+     "from": 2016,
+     "to": 2025,
+     "value": 20.1
+    }
+   },
+   "decades": [
+    {
+     "decade": 1980,
+     "value": 18,
+     "years": 5
+    },
+    {
+     "decade": 1990,
+     "value": 18.6,
+     "years": 10
+    },
+    {
+     "decade": 2000,
+     "value": 19,
+     "years": 10
+    },
+    {
+     "decade": 2010,
+     "value": 19.6,
+     "years": 10
+    },
+    {
+     "decade": 2020,
+     "value": 20.3,
+     "years": 6
+    }
+   ]
+  },
+  "pamplona": {
+   "id": "9262",
+   "years": 65,
+   "firstYear": 1954,
+   "lastYear": 2025,
+   "warmest": {
+    "year": 2022,
+    "value": 15.5
+   },
+   "coldest": {
+    "year": 1965,
+    "value": 11.2
+   },
+   "latest": {
+    "year": 2025,
+    "value": 14.8,
+    "rank": 2
+   },
+   "trend": {
+    "perDecade": 0.32,
+    "stderrPerDecade": 0.04,
+    "t": 7.8
+   },
+   "compare": {
+    "first": {
+     "from": 1954,
+     "to": 1964,
+     "value": 12.6
+    },
+    "last": {
+     "from": 2015,
+     "to": 2025,
+     "value": 14.4
+    }
+   },
+   "decades": [
+    {
+     "decade": 1950,
+     "value": 12.9,
+     "years": 6
+    },
+    {
+     "decade": 1960,
+     "value": 11.9,
+     "years": 5
+    },
+    {
+     "decade": 1970,
+     "value": 12.1,
+     "years": 10
+    },
+    {
+     "decade": 1980,
+     "value": 12.6,
+     "years": 10
+    },
+    {
+     "decade": 1990,
+     "value": 12.9,
+     "years": 9
+    },
+    {
+     "decade": 2000,
+     "value": 13.4,
+     "years": 10
+    },
+    {
+     "decade": 2010,
+     "value": 13.7,
+     "years": 10
+    },
+    {
+     "decade": 2020,
+     "value": 14.7,
+     "years": 5
+    }
+   ]
+  },
+  "ourense": {
+   "id": "1690A",
+   "years": 50,
+   "firstYear": 1973,
+   "lastYear": 2025,
+   "warmest": {
+    "year": 2025,
+    "value": 16.7
+   },
+   "coldest": {
+    "year": 1974,
+    "value": 13.3
+   },
+   "latest": {
+    "year": 2025,
+    "value": 16.7,
+    "rank": 1
+   },
+   "trend": {
+    "perDecade": 0.45,
+    "stderrPerDecade": 0.04,
+    "t": 10.1
+   },
+   "compare": {
+    "first": {
+     "from": 1973,
+     "to": 1984,
+     "value": 14
+    },
+    "last": {
+     "from": 2015,
+     "to": 2025,
+     "value": 16
+    }
+   },
+   "decades": [
+    {
+     "decade": 1970,
+     "value": 13.9,
+     "years": 7
+    },
+    {
+     "decade": 1980,
+     "value": 14.5,
+     "years": 8
+    },
+    {
+     "decade": 1990,
+     "value": 14.9,
+     "years": 10
+    },
+    {
+     "decade": 2000,
+     "value": 15.2,
+     "years": 10
+    },
+    {
+     "decade": 2010,
+     "value": 15.5,
+     "years": 10
+    },
+    {
+     "decade": 2020,
+     "value": 16.3,
+     "years": 5
+    }
+   ]
+  },
+  "pontevedra": {
+   "id": "1484C",
+   "years": 40,
+   "firstYear": 1986,
+   "lastYear": 2025,
+   "warmest": {
+    "year": 2022,
+    "value": 16.1
+   },
+   "coldest": {
+    "year": 1986,
+    "value": 13.8
+   },
+   "latest": {
+    "year": 2025,
+    "value": 16.1,
+    "rank": 4
+   },
+   "trend": {
+    "perDecade": 0.2,
+    "stderrPerDecade": 0.07,
+    "t": 2.7
+   },
+   "compare": {
+    "first": {
+     "from": 1986,
+     "to": 1995,
+     "value": 14.8
+    },
+    "last": {
+     "from": 2016,
+     "to": 2025,
+     "value": 15.4
+    }
+   },
+   "decades": [
+    {
+     "decade": 1990,
+     "value": 14.8,
+     "years": 10
+    },
+    {
+     "decade": 2000,
+     "value": 14.8,
+     "years": 10
+    },
+    {
+     "decade": 2010,
+     "value": 14.8,
+     "years": 10
+    },
+    {
+     "decade": 2020,
+     "value": 15.8,
+     "years": 6
+    }
+   ]
+  },
+  "salamanca-aeropuerto": {
+   "id": "2867",
+   "years": 81,
+   "firstYear": 1945,
+   "lastYear": 2025,
+   "warmest": {
+    "year": 2022,
+    "value": 13.7
+   },
+   "coldest": {
+    "year": 1956,
+    "value": 10.6
+   },
+   "latest": {
+    "year": 2025,
+    "value": 13.3,
+    "rank": 2
+   },
+   "trend": {
+    "perDecade": 0.11,
+    "stderrPerDecade": 0.03,
+    "t": 3.2
+   },
+   "compare": {
+    "first": {
+     "from": 1945,
+     "to": 1954,
+     "value": 12.4
+    },
+    "last": {
+     "from": 2016,
+     "to": 2025,
+     "value": 12.9
+    }
+   },
+   "decades": [
+    {
+     "decade": 1940,
+     "value": 12.7,
+     "years": 5
+    },
+    {
+     "decade": 1950,
+     "value": 12,
+     "years": 10
+    },
+    {
+     "decade": 1960,
+     "value": 11.9,
+     "years": 10
+    },
+    {
+     "decade": 1970,
+     "value": 11,
+     "years": 10
+    },
+    {
+     "decade": 1980,
+     "value": 11.9,
+     "years": 10
+    },
+    {
+     "decade": 1990,
+     "value": 12.3,
+     "years": 10
+    },
+    {
+     "decade": 2000,
+     "value": 12.2,
+     "years": 10
+    },
+    {
+     "decade": 2010,
+     "value": 12.5,
+     "years": 10
+    },
+    {
+     "decade": 2020,
+     "value": 13.1,
+     "years": 6
+    }
+   ]
+  },
+  "santa-cruz-de-tenerife": {
+   "id": "C449C",
+   "years": 95,
+   "firstYear": 1931,
+   "lastYear": 2025,
+   "warmest": {
+    "year": 2023,
+    "value": 23.2
+   },
+   "coldest": {
+    "year": 1993,
+    "value": 20.1
+   },
+   "latest": {
+    "year": 2025,
+    "value": 22.4,
+    "rank": 8
+   },
+   "trend": {
+    "perDecade": 0.17,
+    "stderrPerDecade": 0.02,
+    "t": 9.6
+   },
+   "compare": {
+    "first": {
+     "from": 1931,
+     "to": 1940,
+     "value": 20.8
+    },
+    "last": {
+     "from": 2016,
+     "to": 2025,
+     "value": 22.3
+    }
+   },
+   "decades": [
+    {
+     "decade": 1930,
+     "value": 20.8,
+     "years": 9
+    },
+    {
+     "decade": 1940,
+     "value": 20.9,
+     "years": 10
+    },
+    {
+     "decade": 1950,
+     "value": 20.8,
+     "years": 10
+    },
+    {
+     "decade": 1960,
+     "value": 21.2,
+     "years": 10
+    },
+    {
+     "decade": 1970,
+     "value": 20.8,
+     "years": 10
+    },
+    {
+     "decade": 1980,
+     "value": 21.3,
+     "years": 10
+    },
+    {
+     "decade": 1990,
+     "value": 21.5,
+     "years": 10
+    },
+    {
+     "decade": 2000,
+     "value": 21.7,
+     "years": 10
+    },
+    {
+     "decade": 2010,
+     "value": 21.9,
+     "years": 10
+    },
+    {
+     "decade": 2020,
+     "value": 22.6,
+     "years": 6
+    }
+   ]
+  },
+  "segovia": {
+   "id": "2465",
+   "years": 37,
+   "firstYear": 1989,
+   "lastYear": 2025,
+   "warmest": {
+    "year": 2022,
+    "value": 14.3
+   },
+   "coldest": {
+    "year": 1993,
+    "value": 11
+   },
+   "latest": {
+    "year": 2025,
+    "value": 13.8,
+    "rank": 2
+   },
+   "trend": {
+    "perDecade": 0.38,
+    "stderrPerDecade": 0.09,
+    "t": 4.1
+   },
+   "compare": {
+    "first": {
+     "from": 1989,
+     "to": 1998,
+     "value": 12.4
+    },
+    "last": {
+     "from": 2016,
+     "to": 2025,
+     "value": 13.4
+    }
+   },
+   "decades": [
+    {
+     "decade": 1990,
+     "value": 12.3,
+     "years": 10
+    },
+    {
+     "decade": 2000,
+     "value": 12.5,
+     "years": 10
+    },
+    {
+     "decade": 2010,
+     "value": 12.9,
+     "years": 10
+    },
+    {
+     "decade": 2020,
+     "value": 13.6,
+     "years": 6
+    }
+   ]
+  },
+  "sevilla-aeropuerto": {
+   "id": "5783",
+   "years": 75,
+   "firstYear": 1951,
+   "lastYear": 2025,
+   "warmest": {
+    "year": 2025,
+    "value": 20.4
+   },
+   "coldest": {
+    "year": 1956,
+    "value": 17.1
+   },
+   "latest": {
+    "year": 2025,
+    "value": 20.4,
+    "rank": 1
+   },
+   "trend": {
+    "perDecade": 0.31,
+    "stderrPerDecade": 0.03,
+    "t": 10.5
+   },
+   "compare": {
+    "first": {
+     "from": 1951,
+     "to": 1960,
+     "value": 18.3
+    },
+    "last": {
+     "from": 2016,
+     "to": 2025,
+     "value": 19.8
+    }
+   },
+   "decades": [
+    {
+     "decade": 1950,
+     "value": 18.2,
+     "years": 9
+    },
+    {
+     "decade": 1960,
+     "value": 18.3,
+     "years": 10
+    },
+    {
+     "decade": 1970,
+     "value": 17.9,
+     "years": 10
+    },
+    {
+     "decade": 1980,
+     "value": 18.5,
+     "years": 10
+    },
+    {
+     "decade": 1990,
+     "value": 19.3,
+     "years": 10
+    },
+    {
+     "decade": 2000,
+     "value": 19.7,
+     "years": 10
+    },
+    {
+     "decade": 2010,
+     "value": 19.6,
+     "years": 10
+    },
+    {
+     "decade": 2020,
+     "value": 20,
+     "years": 6
+    }
+   ]
+  },
+  "soria": {
+   "id": "2030",
+   "years": 81,
+   "firstYear": 1944,
+   "lastYear": 2025,
+   "warmest": {
+    "year": 2022,
+    "value": 13.3
+   },
+   "coldest": {
+    "year": 1956,
+    "value": 9.2
+   },
+   "latest": {
+    "year": 2025,
+    "value": 12.7,
+    "rank": 4
+   },
+   "trend": {
+    "perDecade": 0.23,
+    "stderrPerDecade": 0.03,
+    "t": 7.4
+   },
+   "compare": {
+    "first": {
+     "from": 1944,
+     "to": 1953,
+     "value": 10.7
+    },
+    "last": {
+     "from": 2016,
+     "to": 2025,
+     "value": 12.4
+    }
+   },
+   "decades": [
+    {
+     "decade": 1940,
+     "value": 10.8,
+     "years": 6
+    },
+    {
+     "decade": 1950,
+     "value": 10.4,
+     "years": 10
+    },
+    {
+     "decade": 1960,
+     "value": 10.5,
+     "years": 10
+    },
+    {
+     "decade": 1970,
+     "value": 10.1,
+     "years": 10
+    },
+    {
+     "decade": 1980,
+     "value": 10.8,
+     "years": 10
+    },
+    {
+     "decade": 1990,
+     "value": 11.1,
+     "years": 10
+    },
+    {
+     "decade": 2000,
+     "value": 11.3,
+     "years": 10
+    },
+    {
+     "decade": 2010,
+     "value": 11.5,
+     "years": 9
+    },
+    {
+     "decade": 2020,
+     "value": 12.6,
+     "years": 6
+    }
+   ]
+  },
+  "tarragona-reus-aeropuerto": {
+   "id": "0016A",
+   "years": 72,
+   "firstYear": 1953,
+   "lastYear": 2025,
+   "warmest": {
+    "year": 2025,
+    "value": 18.2
+   },
+   "coldest": {
+    "year": 2010,
+    "value": 14.6
+   },
+   "latest": {
+    "year": 2025,
+    "value": 18.2,
+    "rank": 1
+   },
+   "trend": {
+    "perDecade": 0.22,
+    "stderrPerDecade": 0.04,
+    "t": 5.8
+   },
+   "compare": {
+    "first": {
+     "from": 1953,
+     "to": 1962,
+     "value": 16
+    },
+    "last": {
+     "from": 2015,
+     "to": 2025,
+     "value": 17.3
+    }
+   },
+   "decades": [
+    {
+     "decade": 1950,
+     "value": 15.9,
+     "years": 7
+    },
+    {
+     "decade": 1960,
+     "value": 15.9,
+     "years": 10
+    },
+    {
+     "decade": 1970,
+     "value": 15.2,
+     "years": 10
+    },
+    {
+     "decade": 1980,
+     "value": 15.8,
+     "years": 10
+    },
+    {
+     "decade": 1990,
+     "value": 16.3,
+     "years": 10
+    },
+    {
+     "decade": 2000,
+     "value": 16.1,
+     "years": 10
+    },
+    {
+     "decade": 2010,
+     "value": 16.7,
+     "years": 9
+    },
+    {
+     "decade": 2020,
+     "value": 17.4,
+     "years": 6
+    }
+   ]
+  },
+  "teruel": {
+   "id": "8368U",
+   "years": 39,
+   "firstYear": 1987,
+   "lastYear": 2025,
+   "warmest": {
+    "year": 2022,
+    "value": 14.6
+   },
+   "coldest": {
+    "year": 1991,
+    "value": 11.2
+   },
+   "latest": {
+    "year": 2025,
+    "value": 14,
+    "rank": 4
+   },
+   "trend": {
+    "perDecade": 0.59,
+    "stderrPerDecade": 0.08,
+    "t": 7.6
+   },
+   "compare": {
+    "first": {
+     "from": 1987,
+     "to": 1996,
+     "value": 12
+    },
+    "last": {
+     "from": 2016,
+     "to": 2025,
+     "value": 13.8
+    }
+   },
+   "decades": [
+    {
+     "decade": 1990,
+     "value": 12.1,
+     "years": 10
+    },
+    {
+     "decade": 2000,
+     "value": 12.4,
+     "years": 10
+    },
+    {
+     "decade": 2010,
+     "value": 13.1,
+     "years": 10
+    },
+    {
+     "decade": 2020,
+     "value": 14,
+     "years": 6
+    }
+   ]
+  },
+  "toledo": {
+   "id": "3260B",
+   "years": 44,
+   "firstYear": 1982,
+   "lastYear": 2025,
+   "warmest": {
+    "year": 2022,
+    "value": 18.1
+   },
+   "coldest": {
+    "year": 1984,
+    "value": 14.5
+   },
+   "latest": {
+    "year": 2025,
+    "value": 17.5,
+    "rank": 2
+   },
+   "trend": {
+    "perDecade": 0.44,
+    "stderrPerDecade": 0.07,
+    "t": 6.3
+   },
+   "compare": {
+    "first": {
+     "from": 1982,
+     "to": 1991,
+     "value": 15.6
+    },
+    "last": {
+     "from": 2016,
+     "to": 2025,
+     "value": 17.2
+    }
+   },
+   "decades": [
+    {
+     "decade": 1980,
+     "value": 15.6,
+     "years": 8
+    },
+    {
+     "decade": 1990,
+     "value": 15.8,
+     "years": 10
+    },
+    {
+     "decade": 2000,
+     "value": 16.1,
+     "years": 10
+    },
+    {
+     "decade": 2010,
+     "value": 16.6,
+     "years": 10
+    },
+    {
+     "decade": 2020,
+     "value": 17.4,
+     "years": 6
+    }
+   ]
+  },
+  "valencia": {
+   "id": "8416",
+   "years": 88,
+   "firstYear": 1938,
+   "lastYear": 2025,
+   "warmest": {
+    "year": 2025,
+    "value": 19.9
+   },
+   "coldest": {
+    "year": 1956,
+    "value": 16
+   },
+   "latest": {
+    "year": 2025,
+    "value": 19.9,
+    "rank": 1
+   },
+   "trend": {
+    "perDecade": 0.32,
+    "stderrPerDecade": 0.02,
+    "t": 17.8
+   },
+   "compare": {
+    "first": {
+     "from": 1938,
+     "to": 1947,
+     "value": 16.8
+    },
+    "last": {
+     "from": 2016,
+     "to": 2025,
+     "value": 19.3
+    }
+   },
+   "decades": [
+    {
+     "decade": 1940,
+     "value": 16.9,
+     "years": 10
+    },
+    {
+     "decade": 1950,
+     "value": 17,
+     "years": 10
+    },
+    {
+     "decade": 1960,
+     "value": 17.4,
+     "years": 10
+    },
+    {
+     "decade": 1970,
+     "value": 17.3,
+     "years": 10
+    },
+    {
+     "decade": 1980,
+     "value": 17.9,
+     "years": 10
+    },
+    {
+     "decade": 1990,
+     "value": 18.3,
+     "years": 10
+    },
+    {
+     "decade": 2000,
+     "value": 18.7,
+     "years": 10
+    },
+    {
+     "decade": 2010,
+     "value": 18.9,
+     "years": 10
+    },
+    {
+     "decade": 2020,
+     "value": 19.4,
+     "years": 6
+    }
+   ]
+  },
+  "valladolid-aeropuerto": {
+   "id": "2539",
+   "years": 87,
+   "firstYear": 1939,
+   "lastYear": 2025,
+   "warmest": {
+    "year": 2022,
+    "value": 13.2
+   },
+   "coldest": {
+    "year": 1956,
+    "value": 9.7
+   },
+   "latest": {
+    "year": 2025,
+    "value": 12.7,
+    "rank": 3
+   },
+   "trend": {
+    "perDecade": 0.15,
+    "stderrPerDecade": 0.03,
+    "t": 5.4
+   },
+   "compare": {
+    "first": {
+     "from": 1939,
+     "to": 1948,
+     "value": 11.1
+    },
+    "last": {
+     "from": 2016,
+     "to": 2025,
+     "value": 12.4
+    }
+   },
+   "decades": [
+    {
+     "decade": 1940,
+     "value": 11.3,
+     "years": 10
+    },
+    {
+     "decade": 1950,
+     "value": 11,
+     "years": 10
+    },
+    {
+     "decade": 1960,
+     "value": 11.2,
+     "years": 10
+    },
+    {
+     "decade": 1970,
+     "value": 10.5,
+     "years": 10
+    },
+    {
+     "decade": 1980,
+     "value": 11.3,
+     "years": 10
+    },
+    {
+     "decade": 1990,
+     "value": 11.5,
+     "years": 10
+    },
+    {
+     "decade": 2000,
+     "value": 11.6,
+     "years": 10
+    },
+    {
+     "decade": 2010,
+     "value": 11.8,
+     "years": 10
+    },
+    {
+     "decade": 2020,
+     "value": 12.7,
+     "years": 6
+    }
+   ]
+  },
+  "zamora": {
+   "id": "2614",
+   "years": 92,
+   "firstYear": 1931,
+   "lastYear": 2025,
+   "warmest": {
+    "year": 2025,
+    "value": 15.1
+   },
+   "coldest": {
+    "year": 1946,
+    "value": 11.3
+   },
+   "latest": {
+    "year": 2025,
+    "value": 15.1,
+    "rank": 1
+   },
+   "trend": {
+    "perDecade": 0.23,
+    "stderrPerDecade": 0.02,
+    "t": 9.4
+   },
+   "compare": {
+    "first": {
+     "from": 1931,
+     "to": 1942,
+     "value": 12.2
+    },
+    "last": {
+     "from": 2016,
+     "to": 2025,
+     "value": 14.5
+    }
+   },
+   "decades": [
+    {
+     "decade": 1930,
+     "value": 12.3,
+     "years": 7
+    },
+    {
+     "decade": 1940,
+     "value": 12.4,
+     "years": 10
+    },
+    {
+     "decade": 1950,
+     "value": 12.5,
+     "years": 9
+    },
+    {
+     "decade": 1960,
+     "value": 12.6,
+     "years": 10
+    },
+    {
+     "decade": 1970,
+     "value": 12,
+     "years": 10
+    },
+    {
+     "decade": 1980,
+     "value": 12.8,
+     "years": 10
+    },
+    {
+     "decade": 1990,
+     "value": 13.4,
+     "years": 10
+    },
+    {
+     "decade": 2000,
+     "value": 13.2,
+     "years": 10
+    },
+    {
+     "decade": 2010,
+     "value": 13.8,
+     "years": 10
+    },
+    {
+     "decade": 2020,
+     "value": 14.7,
+     "years": 6
+    }
+   ]
+  },
+  "zaragoza-aeropuerto": {
+   "id": "9434",
+   "years": 75,
+   "firstYear": 1951,
+   "lastYear": 2025,
+   "warmest": {
+    "year": 2022,
+    "value": 17.6
+   },
+   "coldest": {
+    "year": 1956,
+    "value": 13.3
+   },
+   "latest": {
+    "year": 2025,
+    "value": 17,
+    "rank": 4
+   },
+   "trend": {
+    "perDecade": 0.38,
+    "stderrPerDecade": 0.03,
+    "t": 13.2
+   },
+   "compare": {
+    "first": {
+     "from": 1951,
+     "to": 1960,
+     "value": 14.5
+    },
+    "last": {
+     "from": 2016,
+     "to": 2025,
+     "value": 16.8
+    }
+   },
+   "decades": [
+    {
+     "decade": 1950,
+     "value": 14.4,
+     "years": 9
+    },
+    {
+     "decade": 1960,
+     "value": 14.5,
+     "years": 10
+    },
+    {
+     "decade": 1970,
+     "value": 14.2,
+     "years": 10
+    },
+    {
+     "decade": 1980,
+     "value": 15.1,
+     "years": 10
+    },
+    {
+     "decade": 1990,
+     "value": 15.5,
+     "years": 10
+    },
+    {
+     "decade": 2000,
+     "value": 15.9,
+     "years": 10
+    },
+    {
+     "decade": 2010,
+     "value": 16.4,
+     "years": 10
+    },
+    {
+     "decade": 2020,
+     "value": 17,
+     "years": 6
+    }
+   ]
+  }
+ }
+}

@@ -75,6 +75,7 @@
  * Titulares: grotesca grande, pesada y con el espaciado muy cerrado.
  */
 :root .welcome-head h1,
+:root .panel-header h1,
 :root .panel-header h2,
 :root .share-header h2,
 :root .donate h3,
@@ -87,6 +88,7 @@
   font-size: 2.9rem;
 }
 
+:root .panel-header h1,
 :root .panel-header h2 {
   font-size: 2.4rem;
 }
@@ -747,6 +749,7 @@ input {
   min-width: 0;
 }
 
+.panel-header h1,
 .panel-header h2 {
   margin: 0;
   font-family: var(--font-display);
@@ -1422,6 +1425,7 @@ body.has-consent {
     flex: 1 1 200px;
   }
 
+  .panel-header h1,
   .panel-header h2 {
     font-size: 1.45rem;
   }
@@ -2506,6 +2510,85 @@ body.has-selection .attribution {
 
 .donate-btn svg {
   stroke: var(--kofi-icon);
+}
+
+/* Texto de cada página de estación (/estacion/<slug>): resumen con las cifras reales, bajo las gráficas. */
+.station-about {
+  display: grid;
+  gap: 10px;
+  color: var(--ink-soft);
+  font-size: 13.5px;
+  line-height: 1.6;
+}
+
+.station-about h2 {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+
+.station-about p {
+  margin: 0;
+}
+
+.station-about a {
+  color: var(--accent-ink);
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: rgba(var(--tint-rgb), 0.25);
+  text-underline-offset: 2px;
+}
+
+.station-about a:hover {
+  text-decoration-color: currentColor;
+}
+
+.about-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+.about-table caption {
+  padding: 4px 0 6px;
+  color: var(--muted);
+  font-size: 12px;
+  text-align: left;
+}
+
+.about-table th,
+.about-table td {
+  padding: 6px 4px;
+  border-top: 1px solid var(--line);
+  text-align: left;
+}
+
+.about-table thead th {
+  color: var(--muted);
+  font-size: 11.5px;
+  font-weight: 500;
+}
+
+.about-table tbody th {
+  color: var(--ink);
+  font-family: var(--font);
+  font-weight: 600;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.about-warn {
+  padding: 10px 12px;
+  border-radius: var(--radius-small);
+  background: var(--warm-soft);
+}
+
+.about-links {
+  color: var(--muted);
 }
 
 /* Al llegar desde el botón de la cantidad, el módulo se ilumina un instante. */
@@ -3632,6 +3715,10 @@ body.welcome-open .day-nav {
     --pad-x: 14px;
     padding: 0 var(--pad-x) calc(10px + var(--inset-b));
     border-radius: var(--radius) var(--radius) 0 0;
+  }
+
+  /* La altura se anima al ampliar o reducir la hoja, pero no durante la carga (provocaría cambios de diseño). */
+  body.is-ready.has-selection .home {
     transition: height 0.45s var(--ease);
   }
 
@@ -3718,6 +3805,7 @@ body.welcome-open .day-nav {
   }
 
   /* El nombre de la estación, más pequeño. :root le da más peso a la regla de escritorio. */
+  :root .panel-header h1,
   :root .panel-header h2 {
     font-size: 1.3rem;
   }

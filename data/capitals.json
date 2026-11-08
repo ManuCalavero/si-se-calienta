@@ -1,0 +1,971 @@
+[
+ {
+  "slug": "a-coruna",
+  "lugar": "A Coruña",
+  "capital": "A Coruña",
+  "id": "1387",
+  "nombre": "A Coruña",
+  "nota": "",
+  "lat": 43.3658,
+  "lon": -8.4214,
+  "altitud": 57,
+  "vecinas": [
+   "lugo-aeropuerto",
+   "pontevedra",
+   "ourense",
+   "oviedo-asturias-aeropuerto"
+  ],
+  "aemetNombre": "A CORUÑA",
+  "provincia": "A CORUÑA"
+ },
+ {
+  "slug": "albacete-base-aerea",
+  "lugar": "Albacete",
+  "capital": "Albacete",
+  "id": "8175",
+  "nombre": "Albacete Base Aérea",
+  "nota": "Está en la base aérea, en el entorno de la ciudad.",
+  "lat": 38.9542,
+  "lon": -1.8564,
+  "altitud": 702,
+  "vecinas": [
+   "murcia",
+   "cuenca",
+   "alicante-alacant",
+   "valencia"
+  ],
+  "aemetNombre": "ALBACETE BASE AÉREA",
+  "provincia": "ALBACETE"
+ },
+ {
+  "slug": "alicante-alacant",
+  "lugar": "Alicante",
+  "capital": "Alicante",
+  "id": "8025",
+  "nombre": "Alacant/Alicante",
+  "nota": "",
+  "lat": 38.3725,
+  "lon": -0.4942,
+  "altitud": 81,
+  "vecinas": [
+   "murcia",
+   "valencia",
+   "albacete-base-aerea",
+   "castellon-almassora"
+  ],
+  "aemetNombre": "ALACANT/ALICANTE",
+  "provincia": "ALICANTE"
+ },
+ {
+  "slug": "almeria-aeropuerto",
+  "lugar": "Almería",
+  "capital": "Almería",
+  "id": "6325O",
+  "nombre": "Almería Aeropuerto",
+  "nota": "Está en el aeropuerto. La estación de la propia ciudad dejó de medir en 1981.",
+  "lat": 36.8464,
+  "lon": -2.3569,
+  "altitud": 21,
+  "vecinas": [
+   "granada-base-aerea",
+   "jaen",
+   "murcia",
+   "melilla"
+  ],
+  "aemetNombre": "ALMERÍA AEROPUERTO",
+  "provincia": "ALMERIA"
+ },
+ {
+  "slug": "vitoria-gasteiz-foronda",
+  "lugar": "Vitoria-Gasteiz",
+  "capital": "Vitoria-Gasteiz",
+  "id": "9091O",
+  "nombre": "Foronda-Txokiza",
+  "nota": "Está en Foronda, junto al aeropuerto, a las afueras de la ciudad.",
+  "lat": 42.8819,
+  "lon": -2.735,
+  "altitud": 513,
+  "vecinas": [
+   "bilbao-aeropuerto",
+   "logrono-aeropuerto",
+   "san-sebastian-igeldo",
+   "pamplona"
+  ],
+  "aemetNombre": "FORONDA-TXOKIZA",
+  "provincia": "ARABA/ALAVA"
+ },
+ {
+  "slug": "oviedo-asturias-aeropuerto",
+  "lugar": "Asturias",
+  "capital": "Oviedo",
+  "id": "1212E",
+  "nombre": "Asturias Aeropuerto",
+  "nota": "Está en el aeropuerto de Asturias, a unos 40 km de Oviedo; la estación de la propia ciudad solo tiene datos desde 2012.",
+  "lat": 43.5669,
+  "lon": -6.0442,
+  "altitud": 127,
+  "vecinas": [
+   "leon-virgen-del-camino",
+   "lugo-aeropuerto",
+   "santander-aeropuerto",
+   "a-coruna"
+  ],
+  "aemetNombre": "ASTURIAS AEROPUERTO",
+  "provincia": "ASTURIAS"
+ },
+ {
+  "slug": "avila",
+  "lugar": "Ávila",
+  "capital": "Ávila",
+  "id": "2444",
+  "nombre": "Ávila",
+  "nota": "Las medidas anteriores a 1983 son de otro emplazamiento y no se muestran aquí.",
+  "lat": 40.6592,
+  "lon": -4.6797,
+  "altitud": 1130,
+  "vecinas": [
+   "segovia",
+   "salamanca-aeropuerto",
+   "madrid-retiro",
+   "toledo"
+  ],
+  "aemetNombre": "ÁVILA",
+  "provincia": "AVILA"
+ },
+ {
+  "slug": "badajoz-aeropuerto",
+  "lugar": "Badajoz",
+  "capital": "Badajoz",
+  "id": "4452",
+  "nombre": "Badajoz Aeropuerto",
+  "nota": "Está en el aeropuerto, a las afueras de la ciudad.",
+  "lat": 38.8833,
+  "lon": -6.8139,
+  "altitud": 186,
+  "vecinas": [
+   "caceres",
+   "huelva-ronda-este",
+   "sevilla-aeropuerto",
+   "cordoba-aeropuerto"
+  ],
+  "aemetNombre": "BADAJOZ AEROPUERTO",
+  "provincia": "BADAJOZ"
+ },
+ {
+  "slug": "palma-aeropuerto",
+  "lugar": "Palma",
+  "capital": "Palma",
+  "id": "B278",
+  "nombre": "Palma de Mallorca Aeropuerto",
+  "nota": "Está en el aeropuerto, a las afueras de la ciudad.",
+  "lat": 39.5608,
+  "lon": 2.7367,
+  "altitud": 5,
+  "vecinas": [
+   "barcelona-fabra",
+   "tarragona-reus-aeropuerto",
+   "castellon-almassora",
+   "girona-aeropuerto"
+  ],
+  "aemetNombre": "PALMA DE MALLORCA, AEROPUERTO",
+  "provincia": "BALEARES"
+ },
+ {
+  "slug": "barcelona-fabra",
+  "lugar": "Barcelona",
+  "capital": "Barcelona",
+  "id": "0200E",
+  "nombre": "Barcelona Fabra",
+  "nota": "Está en el observatorio Fabra, en la sierra de Collserola.",
+  "lat": 41.4183,
+  "lon": 2.1242,
+  "altitud": 408,
+  "vecinas": [
+   "girona-aeropuerto",
+   "tarragona-reus-aeropuerto",
+   "lleida",
+   "palma-aeropuerto"
+  ],
+  "aemetNombre": "BARCELONA, FABRA",
+  "provincia": "BARCELONA"
+ },
+ {
+  "slug": "bilbao-aeropuerto",
+  "lugar": "Bilbao",
+  "capital": "Bilbao",
+  "id": "1082",
+  "nombre": "Bilbao Aeropuerto",
+  "nota": "Está en el aeropuerto de Loiu, a las afueras de la ciudad.",
+  "lat": 43.2981,
+  "lon": -2.9064,
+  "altitud": 42,
+  "vecinas": [
+   "vitoria-gasteiz-foronda",
+   "san-sebastian-igeldo",
+   "santander-aeropuerto",
+   "logrono-aeropuerto"
+  ],
+  "aemetNombre": "BILBAO AEROPUERTO",
+  "provincia": "BIZKAIA"
+ },
+ {
+  "slug": "burgos-aeropuerto",
+  "lugar": "Burgos",
+  "capital": "Burgos",
+  "id": "2331",
+  "nombre": "Burgos Aeropuerto",
+  "nota": "Está en el aeropuerto, a las afueras de la ciudad.",
+  "lat": 42.3569,
+  "lon": -3.6203,
+  "altitud": 891,
+  "vecinas": [
+   "vitoria-gasteiz-foronda",
+   "logrono-aeropuerto",
+   "soria",
+   "bilbao-aeropuerto"
+  ],
+  "aemetNombre": "BURGOS AEROPUERTO",
+  "provincia": "BURGOS"
+ },
+ {
+  "slug": "caceres",
+  "lugar": "Cáceres",
+  "capital": "Cáceres",
+  "id": "3469A",
+  "nombre": "Cáceres",
+  "nota": "",
+  "lat": 39.4714,
+  "lon": -6.3389,
+  "altitud": 394,
+  "vecinas": [
+   "badajoz-aeropuerto",
+   "salamanca-aeropuerto",
+   "avila",
+   "toledo"
+  ],
+  "aemetNombre": "CÁCERES",
+  "provincia": "CACERES"
+ },
+ {
+  "slug": "cadiz",
+  "lugar": "Cádiz",
+  "capital": "Cádiz",
+  "id": "5973",
+  "nombre": "Cádiz",
+  "nota": "",
+  "lat": 36.4997,
+  "lon": -6.2578,
+  "altitud": 2,
+  "vecinas": [
+   "huelva-ronda-este",
+   "ceuta",
+   "sevilla-aeropuerto",
+   "malaga-aeropuerto"
+  ],
+  "aemetNombre": "CÁDIZ",
+  "provincia": "CADIZ"
+ },
+ {
+  "slug": "santander-aeropuerto",
+  "lugar": "Santander",
+  "capital": "Santander",
+  "id": "1109",
+  "nombre": "Santander Aeropuerto",
+  "nota": "Está en el aeropuerto. Las estaciones de la ciudad dejaron de medir en 1997 y 2024.",
+  "lat": 43.4239,
+  "lon": -3.8256,
+  "altitud": 3,
+  "vecinas": [
+   "bilbao-aeropuerto",
+   "vitoria-gasteiz-foronda",
+   "burgos-aeropuerto",
+   "san-sebastian-igeldo"
+  ],
+  "aemetNombre": "SANTANDER AEROPUERTO",
+  "provincia": "CANTABRIA"
+ },
+ {
+  "slug": "castellon-almassora",
+  "lugar": "Castellón de la Plana",
+  "capital": "Castellón de la Plana",
+  "id": "8500A",
+  "nombre": "Castelló - Almassora",
+  "nota": "Está en Almassora, junto a la ciudad.",
+  "lat": 39.9572,
+  "lon": -0.0719,
+  "altitud": 43,
+  "vecinas": [
+   "valencia",
+   "teruel",
+   "tarragona-reus-aeropuerto",
+   "cuenca"
+  ],
+  "aemetNombre": "CASTELLÓ - ALMASSORA",
+  "provincia": "CASTELLON"
+ },
+ {
+  "slug": "ceuta",
+  "lugar": "Ceuta",
+  "capital": "Ceuta",
+  "id": "5000C",
+  "nombre": "Ceuta",
+  "nota": "",
+  "lat": 35.8886,
+  "lon": -5.3469,
+  "altitud": 87,
+  "vecinas": [
+   "cadiz",
+   "malaga-aeropuerto",
+   "sevilla-aeropuerto",
+   "granada-base-aerea"
+  ],
+  "aemetNombre": "CEUTA",
+  "provincia": "CEUTA"
+ },
+ {
+  "slug": "ciudad-real",
+  "lugar": "Ciudad Real",
+  "capital": "Ciudad Real",
+  "id": "4121",
+  "nombre": "Ciudad Real",
+  "nota": "",
+  "lat": 38.9892,
+  "lon": -3.9203,
+  "altitud": 626,
+  "vecinas": [
+   "toledo",
+   "jaen",
+   "cordoba-aeropuerto",
+   "madrid-retiro"
+  ],
+  "aemetNombre": "CIUDAD REAL",
+  "provincia": "CIUDAD REAL"
+ },
+ {
+  "slug": "cordoba-aeropuerto",
+  "lugar": "Córdoba",
+  "capital": "Córdoba",
+  "id": "5402",
+  "nombre": "Córdoba Aeropuerto",
+  "nota": "Está en el aeropuerto, a las afueras de la ciudad.",
+  "lat": 37.8489,
+  "lon": -4.8467,
+  "altitud": 90,
+  "vecinas": [
+   "jaen",
+   "sevilla-aeropuerto",
+   "granada-base-aerea",
+   "malaga-aeropuerto"
+  ],
+  "aemetNombre": "CÓRDOBA AEROPUERTO",
+  "provincia": "CORDOBA"
+ },
+ {
+  "slug": "cuenca",
+  "lugar": "Cuenca",
+  "capital": "Cuenca",
+  "id": "8096",
+  "nombre": "Cuenca",
+  "nota": "",
+  "lat": 40.0672,
+  "lon": -2.1319,
+  "altitud": 949,
+  "vecinas": [
+   "teruel",
+   "guadalajara",
+   "albacete-base-aerea",
+   "madrid-retiro"
+  ],
+  "aemetNombre": "CUENCA",
+  "provincia": "CUENCA"
+ },
+ {
+  "slug": "san-sebastian-igeldo",
+  "lugar": "San Sebastián",
+  "capital": "San Sebastián",
+  "id": "1024E",
+  "nombre": "Donostia / San Sebastián, Igeldo",
+  "nota": "Está en el monte Igeldo, a unos 250 m de altitud.",
+  "lat": 43.3064,
+  "lon": -2.0411,
+  "altitud": 250,
+  "vecinas": [
+   "pamplona",
+   "bilbao-aeropuerto",
+   "vitoria-gasteiz-foronda",
+   "logrono-aeropuerto"
+  ],
+  "aemetNombre": "DONOSTIA / SAN SEBASTIÁN, IGELDO",
+  "provincia": "GIPUZKOA"
+ },
+ {
+  "slug": "girona-aeropuerto",
+  "lugar": "Girona",
+  "capital": "Girona",
+  "id": "0367",
+  "nombre": "Girona Aeropuerto",
+  "nota": "Está en el aeropuerto, a las afueras de la ciudad.",
+  "lat": 41.9114,
+  "lon": 2.7631,
+  "altitud": 143,
+  "vecinas": [
+   "barcelona-fabra",
+   "tarragona-reus-aeropuerto",
+   "lleida",
+   "huesca-aeropuerto"
+  ],
+  "aemetNombre": "GIRONA AEROPUERTO",
+  "provincia": "GIRONA"
+ },
+ {
+  "slug": "granada-base-aerea",
+  "lugar": "Granada",
+  "capital": "Granada",
+  "id": "5514",
+  "nombre": "Granada Base Aérea",
+  "nota": "Está en la base aérea, en el entorno de la ciudad.",
+  "lat": 37.1372,
+  "lon": -3.6314,
+  "altitud": 687,
+  "vecinas": [
+   "jaen",
+   "malaga-aeropuerto",
+   "almeria-aeropuerto",
+   "cordoba-aeropuerto"
+  ],
+  "aemetNombre": "GRANADA BASE AÉREA",
+  "provincia": "GRANADA"
+ },
+ {
+  "slug": "guadalajara",
+  "lugar": "Guadalajara",
+  "capital": "Guadalajara",
+  "id": "3168D",
+  "nombre": "Guadalajara",
+  "nota": "",
+  "lat": 40.6303,
+  "lon": -3.1503,
+  "altitud": 727,
+  "vecinas": [
+   "madrid-retiro",
+   "segovia",
+   "cuenca",
+   "toledo"
+  ],
+  "aemetNombre": "GUADALAJARA",
+  "provincia": "GUADALAJARA"
+ },
+ {
+  "slug": "huelva-ronda-este",
+  "lugar": "Huelva",
+  "capital": "Huelva",
+  "id": "4642E",
+  "nombre": "Huelva, Ronda Este",
+  "nota": "Las medidas anteriores a 1984 son de otro emplazamiento y no se muestran aquí.",
+  "lat": 37.2783,
+  "lon": -6.9117,
+  "altitud": 18,
+  "vecinas": [
+   "sevilla-aeropuerto",
+   "cadiz",
+   "badajoz-aeropuerto",
+   "cordoba-aeropuerto"
+  ],
+  "aemetNombre": "HUELVA, RONDA ESTE",
+  "provincia": "HUELVA"
+ },
+ {
+  "slug": "huesca-aeropuerto",
+  "lugar": "Huesca",
+  "capital": "Huesca",
+  "id": "9898",
+  "nombre": "Huesca Aeropuerto",
+  "nota": "Está en el aeropuerto, a las afueras de la ciudad.",
+  "lat": 42.0844,
+  "lon": -0.3256,
+  "altitud": 546,
+  "vecinas": [
+   "zaragoza-aeropuerto",
+   "lleida",
+   "pamplona",
+   "tarragona-reus-aeropuerto"
+  ],
+  "aemetNombre": "HUESCA, AEROPUERTO",
+  "provincia": "HUESCA"
+ },
+ {
+  "slug": "jaen",
+  "lugar": "Jaén",
+  "capital": "Jaén",
+  "id": "5270B",
+  "nombre": "Jaén",
+  "nota": "",
+  "lat": 37.7775,
+  "lon": -3.8092,
+  "altitud": 580,
+  "vecinas": [
+   "granada-base-aerea",
+   "cordoba-aeropuerto",
+   "ciudad-real",
+   "malaga-aeropuerto"
+  ],
+  "aemetNombre": "JAÉN",
+  "provincia": "JAEN"
+ },
+ {
+  "slug": "logrono-aeropuerto",
+  "lugar": "Logroño",
+  "capital": "Logroño",
+  "id": "9170",
+  "nombre": "Logroño Aeropuerto",
+  "nota": "Está en el aeropuerto, a las afueras de la ciudad.",
+  "lat": 42.4522,
+  "lon": -2.3311,
+  "altitud": 353,
+  "vecinas": [
+   "vitoria-gasteiz-foronda",
+   "pamplona",
+   "soria",
+   "san-sebastian-igeldo"
+  ],
+  "aemetNombre": "LOGROÑO, AEROPUERTO",
+  "provincia": "LA RIOJA"
+ },
+ {
+  "slug": "las-palmas-gran-canaria-aeropuerto",
+  "lugar": "Las Palmas de Gran Canaria",
+  "capital": "Las Palmas de Gran Canaria",
+  "id": "C649I",
+  "nombre": "Gran Canaria Aeropuerto",
+  "nota": "Está en el aeropuerto, en Telde, a unos 20 km de la ciudad.",
+  "lat": 27.9178,
+  "lon": -15.3953,
+  "altitud": 24,
+  "vecinas": [
+   "santa-cruz-de-tenerife",
+   "cadiz",
+   "ceuta",
+   "huelva-ronda-este"
+  ],
+  "aemetNombre": "GRAN CANARIA AEROPUERTO",
+  "provincia": "LAS PALMAS"
+ },
+ {
+  "slug": "leon-virgen-del-camino",
+  "lugar": "León",
+  "capital": "León",
+  "id": "2661",
+  "nombre": "León, Virgen del Camino",
+  "nota": "Está en Virgen del Camino, en el entorno de la ciudad.",
+  "lat": 42.5883,
+  "lon": -5.6511,
+  "altitud": 916,
+  "vecinas": [
+   "oviedo-asturias-aeropuerto",
+   "valladolid-aeropuerto",
+   "zamora",
+   "lugo-aeropuerto"
+  ],
+  "aemetNombre": "LEÓN, VIRGEN DEL CAMINO",
+  "provincia": "LEON"
+ },
+ {
+  "slug": "lleida",
+  "lugar": "Lleida",
+  "capital": "Lleida",
+  "id": "9771C",
+  "nombre": "Lleida",
+  "nota": "Las medidas anteriores a 1983 son de otro emplazamiento y no se muestran aquí.",
+  "lat": 41.6261,
+  "lon": 0.5981,
+  "altitud": 186,
+  "vecinas": [
+   "tarragona-reus-aeropuerto",
+   "huesca-aeropuerto",
+   "barcelona-fabra",
+   "zaragoza-aeropuerto"
+  ],
+  "aemetNombre": "LLEIDA",
+  "provincia": "LLEIDA"
+ },
+ {
+  "slug": "lugo-aeropuerto",
+  "lugar": "Lugo",
+  "capital": "Lugo",
+  "id": "1505",
+  "nombre": "Lugo Aeropuerto",
+  "nota": "Está en el aeropuerto, a las afueras de la ciudad.",
+  "lat": 43.1111,
+  "lon": -7.4575,
+  "altitud": 442,
+  "vecinas": [
+   "a-coruna",
+   "ourense",
+   "pontevedra",
+   "oviedo-asturias-aeropuerto"
+  ],
+  "aemetNombre": "LUGO AEROPUERTO",
+  "provincia": "LUGO"
+ },
+ {
+  "slug": "madrid-retiro",
+  "lugar": "Madrid",
+  "capital": "Madrid",
+  "id": "3195",
+  "nombre": "Madrid Retiro",
+  "nota": "Está en el parque del Retiro, en pleno centro de la ciudad.",
+  "lat": 40.4114,
+  "lon": -3.6778,
+  "altitud": 667,
+  "vecinas": [
+   "guadalajara",
+   "toledo",
+   "segovia",
+   "avila"
+  ],
+  "aemetNombre": "MADRID, RETIRO",
+  "provincia": "MADRID"
+ },
+ {
+  "slug": "malaga-aeropuerto",
+  "lugar": "Málaga",
+  "capital": "Málaga",
+  "id": "6155A",
+  "nombre": "Málaga Aeropuerto",
+  "nota": "Está en el aeropuerto, a las afueras de la ciudad.",
+  "lat": 36.6661,
+  "lon": -4.4822,
+  "altitud": 7,
+  "vecinas": [
+   "granada-base-aerea",
+   "ceuta",
+   "cordoba-aeropuerto",
+   "jaen"
+  ],
+  "aemetNombre": "MÁLAGA AEROPUERTO",
+  "provincia": "MALAGA"
+ },
+ {
+  "slug": "melilla",
+  "lugar": "Melilla",
+  "capital": "Melilla",
+  "id": "6000A",
+  "nombre": "Melilla",
+  "nota": "",
+  "lat": 35.2764,
+  "lon": -2.9564,
+  "altitud": 52,
+  "vecinas": [
+   "almeria-aeropuerto",
+   "malaga-aeropuerto",
+   "granada-base-aerea",
+   "ceuta"
+  ],
+  "aemetNombre": "MELILLA",
+  "provincia": "MELILLA"
+ },
+ {
+  "slug": "murcia",
+  "lugar": "Murcia",
+  "capital": "Murcia",
+  "id": "7178I",
+  "nombre": "Murcia",
+  "nota": "",
+  "lat": 38.0019,
+  "lon": -1.1708,
+  "altitud": 62,
+  "vecinas": [
+   "alicante-alacant",
+   "albacete-base-aerea",
+   "almeria-aeropuerto",
+   "valencia"
+  ],
+  "aemetNombre": "MURCIA",
+  "provincia": "MURCIA"
+ },
+ {
+  "slug": "pamplona",
+  "lugar": "Pamplona",
+  "capital": "Pamplona",
+  "id": "9262",
+  "nombre": "Pamplona",
+  "nota": "",
+  "lat": 42.8178,
+  "lon": -1.6383,
+  "altitud": 450,
+  "vecinas": [
+   "san-sebastian-igeldo",
+   "logrono-aeropuerto",
+   "vitoria-gasteiz-foronda",
+   "bilbao-aeropuerto"
+  ],
+  "aemetNombre": "PAMPLONA",
+  "provincia": "NAVARRA"
+ },
+ {
+  "slug": "ourense",
+  "lugar": "Ourense",
+  "capital": "Ourense",
+  "id": "1690A",
+  "nombre": "Ourense",
+  "nota": "",
+  "lat": 42.3253,
+  "lon": -7.8597,
+  "altitud": 146,
+  "vecinas": [
+   "pontevedra",
+   "lugo-aeropuerto",
+   "a-coruna",
+   "leon-virgen-del-camino"
+  ],
+  "aemetNombre": "OURENSE",
+  "provincia": "OURENSE"
+ },
+ {
+  "slug": "pontevedra",
+  "lugar": "Pontevedra",
+  "capital": "Pontevedra",
+  "id": "1484C",
+  "nombre": "Pontevedra",
+  "nota": "",
+  "lat": 42.4383,
+  "lon": -8.6158,
+  "altitud": 113,
+  "vecinas": [
+   "ourense",
+   "a-coruna",
+   "lugo-aeropuerto",
+   "leon-virgen-del-camino"
+  ],
+  "aemetNombre": "PONTEVEDRA",
+  "provincia": "PONTEVEDRA"
+ },
+ {
+  "slug": "salamanca-aeropuerto",
+  "lugar": "Salamanca",
+  "capital": "Salamanca",
+  "id": "2867",
+  "nombre": "Salamanca Aeropuerto",
+  "nota": "Está en el aeropuerto, a las afueras de la ciudad.",
+  "lat": 40.9594,
+  "lon": -5.4983,
+  "altitud": 790,
+  "vecinas": [
+   "zamora",
+   "avila",
+   "valladolid-aeropuerto",
+   "segovia"
+  ],
+  "aemetNombre": "SALAMANCA AEROPUERTO",
+  "provincia": "SALAMANCA"
+ },
+ {
+  "slug": "santa-cruz-de-tenerife",
+  "lugar": "Santa Cruz de Tenerife",
+  "capital": "Santa Cruz de Tenerife",
+  "id": "C449C",
+  "nombre": "Santa Cruz de Tenerife",
+  "nota": "",
+  "lat": 28.4633,
+  "lon": -16.2553,
+  "altitud": 36,
+  "vecinas": [
+   "las-palmas-gran-canaria-aeropuerto",
+   "cadiz",
+   "huelva-ronda-este",
+   "ceuta"
+  ],
+  "aemetNombre": "STA.CRUZ DE TENERIFE",
+  "provincia": "SANTA CRUZ DE TENERIFE"
+ },
+ {
+  "slug": "segovia",
+  "lugar": "Segovia",
+  "capital": "Segovia",
+  "id": "2465",
+  "nombre": "Segovia",
+  "nota": "Las medidas anteriores a 1988 son de otro emplazamiento y no se muestran aquí.",
+  "lat": 40.9453,
+  "lon": -4.1264,
+  "altitud": 1008,
+  "vecinas": [
+   "avila",
+   "madrid-retiro",
+   "guadalajara",
+   "valladolid-aeropuerto"
+  ],
+  "aemetNombre": "SEGOVIA",
+  "provincia": "SEGOVIA"
+ },
+ {
+  "slug": "sevilla-aeropuerto",
+  "lugar": "Sevilla",
+  "capital": "Sevilla",
+  "id": "5783",
+  "nombre": "Sevilla Aeropuerto",
+  "nota": "Está en el aeropuerto, a las afueras de la ciudad.",
+  "lat": 37.4167,
+  "lon": -5.8792,
+  "altitud": 34,
+  "vecinas": [
+   "huelva-ronda-este",
+   "cordoba-aeropuerto",
+   "cadiz",
+   "malaga-aeropuerto"
+  ],
+  "aemetNombre": "SEVILLA AEROPUERTO",
+  "provincia": "SEVILLA"
+ },
+ {
+  "slug": "soria",
+  "lugar": "Soria",
+  "capital": "Soria",
+  "id": "2030",
+  "nombre": "Soria",
+  "nota": "",
+  "lat": 41.775,
+  "lon": -2.4831,
+  "altitud": 1081,
+  "vecinas": [
+   "logrono-aeropuerto",
+   "burgos-aeropuerto",
+   "zaragoza-aeropuerto",
+   "vitoria-gasteiz-foronda"
+  ],
+  "aemetNombre": "SORIA",
+  "provincia": "SORIA"
+ },
+ {
+  "slug": "tarragona-reus-aeropuerto",
+  "lugar": "Tarragona",
+  "capital": "Tarragona",
+  "id": "0016A",
+  "nombre": "Reus Aeropuerto",
+  "nota": "Es la estación de Reus, a unos 15 km de Tarragona; la estación de la propia ciudad solo tiene datos desde 2008.",
+  "lat": 41.145,
+  "lon": 1.1636,
+  "altitud": 71,
+  "vecinas": [
+   "lleida",
+   "barcelona-fabra",
+   "girona-aeropuerto",
+   "huesca-aeropuerto"
+  ],
+  "aemetNombre": "REUS AEROPUERTO",
+  "provincia": "TARRAGONA"
+ },
+ {
+  "slug": "teruel",
+  "lugar": "Teruel",
+  "capital": "Teruel",
+  "id": "8368U",
+  "nombre": "Teruel",
+  "nota": "",
+  "lat": 40.3508,
+  "lon": -1.1242,
+  "altitud": 902,
+  "vecinas": [
+   "cuenca",
+   "castellon-almassora",
+   "valencia",
+   "zaragoza-aeropuerto"
+  ],
+  "aemetNombre": "TERUEL",
+  "provincia": "TERUEL"
+ },
+ {
+  "slug": "toledo",
+  "lugar": "Toledo",
+  "capital": "Toledo",
+  "id": "3260B",
+  "nombre": "Toledo",
+  "nota": "",
+  "lat": 39.8847,
+  "lon": -4.0453,
+  "altitud": 513,
+  "vecinas": [
+   "madrid-retiro",
+   "ciudad-real",
+   "avila",
+   "guadalajara"
+  ],
+  "aemetNombre": "TOLEDO",
+  "provincia": "TOLEDO"
+ },
+ {
+  "slug": "valencia",
+  "lugar": "Valencia",
+  "capital": "Valencia",
+  "id": "8416",
+  "nombre": "València",
+  "nota": "",
+  "lat": 39.4806,
+  "lon": -0.3664,
+  "altitud": 13,
+  "vecinas": [
+   "castellon-almassora",
+   "teruel",
+   "alicante-alacant",
+   "albacete-base-aerea"
+  ],
+  "aemetNombre": "VALÈNCIA",
+  "provincia": "VALENCIA"
+ },
+ {
+  "slug": "valladolid-aeropuerto",
+  "lugar": "Valladolid",
+  "capital": "Valladolid",
+  "id": "2539",
+  "nombre": "Valladolid Aeropuerto",
+  "nota": "Está en el aeropuerto, a las afueras de la ciudad.",
+  "lat": 41.7119,
+  "lon": -4.8556,
+  "altitud": 846,
+  "vecinas": [
+   "zamora",
+   "salamanca-aeropuerto",
+   "segovia",
+   "leon-virgen-del-camino"
+  ],
+  "aemetNombre": "VALLADOLID AEROPUERTO",
+  "provincia": "VALLADOLID"
+ },
+ {
+  "slug": "zamora",
+  "lugar": "Zamora",
+  "capital": "Zamora",
+  "id": "2614",
+  "nombre": "Zamora",
+  "nota": "",
+  "lat": 41.5156,
+  "lon": -5.7353,
+  "altitud": 656,
+  "vecinas": [
+   "salamanca-aeropuerto",
+   "valladolid-aeropuerto",
+   "leon-virgen-del-camino",
+   "avila"
+  ],
+  "aemetNombre": "ZAMORA",
+  "provincia": "ZAMORA"
+ },
+ {
+  "slug": "zaragoza-aeropuerto",
+  "lugar": "Zaragoza",
+  "capital": "Zaragoza",
+  "id": "9434",
+  "nombre": "Zaragoza Aeropuerto",
+  "nota": "Está en el aeropuerto, a las afueras de la ciudad.",
+  "lat": 41.6606,
+  "lon": -1.0042,
+  "altitud": 249,
+  "vecinas": [
+   "huesca-aeropuerto",
+   "soria",
+   "lleida",
+   "pamplona"
+  ],
+  "aemetNombre": "ZARAGOZA, AEROPUERTO",
+  "provincia": "ZARAGOZA"
+ }
+]

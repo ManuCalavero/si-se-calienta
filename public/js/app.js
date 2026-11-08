@@ -113,6 +113,9 @@ let backgroundTimer = 0;
 let loadTimer = 0;
 
 const isMobile = () => window.matchMedia("(max-width: 760px)").matches;
+// En /estacion/<slug> el servidor ya fija la estación (atributo data-station del body): la URL no necesita ?estacion=.
+const PAGE_STATION = document.body.dataset.station || "";
+const PAGE_PATH = PAGE_STATION ? location.pathname : "";
 const reducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 const pad = (value) => String(value).padStart(2, "0");
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -531,13 +534,27 @@ function toggleStationPop(force) {
   if (open) toggleRigor(false);
 }
 
+// La barra de progreso solo se muestra si la carga tarda: en cargas rápidas aparecería y desaparecería al instante,
+// moviendo el contenido de debajo.
+const PROGRESS_DELAY_MS = 350;
+let progressTimer = 0;
+
 function setProgress(percent, message) {
   const active = percent !== null;
-  els.progressBox.hidden = !active;
   els.panelBody.classList.toggle("is-loading", active && !state.result);
-  if (active) {
-    els.progressBar.style.width = `${Math.max(3, Math.min(100, percent))}%`;
-    els.status.textContent = message;
+  if (!active) {
+    clearTimeout(progressTimer);
+    progressTimer = 0;
+    els.progressBox.hidden = true;
+    return;
+  }
+  els.progressBar.style.width = `${Math.max(3, Math.min(100, percent))}%`;
+  els.status.textContent = message;
+  if (els.progressBox.hidden && !progressTimer) {
+    progressTimer = setTimeout(() => {
+      progressTimer = 0;
+      els.progressBox.hidden = false;
+    }, PROGRESS_DELAY_MS);
   }
 }
 
@@ -588,7 +605,11 @@ function renderHeader(station, analysis) {
   const period = analysis && analysis.firstYear ? ` · ${analysis.firstYear}–${analysis.lastYear}` : "";
   // El día ya está en el selector de arriba: aquí solo cómo se calcula y el periodo.
   const how = state.mode === "day" ? "Solo ese día" : `Media ${windowText(state.month, state.day)}`;
-  els.sub.textContent = `${how}${period}`;
+  // En /estacion/<slug> el servidor ya escribió esta línea con su periodo: hasta tener el análisis no se toca,
+  // porque sin el periodo cabe en una línea y con él salta a otra.
+  const serverText = !analysis && els.sub.dataset.ssr === "1";
+  if (!serverText) els.sub.textContent = `${how}${period}`;
+  if (analysis) delete els.sub.dataset.ssr;
   els.rigorWindow.textContent =
     state.mode === "day"
       ? `Ahora ves el valor del ${prettyDay(state.month, state.day)} exacto. Un día suelto varía mucho de un año a otro: la media de ±7 días es más fiable.`
@@ -1432,9 +1453,11 @@ function resetLocateButton() {
 
 function updateUrl() {
   const params = new URLSearchParams();
-  if (state.selectedId) params.set("estacion", state.selectedId);
+  // Mientras se mira la estación de la página, se mantiene su URL limpia; con otra estación o sin ninguna, se vuelve a la raíz.
+  const onPage = Boolean(PAGE_STATION) && state.selectedId === PAGE_STATION;
+  if (state.selectedId && !onPage) params.set("estacion", state.selectedId);
   params.set("dia", `${state.month}-${state.day}`);
-  history.replaceState(null, "", `${location.pathname}?${params}`);
+  history.replaceState(null, "", `${onPage ? PAGE_PATH : "/"}?${params}`);
 }
 
 function readInitialState() {
@@ -1445,7 +1468,7 @@ function readInitialState() {
   state.month = valid ? match[1] : today.month;
   state.day = valid ? match[2] : today.day;
   renderDayNav();
-  return String(params.get("estacion") || "").toUpperCase();
+  return PAGE_STATION || String(params.get("estacion") || "").toUpperCase();
 }
 
 // ---------- Eventos ----------
@@ -1659,6 +1682,8 @@ async function init() {
     },
   });
   els.dock.hidden = false;
+  // Las animaciones de altura de la hoja móvil se activan cuando la página ya se asentó: así la carga no baila.
+  requestAnimationFrame(() => requestAnimationFrame(() => document.body.classList.add("is-ready")));
   els.modeToggle.dataset.value = state.mode;
   els.shareFormats.dataset.value = state.shareFormat;
 
