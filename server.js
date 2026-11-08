@@ -114,6 +114,8 @@ app.use(
     },
     referrerPolicy: { policy: "strict-origin-when-cross-origin" },
     crossOriginResourcePolicy: { policy: "cross-origin" },
+    // Con same-origin (el valor por defecto de helmet) Tag Assistant de GTM no puede conectar con la web.
+    crossOriginOpenerPolicy: false,
   })
 );
 

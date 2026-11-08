@@ -1157,6 +1157,9 @@ function selectStation(stationId, { userGesture = true } = {}) {
   if (viewState() === "station" || !userGesture) reveal();
   else morph(reveal);
   updateUrl();
+  // Evento para GTM/GA4: cada estación consultada. Solo llega a Google si el visitante aceptó (ver js/analytics.js).
+  window.dataLayer = window.dataLayer || [];
+  window.dataLayer.push({ event: "station_view", station: station.idema, station_name: station.nombreVisible, origin: userGesture ? "mapa" : "enlace" });
   requestAnimationFrame(() => focusStation(station, panelOffset()));
   runQuery();
 }
