@@ -231,6 +231,23 @@ app.get("/api/cron/bluesky", async (req, res) => {
   }
 });
 
+// Reposts curados (ver REPOST_SOURCES en lib/bluesky.js): una publicación al día, solo de AEMET y Copernicus y solo sobre clima.
+app.get("/api/cron/bluesky-repost", async (req, res) => {
+  if (!isCronAuthorized(req)) return res.status(401).json({ error: "No autorizado" });
+  try {
+    const result = await bluesky.repostDaily({ dryRun: req.query.dryRun === "1" });
+    if (result.reposted) {
+      const first = result.items[0];
+      await notifyTelegram(`🔁 Bluesky: reposteado de ${first.handle}\n${first.text}`);
+    }
+    res.set("Cache-Control", "no-store").json(result);
+  } catch (error) {
+    logServerError("cron.bluesky-repost", error);
+    await notifyTelegram(`⚠️ Bluesky: falló el repost de hoy.\n${String(error.message || error).slice(0, 200)}`);
+    res.status(500).json({ error: "No se pudo repostear" });
+  }
+});
+
 app.use(express.static(path.join(__dirname, "public")));
 app.use(baseLimiter);
 app.use(express.json({ limit: "2kb" }));

@@ -102,3 +102,10 @@ Solo se aceptan estaciones que existan en el inventario de AEMET, para no gastar
 - Publica una capital al día, rotando las que tienen al menos 30 años de datos (`lib/bluesky.js`), con las cifras de `data/capital-stats.json`. Antes de publicar comprueba que no se haya publicado ya esa capital hoy.
 - Variables de entorno en Vercel: `BLUESKY_HANDLE`, `BLUESKY_APP_PASSWORD` (contraseña de aplicación) y `CRON_SECRET` (clave que Vercel envía a la ruta; sin ella la ruta responde 401).
 - Pruebas: `node scripts/post-bluesky.js --dry-run` muestra el post de hoy; con `--force` lo publica ya. En producción, `GET /api/cron/bluesky?dryRun=1&force=1` con `Authorization: Bearer <CRON_SECRET>` solo muestra el texto.
+
+### Reposts automáticos
+
+- Una segunda tarea (`/api/cron/bluesky-repost`, 15:00 UTC) reposta como mucho **una publicación al día**, solo de las cuentas verificadas de AEMET y Copernicus (`REPOST_SOURCES` en `lib/bluesky.js`), solo si es reciente (36 h AEMET, 96 h Copernicus) y habla de clima o temperaturas.
+- AEMET publica sobre todo avisos meteorológicos: se descartan a propósito (caducan en horas y esta cuenta no es oficial).
+- Nunca responde, sigue ni da «me gusta»: discutir de forma automática con terceros es un riesgo de reputación. Para añadir fuentes, añade una entrada a `REPOST_SOURCES` con su filtro de temas, verificando antes que la cuenta es la oficial.
+- Prueba sin publicar: `GET /api/cron/bluesky-repost?dryRun=1` con `Authorization: Bearer <CRON_SECRET>`.
