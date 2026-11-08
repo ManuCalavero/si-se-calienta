@@ -196,17 +196,37 @@ function isCronAuthorized(req) {
   return given.length === expected.length && crypto.timingSafeEqual(given, expected);
 }
 
+// Aviso por Telegram (mismo bot que /api/notify). Si no está configurado o falla, se calla.
+async function notifyTelegram(text) {
+  const { TELEGRAM_BOT_TOKEN: token, TELEGRAM_CHAT_ID: chatId } = process.env;
+  if (!token || !chatId) return;
+  try {
+    await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ chat_id: chatId, text }),
+      signal: AbortSignal.timeout(5000),
+    });
+  } catch (_error) {
+    // Un aviso que no llega no debe romper la tarea.
+  }
+}
+
 app.get("/api/cron/bluesky", async (req, res) => {
   if (!isCronAuthorized(req)) return res.status(401).json({ error: "No autorizado" });
+  const manual = req.query.dryRun === "1" || req.query.force === "1";
   try {
     const result = await bluesky.publishDaily({
       dryRun: req.query.dryRun === "1",
       force: req.query.force === "1",
       slug: typeof req.query.slug === "string" ? req.query.slug : undefined,
     });
+    // Solo avisa cuando de verdad se publica: las otras ejecuciones (fuera de hora o ya publicado) son normales.
+    if (result.posted) await notifyTelegram(`✅ Bluesky: publicado ${result.slug}${manual ? " (manual)" : ""}\nhttps://secalienta.com/estacion/${result.slug}`);
     res.set("Cache-Control", "no-store").json(result);
   } catch (error) {
     logServerError("cron.bluesky", error);
+    await notifyTelegram(`⚠️ Bluesky: no se pudo publicar la capital de hoy.\n${String(error.message || error).slice(0, 200)}`);
     res.status(500).json({ error: "No se pudo publicar" });
   }
 });
