@@ -1160,6 +1160,7 @@ function selectStation(stationId, { userGesture = true } = {}) {
   // Evento para GTM/GA4: cada estación consultada. Solo llega a Google si el visitante aceptó (ver js/analytics.js).
   window.dataLayer = window.dataLayer || [];
   window.dataLayer.push({ event: "station_view", station: station.idema, station_name: station.nombreVisible, origin: userGesture ? "mapa" : "enlace" });
+  fetch("/api/notify", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ station: station.idema, name: station.nombreVisible }), keepalive: true }).catch(() => {});
   requestAnimationFrame(() => focusStation(station, panelOffset()));
   runQuery();
 }

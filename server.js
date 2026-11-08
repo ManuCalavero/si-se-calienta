@@ -145,6 +145,7 @@ const evolutionStatusLimiter = rateLimit({
 
 app.use(express.static(path.join(__dirname, "public")));
 app.use(baseLimiter);
+app.use(express.json({ limit: "2kb" }));
 
 function isValidStationId(station) {
   return /^[A-Z0-9_]+$/.test(station) && station.length > 0 && station.length <= MAX_STATION_ID_LENGTH;
@@ -937,6 +938,31 @@ async function buildCachedResultIfComplete(params) {
   const job = { ...params, meta: plan.meta, startYear: plan.startYear, endYear: plan.endYear, chunkMap: plan.chunkMap, failedChunks: [] };
   return { plan, result: buildEvolutionResult(job, true) };
 }
+
+// Aviso a Telegram cuando alguien consulta una estacion. Si falla o no esta configurado, se calla sin afectar a nadie.
+const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
+const notifyLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  limit: 30,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { ok: false },
+});
+
+app.post("/api/notify", notifyLimiter, (req, res) => {
+  res.status(204).end();
+  if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) return;
+  const station = String(req.body?.station || "");
+  if (!isValidStationId(station)) return;
+  const name = String(req.body?.name || station).replace(/[\r\n]+/g, " ").trim().slice(0, 80) || station;
+  fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: `Alguien está consultando "${name}"`, disable_notification: false }),
+    signal: AbortSignal.timeout(5000),
+  }).catch(() => {});
+});
 
 app.get("/api/stations", async (_req, res) => {
   try {
