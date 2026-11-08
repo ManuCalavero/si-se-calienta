@@ -3,18 +3,7 @@
 // Usuario de Ko-fi: https://ko-fi.com/<usuario>
 export const KOFI_USERNAME = "secalienta";
 
-// Coste mensual estimado para mantener la web abierta con tráfico real (euros, octubre de 2026).
-// Hoy funciona en planes gratuitos; estos son los planes necesarios si la web recibe visitas de prensa.
-export const MONTHLY_COSTS = [
-  { label: "Servidor web", euros: 19 },
-  { label: "Base de datos", euros: 15 },
-  { label: "Dominio", euros: 1 },
-];
-
-export const COFFEE_EUROS = 5;
-
-// Lo que tendría que aportar de media cada visita para cubrir los costes sin poner dinero de mi bolsillo.
-// Es la cifra del botón junto a «Compartir»; el módulo de donación explica por qué conviene aportar más.
+// Cifra del botón de aporte junto a «Compartir».
 export const VISIT_EUROS = 0.75;
 
 // Estaciones con más historia para empezar con un toque. Solo se muestran las ya descargadas.

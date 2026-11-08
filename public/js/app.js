@@ -3,7 +3,7 @@ import { anomalyColor, formatDuration, formatNumber, formatSigned, monthName, pr
 import { anomalyScale, highlightYear, onChartHover, renderTemperatureChart, resizeCharts, setSeriesVisibility } from "./charts.js";
 import { clearSelection, createMap, focusStation, resetView, setStations, updateCached } from "./map.js";
 import { canvasToBlob, drawShareCard, shareCaption, shareFileName } from "./share.js";
-import { COFFEE_EUROS, KOFI_USERNAME, LINKS, MONTHLY_COSTS, QUICK_PICKS, VISIT_EUROS } from "./config.js";
+import { KOFI_USERNAME, LINKS, QUICK_PICKS, VISIT_EUROS } from "./config.js";
 
 const $ = (id) => document.getElementById(id);
 
@@ -73,11 +73,7 @@ const els = {
   shareNative: $("share-native"),
   shareDownload: $("share-download"),
   shareCopy: $("share-copy"),
-  donateTotal: $("donate-total"),
-  costList: $("cost-list"),
   kofiLink: $("kofi-link"),
-  donateEq: $("donate-equivalence"),
-  donateVisit: $("donate-visit"),
   donateBtn: $("donate-btn"),
   donateBtnAmount: $("donate-btn-amount"),
   donateCard: document.querySelector(".donate"),
@@ -416,29 +412,9 @@ function applyLinks() {
 }
 
 function renderDonate() {
-  const total = MONTHLY_COSTS.reduce((acc, item) => acc + item.euros, 0);
-  els.donateTotal.textContent = `${formatNumber(total, 0)} € al mes`;
-  // Barra de KPIs: una celda por gasto con su nombre y su importe.
-  els.costList.replaceChildren(
-    ...MONTHLY_COSTS.map((item) => {
-      const li = document.createElement("li");
-      const label = document.createElement("span");
-      label.className = "cost-label";
-      label.textContent = item.label;
-      const value = document.createElement("strong");
-      value.className = "cost-value";
-      value.textContent = `${formatNumber(item.euros, 0)} €`;
-      li.append(label, value);
-      return li;
-    })
-  );
   const visit = `${formatNumber(VISIT_EUROS, 2)} €`;
   els.donateBtnAmount.textContent = visit;
   els.donateBtn.setAttribute("aria-label", `Aportar ${visit}: ver cómo ayudar a mantener la web`);
-  els.donateVisit.textContent =
-    `Cada visita cuesta de media unos ${visit}. Pero en aportes tan pequeños las comisiones del pago se comen casi todo, así que, si puedes, pon algo más.`;
-  const days = Math.floor(COFFEE_EUROS / (total / 30));
-  els.donateEq.textContent = `Con ${COFFEE_EUROS} € cubres ${days === 1 ? "un día" : `unos ${days} días`} de la app.`;
   els.kofiLink.href = `https://ko-fi.com/${encodeURIComponent(KOFI_USERNAME)}`;
 }
 
