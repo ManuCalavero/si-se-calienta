@@ -84,7 +84,7 @@ Solo se aceptan estaciones que existan en el inventario de AEMET, para no gastar
 
 ## Google Analytics y consentimiento
 
-- La analítica va por Google Tag Manager (contenedor `GTM-K4V42VXB`). La etiqueta de Google Analytics 4 (`G-N7Q7DCPW4L`) se configura dentro del contenedor, no en el código.
+- La analítica va por Google Tag Manager (contenedor `GTM-5CW9RVXM`). La etiqueta de Google Analytics 4 (`G-N7Q7DCPW4L`) se configura dentro del contenedor, no en el código.
 - `public/js/analytics.js` carga GTM solo después de que el visitante pulse «Aceptar» en la barra negra inferior. «Declinar» no carga nada. La decisión se guarda en `localStorage` (`secalienta-consent`) y se puede cambiar con «Preferencias de cookies» en la pantalla de bienvenida; al retirar el consentimiento se borran las cookies `_ga*` y se recarga la página.
 - La CSP en `server.js` permite los dominios de Google necesarios sin habilitar scripts inline.
 - Tras desplegar, se puede comprobar la recepción de visitas en el informe «En tiempo real» de Google Analytics (los bloqueadores pueden impedir el envío).

@@ -1,7 +1,7 @@
 // Consentimiento y Google Tag Manager.
 // Hasta que el visitante pulsa «Aceptar» no se carga nada de Google. «Declinar» no carga nada y se recuerda.
 // La etiqueta de GA4 (G-N7Q7DCPW4L) se configura dentro del contenedor GTM, no aquí.
-const GTM_ID = "GTM-K4V42VXB";
+const GTM_ID = "GTM-5CW9RVXM";
 const STORAGE_KEY = "secalienta-consent";
 
 const banner = document.getElementById("consent");
