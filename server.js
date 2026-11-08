@@ -1055,9 +1055,14 @@ const notifyLimiter = rateLimit({
   message: { ok: false },
 });
 
+// Rastreadores y herramientas de medición: cargan la app como un navegador y no deben avisar «alguien está consultando…».
+const AUTOMATED_AGENT = /bot\b|bot\/|crawl|spider|slurp|googlebot|bingbot|duckduckgo|yandex|baidu|facebookexternalhit|embedly|headless|lighthouse|pagespeed|gtmetrix|pingdom|uptime|monitor|preview|curl|wget|python-requests|node-fetch|undici|^node$/i;
+
 app.post("/api/notify", notifyLimiter, (req, res) => {
   res.status(204).end();
   if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) return;
+  const agent = String(req.get("user-agent") || "");
+  if (!agent || AUTOMATED_AGENT.test(agent)) return;
   const station = String(req.body?.station || "");
   if (!isValidStationId(station)) return;
   const name = String(req.body?.name || station).replace(/[\r\n]+/g, " ").trim().slice(0, 80) || station;
