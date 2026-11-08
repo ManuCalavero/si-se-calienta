@@ -12,12 +12,41 @@
     <meta property="og:site_name" content="secalienta.com" />
     <meta property="og:description" content="Elige un lugar y un día del año y mira cómo ha cambiado su temperatura desde 1920. Datos de AEMET OpenData." />
     <meta property="og:type" content="website" />
-    <!-- Las redes piden la imagen con URL absoluta: cambiar al dominio propio cuando secalienta.com apunte a Vercel. -->
-    <meta property="og:image" content="https://si-se-calienta-bdti.vercel.app/img/og.jpg" />
+    <meta property="og:locale" content="es_ES" />
+    <!-- Canonical y og:url apuntan siempre a la portada: ?estacion=…&dia=… son la misma página para buscadores. -->
+    <link rel="canonical" href="https://secalienta.com/" />
+    <meta property="og:url" content="https://secalienta.com/" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <!-- Las redes piden la imagen con URL absoluta. -->
+    <meta property="og:image" content="https://secalienta.com/img/og.jpg" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:image:alt" content="secalienta.com: ¿Hace más calor que antes? Un globo terráqueo morado junto al titular." />
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="secalienta.com · ¿Hace más calor que antes?" />
+    <meta name="twitter:description" content="Elige un lugar y un día del año y mira cómo ha cambiado su temperatura desde 1920. Datos de AEMET OpenData." />
+    <meta name="twitter:image" content="https://secalienta.com/img/og.jpg" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "secalienta.com",
+        "url": "https://secalienta.com/",
+        "description": "Compara la temperatura de un día con ese mismo día en todos los años con registro en las estaciones de AEMET.",
+        "inLanguage": "es",
+        "applicationCategory": "EducationalApplication",
+        "operatingSystem": "Web",
+        "isAccessibleForFree": true,
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" },
+        "countryOfOrigin": { "@type": "Country", "name": "España" },
+        "isBasedOn": {
+          "@type": "Dataset",
+          "name": "AEMET OpenData: valores climatológicos diarios",
+          "creator": { "@type": "GovernmentOrganization", "name": "Agencia Estatal de Meteorología (AEMET)" },
+          "url": "https://opendata.aemet.es/"
+        }
+      }
+    </script>
     <link rel="icon" href="favicon.ico" sizes="32x32" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />

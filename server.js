@@ -143,6 +143,27 @@ const evolutionStatusLimiter = rateLimit({
   message: { error: "Demasiadas consultas de estado. Reduce la frecuencia de actualizacion." },
 });
 
+// Dominio publico para robots.txt y sitemap.xml. Cambiar con SITE_URL si el dominio cambia.
+const SITE_URL = (process.env.SITE_URL || "https://secalienta.com").replace(/\/+$/, "");
+
+app.get("/robots.txt", (_req, res) => {
+  res.type("text/plain").set("Cache-Control", "public, max-age=3600").send(
+    ["User-agent: *", "Allow: /", "Disallow: /api/", "", `Sitemap: ${SITE_URL}/sitemap.xml`, ""].join("\n")
+  );
+});
+
+app.get("/sitemap.xml", (_req, res) => {
+  // Por ahora solo la portada; cuando existan paginas por estacion se anaden aqui.
+  const urls = [{ loc: `${SITE_URL}/`, priority: "1.0" }];
+  const body = urls
+    .map((u) => `  <url><loc>${u.loc}</loc><priority>${u.priority}</priority></url>`)
+    .join("\n");
+  res
+    .type("application/xml")
+    .set("Cache-Control", "public, max-age=3600")
+    .send(`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${body}\n</urlset>\n`);
+});
+
 app.use(express.static(path.join(__dirname, "public")));
 app.use(baseLimiter);
 app.use(express.json({ limit: "2kb" }));

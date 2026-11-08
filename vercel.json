@@ -1,3 +1,11 @@
 {
-  "regions": ["cdg1"]
+  "regions": ["cdg1"],
+  "redirects": [
+    {
+      "source": "/(.*)",
+      "has": [{ "type": "host", "value": "si-se-calienta-bdti.vercel.app" }],
+      "destination": "https://secalienta.com/$1",
+      "permanent": true
+    }
+  ]
 }
