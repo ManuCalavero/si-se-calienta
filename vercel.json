@@ -2,11 +2,15 @@
   "regions": ["cdg1"],
   "redirects": [
     {
-      "source": "/(.*)",
+      "source": "/((?!api/cron).*)",
       "has": [{ "type": "host", "value": "si-se-calienta-bdti.vercel.app" }],
       "destination": "https://secalienta.com/$1",
       "permanent": true
     }
+  ],
+  "crons": [
+    { "path": "/api/cron/bluesky", "schedule": "0 6 * * *" },
+    { "path": "/api/cron/bluesky", "schedule": "0 7 * * *" }
   ],
   "headers": [
     {

@@ -6,6 +6,8 @@ const path = require("path");
 const fs = require("fs/promises");
 const { MongoClient } = require("mongodb");
 const seoPages = require("./lib/seo-pages");
+const bluesky = require("./lib/bluesky");
+const crypto = require("crypto");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -181,6 +183,32 @@ app.get("/estacion/:slug", (req, res) => {
   // Si la plantilla no se pudo preparar, la app normal sigue funcionando con esa estación.
   if (!html) return res.redirect(302, `/?estacion=${encodeURIComponent(capital.id)}`);
   res.set("Cache-Control", PAGE_CACHE).type("html").send(html);
+});
+
+// Tarea programada de Vercel (ver "crons" en vercel.json): publica en Bluesky la capital del día.
+// Vercel envía «Authorization: Bearer <CRON_SECRET>»; sin esa variable o con otra clave, la ruta responde 401.
+// Extras (siguen exigiendo la clave): ?dryRun=1 solo muestra el texto, ?force=1 ignora la hora y el duplicado de hoy.
+function isCronAuthorized(req) {
+  const secret = process.env.CRON_SECRET;
+  if (!secret) return false;
+  const given = Buffer.from(String(req.get("authorization") || ""));
+  const expected = Buffer.from(`Bearer ${secret}`);
+  return given.length === expected.length && crypto.timingSafeEqual(given, expected);
+}
+
+app.get("/api/cron/bluesky", async (req, res) => {
+  if (!isCronAuthorized(req)) return res.status(401).json({ error: "No autorizado" });
+  try {
+    const result = await bluesky.publishDaily({
+      dryRun: req.query.dryRun === "1",
+      force: req.query.force === "1",
+      slug: typeof req.query.slug === "string" ? req.query.slug : undefined,
+    });
+    res.set("Cache-Control", "no-store").json(result);
+  } catch (error) {
+    logServerError("cron.bluesky", error);
+    res.status(500).json({ error: "No se pudo publicar" });
+  }
 });
 
 app.use(express.static(path.join(__dirname, "public")));

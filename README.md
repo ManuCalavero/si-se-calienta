@@ -95,3 +95,10 @@ Solo se aceptan estaciones que existan en el inventario de AEMET, para no gastar
 - Las capitales y su estación están en `data/capitals.json` (una a mano por capital; Palencia queda fuera hasta cargar el histórico de su estación 2401X).
 - Las cifras anuales (media por década, tendencia, año más cálido…) están en `data/capital-stats.json`. Se regeneran con `node scripts/build-capital-stats.js` (lee Atlas con `MONGODB_URI_READ`); conviene repetirlo cada año o al cargar estaciones nuevas, y hacer commit del resultado.
 - El servidor rellena la plantilla `public/index.html` (`lib/seo-pages.js`). Si algo no encaja, redirige a `/?estacion=<id>` y la app sigue funcionando.
+
+## Publicación diaria en Bluesky
+
+- Una tarea programada de Vercel (`crons` en `vercel.json`) llama a `GET /api/cron/bluesky`. Hay dos tareas (06:00 y 07:00 UTC) y el código solo publica si en Madrid son las 8, así que sale entre las 8:00 y las 8:59 también con el cambio de hora.
+- Publica una capital al día, rotando las que tienen al menos 30 años de datos (`lib/bluesky.js`), con las cifras de `data/capital-stats.json`. Antes de publicar comprueba que no se haya publicado ya esa capital hoy.
+- Variables de entorno en Vercel: `BLUESKY_HANDLE`, `BLUESKY_APP_PASSWORD` (contraseña de aplicación) y `CRON_SECRET` (clave que Vercel envía a la ruta; sin ella la ruta responde 401).
+- Pruebas: `node scripts/post-bluesky.js --dry-run` muestra el post de hoy; con `--force` lo publica ya. En producción, `GET /api/cron/bluesky?dryRun=1&force=1` con `Authorization: Bearer <CRON_SECRET>` solo muestra el texto.
