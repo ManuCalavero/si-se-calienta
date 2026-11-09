@@ -222,7 +222,7 @@ app.get("/api/cron/bluesky", async (req, res) => {
       slug: typeof req.query.slug === "string" ? req.query.slug : undefined,
     });
     // Solo avisa cuando de verdad se publica: las otras ejecuciones (fuera de hora o ya publicado) son normales.
-    if (result.posted) await notifyTelegram(`✅ Bluesky: publicado ${result.slug}${manual ? " (manual)" : ""}\nhttps://secalienta.com/estacion/${result.slug}`);
+    if (result.posted) await notifyTelegram(`✅ Bluesky: publicado ${result.kind === "donate" ? "petición de ayuda" : result.slug}${manual ? " (manual)" : ""}${result.kind === "donate" ? "" : `\nhttps://secalienta.com/estacion/${result.slug}`}`);
     res.set("Cache-Control", "no-store").json(result);
   } catch (error) {
     logServerError("cron.bluesky", error);
