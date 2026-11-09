@@ -220,7 +220,9 @@ app.get("/api/cron/bluesky", async (req, res) => {
       dryRun: req.query.dryRun === "1",
       force: req.query.force === "1",
       slug: typeof req.query.slug === "string" ? req.query.slug : undefined,
+      today: req.query.today === "1",
     });
+    delete result.png; // el PNG del dry-run no se devuelve por HTTP
     // Solo avisa cuando de verdad se publica: las otras ejecuciones (fuera de hora o ya publicado) son normales.
     if (result.posted) await notifyTelegram(`✅ Bluesky: publicado ${result.kind === "donate" ? "petición de ayuda" : result.slug}${manual ? " (manual)" : ""}${result.kind === "donate" ? "" : `\nhttps://secalienta.com/estacion/${result.slug}`}`);
     res.set("Cache-Control", "no-store").json(result);

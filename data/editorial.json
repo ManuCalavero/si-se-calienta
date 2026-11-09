@@ -1,10 +1,66 @@
 {
-  "_nota": "Playbook editorial de Bluesky. Lo lee lib/bluesky.js. Reglas: solo datos propios (AEMET) o reposts de cuentas oficiales; nada de opinión, nombres personales ni cifras de coste.",
-  "baseHashtags": ["CambioClimático"],
+  "_nota": "Playbook editorial de Bluesky. Lo lee lib/bluesky.js. Reglas: solo datos propios (AEMET) o reposts de cuentas oficiales; nada de opinión, nombres personales ni cifras de coste. Slots con kind «today»: post con gráfico de la ventana de ±7 días en torno a hoy (datos de Atlas), rotando capitales. likesPerRun: «me gusta» extra por pasada del cron de reposts.",
+  "baseHashtags": [
+    "CambioClimático"
+  ],
   "dailySlots": [
-    { "hourMadrid": 8, "slug": "madrid-retiro" },
-    { "hourMadrid": 14, "slug": "barcelona-fabra" },
-    { "hourMadrid": 20, "slug": "valencia", "everyNthDay": 3 }
+    {
+      "hourMadrid": 8,
+      "slug": "madrid-retiro"
+    },
+    {
+      "hourMadrid": 10,
+      "kind": "today",
+      "rotate": [
+        "madrid-retiro",
+        "barcelona-fabra",
+        "madrid-retiro",
+        "sevilla-aeropuerto",
+        "madrid-retiro",
+        "valencia",
+        "madrid-retiro",
+        "bilbao-aeropuerto",
+        "madrid-retiro",
+        "zaragoza-aeropuerto"
+      ]
+    },
+    {
+      "hourMadrid": 12,
+      "rotate": [
+        "sevilla-aeropuerto",
+        "bilbao-aeropuerto",
+        "zaragoza-aeropuerto",
+        "malaga-aeropuerto",
+        "santander-aeropuerto",
+        "murcia",
+        "valladolid-aeropuerto",
+        "granada-base-aerea"
+      ]
+    },
+    {
+      "hourMadrid": 14,
+      "slug": "barcelona-fabra"
+    },
+    {
+      "hourMadrid": 17,
+      "kind": "today",
+      "rotate": [
+        "valencia",
+        "sevilla-aeropuerto",
+        "zaragoza-aeropuerto",
+        "valencia",
+        "malaga-aeropuerto",
+        "bilbao-aeropuerto",
+        "valencia",
+        "a-coruna",
+        "santander-aeropuerto",
+        "murcia"
+      ]
+    },
+    {
+      "hourMadrid": 20,
+      "slug": "valencia"
+    }
   ],
   "events": [
     {
@@ -13,8 +69,10 @@
       "from": "2026-11-09",
       "to": "2026-11-20",
       "source": "https://unfccc.int/",
-      "hashtags": ["COP31"],
-      "repostMaxPerDay": 2,
+      "hashtags": [
+        "COP31"
+      ],
+      "repostMaxPerDay": 6,
       "keywords": "cop31|cop 31|cop-31|antalya|cumbre del clima|conferencia de las partes|climate summit|climate conference"
     }
   ],
@@ -24,19 +82,59 @@
     "hourMadrid": 12
   },
   "follow": [
-    { "handle": "aemet.es", "why": "Agencia Estatal de Meteorología (verificada)" },
-    { "handle": "copernicusecmwf.bsky.social", "why": "Copernicus Climate Change Service (verificada)" },
-    { "handle": "wmo-global.bsky.social", "why": "Organización Meteorológica Mundial" },
-    { "handle": "ipcc.bsky.social", "why": "IPCC" },
-    { "handle": "csic.es", "why": "CSIC" },
-    { "handle": "csicdivulga.bsky.social", "why": "Cultura científica del CSIC" },
-    { "handle": "climatica.coop", "why": "Medio especializado en clima (España)" },
-    { "handle": "carbonbrief.org", "why": "Carbon Brief (verificada)" },
-    { "handle": "metoffice.gov.uk", "why": "Met Office UK (verificada)" },
-    { "handle": "berkeleyearth.org", "why": "Berkeley Earth, series de temperatura" },
-    { "handle": "zekehausfather.com", "why": "Científico del clima (verificada)" },
-    { "handle": "katharinehayhoe.com", "why": "Científica del clima y divulgadora (verificada)" },
-    { "handle": "frediotto.bsky.social", "why": "Climatóloga, World Weather Attribution" }
+    {
+      "handle": "aemet.es",
+      "why": "Agencia Estatal de Meteorología (verificada)"
+    },
+    {
+      "handle": "copernicusecmwf.bsky.social",
+      "why": "Copernicus Climate Change Service (verificada)"
+    },
+    {
+      "handle": "wmo-global.bsky.social",
+      "why": "Organización Meteorológica Mundial"
+    },
+    {
+      "handle": "ipcc.bsky.social",
+      "why": "IPCC"
+    },
+    {
+      "handle": "csic.es",
+      "why": "CSIC"
+    },
+    {
+      "handle": "csicdivulga.bsky.social",
+      "why": "Cultura científica del CSIC"
+    },
+    {
+      "handle": "climatica.coop",
+      "why": "Medio especializado en clima (España)"
+    },
+    {
+      "handle": "carbonbrief.org",
+      "why": "Carbon Brief (verificada)"
+    },
+    {
+      "handle": "metoffice.gov.uk",
+      "why": "Met Office UK (verificada)"
+    },
+    {
+      "handle": "berkeleyearth.org",
+      "why": "Berkeley Earth, series de temperatura"
+    },
+    {
+      "handle": "zekehausfather.com",
+      "why": "Científico del clima (verificada)"
+    },
+    {
+      "handle": "katharinehayhoe.com",
+      "why": "Científica del clima y divulgadora (verificada)"
+    },
+    {
+      "handle": "frediotto.bsky.social",
+      "why": "Climatóloga, World Weather Attribution"
+    }
   ],
-  "followMaxPerRun": 3
+  "followMaxPerRun": 3,
+  "likesPerRun": 3
 }
