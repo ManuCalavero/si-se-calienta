@@ -1,5 +1,5 @@
 {
-  "_nota": "Playbook editorial de Bluesky. Lo lee lib/bluesky.js. Reglas: solo datos propios (AEMET) o reposts de cuentas oficiales; nada de opinión, nombres personales ni cifras de coste. Slots con kind «today»: post con gráfico de la ventana de ±7 días en torno a hoy (datos de Atlas), rotando capitales. likesPerRun: «me gusta» extra por pasada del cron de reposts.",
+  "_nota": "Playbook editorial de Bluesky. Lo lee lib/bluesky.js. Reglas: solo datos propios (AEMET) o reposts de cuentas oficiales; nada de opinión, nombres personales ni cifras de coste. Slots sin kind: último día medido frente a la normal 1991–2020 (post anual de reserva si AEMET se retrasa). Textos cortos, sin emojis y con varias redacciones alternas. Slots con kind «today»: post con gráfico de la ventana de ±7 días en torno a hoy (datos de Atlas), rotando capitales. likesPerRun: «me gusta» extra por pasada del cron de reposts.",
   "baseHashtags": [
     "CambioClimático"
   ],
