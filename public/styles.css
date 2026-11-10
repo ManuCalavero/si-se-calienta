@@ -3706,15 +3706,15 @@ body.welcome-open .day-nav {
     bottom: var(--consent-h);
     width: 100%;
     height: calc(70dvh - var(--consent-h));
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: auto minmax(0, 1fr) auto auto auto;
+    /* Buscador y día comparten una sola fila para dejar más hoja al resultado. */
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: auto minmax(0, 1fr) auto auto;
     grid-template-areas:
-      "handle"
-      "panel"
-      "pill"
-      "search"
-      "day";
-    gap: 8px;
+      "handle handle"
+      "panel panel"
+      "pill pill"
+      "search day";
+    gap: 8px 6px;
     --pad-x: 14px;
     padding: 0 var(--pad-x) calc(10px + var(--inset-b));
     border-radius: var(--radius) var(--radius) 0 0;
@@ -3804,12 +3804,79 @@ body.welcome-open .day-nav {
     min-width: 0;
   }
 
-  /* Un día con flechas y «Hoy» necesita sitio: el buscador va a todo el ancho y el día comparte fila con Volver. */
-  body.has-selection .search input,
-  body.has-selection .day-nav,
   body.has-selection .back-btn,
   body.has-selection .toolbar .icon-btn {
     min-height: 44px;
+  }
+
+  /* Fila compacta: buscador y día a la misma altura, el día con su forma corta («10 nov»). */
+  body.has-selection .search input,
+  body.has-selection .day-nav {
+    height: 42px;
+  }
+
+  body.has-selection .search input {
+    padding: 0 10px 0 34px;
+    text-overflow: ellipsis;
+  }
+
+  body.has-selection .search-results {
+    right: auto;
+    width: calc(100vw - 2 * var(--pad-x));
+  }
+
+  body.has-selection .day-nav {
+    padding: 3px 2px;
+  }
+
+  body.has-selection .day-arrow {
+    width: 30px;
+  }
+
+  body.has-selection .day-label {
+    flex: 0 0 auto;
+    padding: 0 6px;
+  }
+
+  body.has-selection .day-caret {
+    display: none;
+  }
+
+  body.has-selection .day-long {
+    display: none;
+  }
+
+  body.has-selection .day-short {
+    display: inline;
+  }
+
+  body.has-selection .today-btn {
+    margin: 0 2px 0 3px;
+    padding: 0 8px;
+  }
+
+  /* Pie más ligero: «0,75 €» y «Compartir» en pastillas pequeñas. */
+  body.has-selection .panel-foot {
+    padding: 6px var(--pad-x);
+  }
+
+  body.has-selection .foot-attribution {
+    font-size: 10px;
+    letter-spacing: 0.02em;
+  }
+
+  body.has-selection .donate-btn,
+  body.has-selection #share-btn {
+    height: 26px;
+    padding: 0 9px;
+    gap: 4px;
+    font-size: 12px;
+  }
+
+  body.has-selection .donate-btn svg,
+  body.has-selection #share-btn svg {
+    width: 14px;
+    height: 14px;
   }
 
   body.has-selection .toolbar .icon-btn {
@@ -3917,6 +3984,27 @@ body.welcome-open .day-nav {
 
   .day-short {
     display: inline;
+  }
+
+  /* Hoja: el día se aprieta un poco para que «Buscar» quepa entero a su lado. */
+  body.has-selection .day-arrow {
+    width: 24px;
+  }
+
+  body.has-selection .day-label {
+    padding: 0 3px;
+  }
+
+  body.has-selection .today-btn {
+    padding: 0 7px;
+  }
+
+  body.has-selection .search input {
+    padding: 0 6px 0 32px;
+  }
+
+  body.has-selection .search-icon {
+    left: 10px;
   }
 }
 

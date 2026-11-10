@@ -364,7 +364,9 @@ function applyViewState(next) {
   els.aboutBtn.tabIndex = next === "station" ? -1 : 0;
   if (next === "home") els.home.scrollTop = 0;
   // En la bienvenida el buscador es la acción principal y pregunta; con estación, solo etiqueta.
-  els.searchInput.placeholder = next === "home" ? "Busca tu ciudad" : "Ciudad o estación";
+  // En la hoja móvil el buscador comparte fila con el día: texto corto para que no se corte.
+  els.searchInput.placeholder =
+    next === "home" ? "Busca tu ciudad" : next === "station" && isMobile() ? "Buscar" : "Ciudad o estación";
 }
 
 function setViewState(next, { animate = true } = {}) {
