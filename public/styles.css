@@ -3641,6 +3641,9 @@ body.welcome-open .day-nav {
       "foot foot";
     gap: 16px 8px;
     max-height: min(76dvh, calc(100dvh - var(--consent-h) - var(--gap) - env(safe-area-inset-top, 0px)));
+    /* Filas a la medida de su contenido: con la altura máxima, una fila auto recortaría la portada por arriba. */
+    grid-template-rows: none;
+    grid-auto-rows: max-content;
     --pad-x: 18px;
   }
 
@@ -3722,15 +3725,83 @@ body.welcome-open .day-nav {
     transition: height 0.45s var(--ease);
   }
 
+  /* Ampliada, la hoja tapa el mapa entero; el asa ocupa la franja donde flotan Volver e información. */
   body.has-selection .home:has(.panel.expanded) {
     width: 100%;
-    height: calc(100dvh - var(--gap) - var(--consent-h) - env(safe-area-inset-top, 0px));
-    /* Deja libre la franja donde flotan Volver e información. */
-    padding-top: 56px;
+    height: calc(100dvh - var(--consent-h));
+    padding-top: calc(16px + env(safe-area-inset-top, 0px));
+    border-radius: 0;
   }
 
+  body.has-selection .home:has(.panel.expanded) .sheet-handle {
+    height: 48px;
+    margin-bottom: 0;
+  }
+
+  /* Mientras se arrastra, la altura la pone el dedo. */
+  body.has-selection .home.is-dragging {
+    transition: none;
+  }
+
+  /*
+   * Cabecera, pestañas y contenido se desplazan juntos para dejar sitio al gráfico.
+   * Las pestañas se quedan arriba y el pie con «Compartir» abajo.
+   */
   body.has-selection .panel {
     border-bottom: 1px solid var(--line);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: none;
+  }
+
+  body.has-selection .panel::-webkit-scrollbar {
+    display: none;
+  }
+
+  body.has-selection .panel > * {
+    flex-shrink: 0;
+  }
+
+  body.has-selection .panel-body {
+    flex: 1 0 auto;
+    overflow: visible;
+  }
+
+  body.has-selection .tabs {
+    position: sticky;
+    top: 0;
+    z-index: 6;
+    background: var(--sheet);
+  }
+
+  body.has-selection .panel-foot {
+    position: sticky;
+    bottom: 0;
+    z-index: 6;
+    background: var(--sheet);
+  }
+
+  /* La ficha de la estación y los resultados del buscador se abren por encima de las pestañas y el pie fijos. */
+  body.has-selection .station-info:has(.popover:not([hidden])) {
+    z-index: 7;
+  }
+
+  body.has-selection .search {
+    z-index: 8;
+  }
+
+  /* En la bienvenida el día va debajo del buscador: la lista de resultados tiene que quedar encima. */
+  body.welcome-open .search {
+    z-index: 4;
+  }
+
+  .donate-btn {
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+
+  .foot-attribution {
+    min-width: 0;
   }
 
   /* Un día con flechas y «Hoy» necesita sitio: el buscador va a todo el ancho y el día comparte fila con Volver. */
@@ -3799,9 +3870,12 @@ body.welcome-open .day-nav {
     height: 22px;
   }
 
+  /* Zona táctil amplia; el hueco de la rejilla se recupera con el margen negativo. */
   body.has-selection .sheet-handle {
     align-self: stretch;
-    height: auto;
+    height: 28px;
+    margin-bottom: -8px;
+    touch-action: none;
   }
 
   /* El nombre de la estación, más pequeño. :root le da más peso a la regla de escritorio. */
@@ -3832,6 +3906,17 @@ body.welcome-open .day-nav {
 
   .back-btn span {
     display: none;
+  }
+}
+
+/* En los móviles más estrechos el día largo no cabe junto a las flechas y «Hoy». */
+@media (max-width: 359px) {
+  .day-long {
+    display: none;
+  }
+
+  .day-short {
+    display: inline;
   }
 }
 

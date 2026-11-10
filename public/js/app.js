@@ -468,6 +468,78 @@ function toggleExpanded(force) {
   setTimeout(resizeCharts, reducedMotion() ? 0 : 480);
 }
 
+// Hoja del móvil: se arrastra desde el asa o, con el contenido arriba del todo, desde el propio panel
+// (hacia arriba amplía, hacia abajo reduce). La altura sigue al dedo y al soltar se queda en el estado más cercano.
+let suppressHandleClick = false;
+
+function setupSheetDrag() {
+  let drag = null;
+  const isExpanded = () => els.panel.classList.contains("expanded");
+  const consentHeight = () => parseFloat(getComputedStyle(document.body).getPropertyValue("--consent-h")) || 0;
+
+  els.home.addEventListener(
+    "touchstart",
+    (event) => {
+      drag = null;
+      if (!isMobile() || !document.body.classList.contains("has-selection") || event.touches.length !== 1) return;
+      const fromHandle = els.sheetHandle.contains(event.target);
+      if (!fromHandle && !els.panel.contains(event.target)) return;
+      const touch = event.touches[0];
+      drag = { fromHandle, decided: fromHandle, x: touch.clientX, y: touch.clientY, lastY: touch.clientY, lastT: event.timeStamp, velocity: 0, moved: false, height: els.home.offsetHeight };
+    },
+    { passive: true }
+  );
+
+  els.home.addEventListener(
+    "touchmove",
+    (event) => {
+      if (!drag) return;
+      const touch = event.touches[0];
+      const dy = touch.clientY - drag.y;
+      if (!drag.decided) {
+        if (Math.abs(dy) < 8 && Math.abs(touch.clientX - drag.x) < 8) return;
+        const vertical = Math.abs(dy) > Math.abs(touch.clientX - drag.x);
+        const wanted = dy < 0 ? !isExpanded() : isExpanded();
+        if (!vertical || !wanted || els.panel.scrollTop > 0 || !event.cancelable) {
+          drag = null;
+          return;
+        }
+        drag.decided = true;
+      }
+      if (event.cancelable) event.preventDefault();
+      if (Math.abs(dy) > 4) drag.moved = true;
+      const dt = event.timeStamp - drag.lastT;
+      if (dt > 0) drag.velocity = (touch.clientY - drag.lastY) / dt;
+      drag.lastY = touch.clientY;
+      drag.lastT = event.timeStamp;
+      const max = window.innerHeight - consentHeight();
+      els.home.classList.add("is-dragging");
+      els.home.style.height = `${Math.round(Math.min(max, Math.max(max * 0.45, drag.height - dy)))}px`;
+    },
+    { passive: false }
+  );
+
+  const finish = () => {
+    if (!drag) return;
+    const current = drag;
+    drag = null;
+    if (!current.moved) return;
+    if (current.fromHandle) {
+      suppressHandleClick = true;
+      setTimeout(() => (suppressHandleClick = false), 400);
+    }
+    const height = els.home.offsetHeight;
+    const max = window.innerHeight - consentHeight();
+    const collapsed = window.innerHeight * 0.7 - consentHeight();
+    const expand = Math.abs(current.velocity) > 0.35 ? current.velocity < 0 : height > (collapsed + max) / 2;
+    els.home.classList.remove("is-dragging");
+    els.home.style.height = "";
+    toggleExpanded(expand);
+  };
+  els.home.addEventListener("touchend", finish);
+  els.home.addEventListener("touchcancel", finish);
+}
+
 // En móvil la barra de inicio va abajo: su altura la usan el aviso, la atribución y el mapa para no quedar tapados.
 function watchBottomBar() {
   const apply = () => {
@@ -507,6 +579,8 @@ function setTab(tab, { focus = false } = {}) {
   els.tabTable.hidden = isSummary;
   els.panel.dataset.tab = tab;
   els.panelBody.scrollTop = 0;
+  // En móvil desplaza el panel entero: al cambiar de pestaña se vuelve al principio sin volver a mostrar la cabecera.
+  els.panel.scrollTop = Math.min(els.panel.scrollTop, els.panel.querySelector(".panel-header").offsetHeight);
   placeTabIndicator();
   if (focus) (isSummary ? els.tabSummaryBtn : els.tabTableBtn).focus();
   if (isSummary) requestAnimationFrame(resizeCharts);
@@ -1150,6 +1224,7 @@ function selectStation(stationId, { userGesture = true } = {}) {
     applyViewState("station");
     openPanel();
     setTab("summary");
+    els.panel.scrollTop = 0;
   };
   if (viewState() === "station" || !userGesture) reveal();
   else morph(reveal);
@@ -1553,7 +1628,10 @@ function bindEvents() {
   });
 
   els.expandBtn.addEventListener("click", () => toggleExpanded());
-  els.sheetHandle.addEventListener("click", () => toggleExpanded());
+  els.sheetHandle.addEventListener("click", () => {
+    if (!suppressHandleClick) toggleExpanded();
+  });
+  setupSheetDrag();
   els.searchLocate.addEventListener("click", locateUser);
   els.dockLocate.addEventListener("click", locateUser);
   els.csvBtn.addEventListener("click", downloadCsv);

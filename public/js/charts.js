@@ -140,8 +140,10 @@ function temperatureAnnotations(analysis) {
   }
   if (analysis.change) {
     const { earlyRange, lateRange, earlyMean, lateMean } = analysis.change;
-    annotations.early = boxAnnotation(earlyRange, C.earlyBand, `Primeros años · ${formatNumber(earlyMean)} °C`, "start");
-    annotations.late = boxAnnotation(lateRange, C.lateBand, `Últimos años · ${formatNumber(lateMean)} °C`, "end");
+    // En móvil las dos etiquetas no caben en una línea sin pisarse.
+    const label = (title, value) => (window.matchMedia("(max-width: 760px)").matches ? [title, `${formatNumber(value)} °C`] : `${title} · ${formatNumber(value)} °C`);
+    annotations.early = boxAnnotation(earlyRange, C.earlyBand, label("Primeros años", earlyMean), "start");
+    annotations.late = boxAnnotation(lateRange, C.lateBand, label("Últimos años", lateMean), "end");
   }
   return annotations;
 }
