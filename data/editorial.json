@@ -136,5 +136,143 @@
     }
   ],
   "followMaxPerRun": 3,
-  "likesPerRun": 3
+  "likesPerRun": 3,
+  "news": {
+    "_nota": "Noticias de terceros (cron /api/cron/bluesky-news, 10 pasadas al día). Una por pasada como mucho, hasta perDay. El tema de cada una sigue «order» según cuántas van hoy; si no hay noticia de ese tema se toma el siguiente. Fuentes «topical»: todo lo que publican encaja (salvo exclusiones); el resto solo entra si el titular habla de clima o energía. El post es el titular literal + «Vía <medio>» + tarjeta con enlace a la noticia original: nada de texto propio ni opinión.",
+    "enabled": true,
+    "perDay": 10,
+    "maxAgeHours": 30,
+    "order": [
+      "clima",
+      "energia",
+      "ciencia",
+      "clima",
+      "inventos",
+      "energia",
+      "clima",
+      "ciencia",
+      "energia",
+      "inventos"
+    ],
+    "hashtags": {
+      "clima": "CambioClimático",
+      "energia": "Energía",
+      "ciencia": "Ciencia",
+      "inventos": "Innovación"
+    },
+    "sources": [
+      {
+        "name": "EFEverde",
+        "url": "https://efeverde.com/feed/",
+        "category": "clima",
+        "topical": true
+      },
+      {
+        "name": "Climática",
+        "url": "https://climatica.coop/feed/",
+        "category": "clima",
+        "topical": true
+      },
+      {
+        "name": "El País",
+        "url": "https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/clima-y-medio-ambiente/portada",
+        "category": "clima",
+        "topical": true
+      },
+      {
+        "name": "La Vanguardia",
+        "url": "https://www.lavanguardia.com/rss/natural.xml",
+        "category": "clima"
+      },
+      {
+        "name": "El Periódico de la Energía",
+        "url": "https://elperiodicodelaenergia.com/feed/",
+        "category": "energia",
+        "topical": true
+      },
+      {
+        "name": "pv magazine",
+        "url": "https://www.pv-magazine.es/feed/",
+        "category": "energia",
+        "topical": true
+      },
+      {
+        "name": "Energy News",
+        "url": "https://www.energynews.es/feed/",
+        "category": "energia",
+        "topical": true
+      },
+      {
+        "name": "El País",
+        "url": "https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/ciencia/portada",
+        "category": "ciencia"
+      },
+      {
+        "name": "El Mundo",
+        "url": "https://e00-elmundo.uecdn.es/elmundo/rss/ciencia.xml",
+        "category": "ciencia"
+      },
+      {
+        "name": "ABC",
+        "url": "https://www.abc.es/rss/2.0/ciencia/",
+        "category": "ciencia"
+      },
+      {
+        "name": "La Vanguardia",
+        "url": "https://www.lavanguardia.com/rss/ciencia.xml",
+        "category": "ciencia"
+      },
+      {
+        "name": "20minutos",
+        "url": "https://www.20minutos.es/rss/ciencia/",
+        "category": "ciencia"
+      },
+      {
+        "name": "NASA Ciencia",
+        "url": "https://ciencia.nasa.gov/feed/",
+        "category": "ciencia"
+      },
+      {
+        "name": "The Conversation",
+        "url": "https://theconversation.com/es/articles.atom",
+        "category": "ciencia"
+      },
+      {
+        "name": "Muy Interesante",
+        "url": "https://www.muyinteresante.com/rss/",
+        "category": "ciencia"
+      },
+      {
+        "name": "Xataka Ciencia",
+        "url": "https://www.xatakaciencia.com/index.xml",
+        "category": "ciencia"
+      },
+      {
+        "name": "Tendencias21",
+        "url": "https://www.tendencias21.es/xml/syndication.rss",
+        "category": "ciencia"
+      },
+      {
+        "name": "EcoInventos",
+        "url": "https://ecoinventos.com/feed/",
+        "category": "inventos",
+        "topical": true
+      },
+      {
+        "name": "Xataka",
+        "url": "https://www.xataka.com/index.xml",
+        "category": "inventos"
+      },
+      {
+        "name": "Hipertextual",
+        "url": "https://hipertextual.com/feed",
+        "category": "inventos"
+      },
+      {
+        "name": "El País",
+        "url": "https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/tecnologia/portada",
+        "category": "inventos"
+      }
+    ]
+  }
 }

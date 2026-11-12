@@ -7,6 +7,7 @@ const fs = require("fs/promises");
 const { MongoClient } = require("mongodb");
 const seoPages = require("./lib/seo-pages");
 const bluesky = require("./lib/bluesky");
+const news = require("./lib/news");
 const crypto = require("crypto");
 
 const app = express();
@@ -248,6 +249,22 @@ app.get("/api/cron/bluesky-repost", async (req, res) => {
     logServerError("cron.bluesky-repost", error);
     await notifyTelegram(`⚠️ Bluesky: falló el repost de hoy.\n${String(error.message || error).slice(0, 200)}`);
     res.status(500).json({ error: "No se pudo repostear" });
+  }
+});
+
+// Noticias de terceros sobre clima, energía, ciencia e inventos (ver lib/news.js y news en data/editorial.json):
+// una por pasada del cron, hasta news.perDay al día. ?dryRun=1 muestra la que tocaría sin publicar.
+app.get("/api/cron/bluesky-news", async (req, res) => {
+  if (!isCronAuthorized(req)) return res.status(401).json({ error: "No autorizado" });
+  try {
+    const result = await news.publishNews({ dryRun: req.query.dryRun === "1" });
+    if (result.alert) await notifyTelegram(`⚠️ Bluesky noticias: ${result.alert}`);
+    if (result.posted) await notifyTelegram(`📰 Bluesky: noticia ${result.doneToday} de hoy (${result.category}, vía ${result.source})\n${result.title}\n${result.link}`);
+    res.set("Cache-Control", "no-store").json(result);
+  } catch (error) {
+    logServerError("cron.bluesky-news", error);
+    await notifyTelegram(`⚠️ Bluesky: falló la noticia programada.\n${String(error.message || error).slice(0, 200)}`);
+    res.status(500).json({ error: "No se pudo publicar la noticia" });
   }
 });
 

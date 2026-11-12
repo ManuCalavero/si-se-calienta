@@ -109,3 +109,11 @@ Solo se aceptan estaciones que existan en el inventario de AEMET, para no gastar
 - AEMET publica sobre todo avisos meteorológicos: se descartan a propósito (caducan en horas y esta cuenta no es oficial).
 - Nunca responde, sigue ni da «me gusta»: discutir de forma automática con terceros es un riesgo de reputación. Para añadir fuentes, añade una entrada a `REPOST_SOURCES` con su filtro de temas, verificando antes que la cuenta es la oficial.
 - Prueba sin publicar: `GET /api/cron/bluesky-repost?dryRun=1` con `Authorization: Bearer <CRON_SECRET>`.
+
+### Noticias de clima, energía, ciencia e inventos
+
+- Una tercera tarea (`/api/cron/bluesky-news`, 10 pasadas al día) publica **una noticia por pasada, hasta 10 al día** (`news.perDay` en `data/editorial.json`), leída de los RSS de `news.sources` (medios en español: EFEverde, Climática, El País, El Periódico de la Energía, pv magazine, EcoInventos, Xataka…).
+- El post es el titular literal + «Vía <medio>» + un hashtag del tema + la tarjeta con enlace a la noticia original. Nada de texto propio ni LLM.
+- El tema sigue `news.order` (clima, energía, ciencia, inventos…) según cuántas van hoy; si no hay noticia de ese tema, pasa al siguiente. Prefiere fuentes que aún no han salido hoy y nunca repite la misma fuente seguida.
+- Filtros (`lib/news.js`): solo noticias de las últimas 30 h; en medios generalistas el titular tiene que hablar de clima o energía; fuera opinión, titulares-cita, publicidad y ofertas, gadgets, política de partidos, guerras y sucesos con víctimas. No repite enlaces ni la misma historia contada por otro medio.
+- Prueba sin publicar: `node scripts/post-bluesky.js --news --dry-run`, o `GET /api/cron/bluesky-news?dryRun=1` con `Authorization: Bearer <CRON_SECRET>`.
