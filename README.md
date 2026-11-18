@@ -98,10 +98,13 @@ Solo se aceptan estaciones que existan en el inventario de AEMET, para no gastar
 
 ## Publicación diaria en Bluesky
 
-- Una tarea programada de Vercel (`crons` en `vercel.json`) llama a `GET /api/cron/bluesky`. Hay dos tareas (06:00 y 07:00 UTC) y el código solo publica si en Madrid son las 8, así que sale entre las 8:00 y las 8:59 también con el cambio de hora.
-- Publica una capital al día, rotando las que tienen al menos 30 años de datos (`lib/bluesky.js`), con las cifras de `data/capital-stats.json`. Antes de publicar comprueba que no se haya publicado ya esa capital hoy.
+- Una tarea programada de Vercel (`crons` en `vercel.json`) llama a `GET /api/cron/bluesky` cada hora en que puede tocar algo (en UTC, dos por franja para cubrir el cambio de hora). El código mira la hora de Madrid y los `dailySlots` de `data/editorial.json`:
+  - **8:00 y 14:00, la capital más alejada de lo normal** el último día medido, frente a la normal 1991–2020 (`kind: "top"`). La primera del día lleva «fue la capital más cálida/fría respecto a lo normal» y cuántas capitales estuvieron por encima; la de las 14:00 es la siguiente (la misma capital no repite en 48 h) y solo sale si se aleja al menos 1,5 °C (`minAbsDiff`).
+  - **Lunes a las 11:00, resumen semanal** con imagen (las 6 capitales más cálidas y las 6 más frías respecto a lo normal) y enlace a `/temperaturas` (`kind: "week"`).
+  - **17:00 en días alternos**, el gráfico «para hoy» de una capital (`kind: "today"`).
+- Las normales diarias 1991–2020 de cada capital están precalculadas en `data/day-normals.json` (`node scripts/build-day-normals.js`, solo hace falta repetirlo al añadir estaciones). Así cada pasada lee de Atlas solo el medio año en curso de las 51 estaciones, en una consulta (`lib/anomalies.js`).
 - Variables de entorno en Vercel: `BLUESKY_HANDLE`, `BLUESKY_APP_PASSWORD` (contraseña de aplicación) y `CRON_SECRET` (clave que Vercel envía a la ruta; sin ella la ruta responde 401).
-- Pruebas: `node scripts/post-bluesky.js --dry-run` muestra el post de hoy; con `--force` lo publica ya. En producción, `GET /api/cron/bluesky?dryRun=1&force=1` con `Authorization: Bearer <CRON_SECRET>` solo muestra el texto.
+- Pruebas: `node scripts/post-bluesky.js --dry-run` muestra el post de esta hora; `--dry-run --top` el de la capital más alejada de lo normal; `--dry-run --week --png=/ruta.png` el resumen semanal y su imagen; con `--force` (y sin `--dry-run`) lo publica ya. En producción, `GET /api/cron/bluesky?dryRun=1&force=1` (o `&kind=top` / `&kind=week`) con `Authorization: Bearer <CRON_SECRET>` solo muestra el texto.
 
 ### Reposts automáticos
 
@@ -110,10 +113,15 @@ Solo se aceptan estaciones que existan en el inventario de AEMET, para no gastar
 - Nunca responde, sigue ni da «me gusta»: discutir de forma automática con terceros es un riesgo de reputación. Para añadir fuentes, añade una entrada a `REPOST_SOURCES` con su filtro de temas, verificando antes que la cuenta es la oficial.
 - Prueba sin publicar: `GET /api/cron/bluesky-repost?dryRun=1` con `Authorization: Bearer <CRON_SECRET>`.
 
-### Noticias de clima, energía, ciencia e inventos
+### Noticias de clima, red eléctrica y energía
 
-- Una tercera tarea (`/api/cron/bluesky-news`, 10 pasadas al día) publica **una noticia por pasada, hasta 10 al día** (`news.perDay` en `data/editorial.json`), leída de los RSS de `news.sources` (medios en español: EFEverde, Climática, El País, El Periódico de la Energía, pv magazine, EcoInventos, Xataka…).
-- El post es el titular literal + «Vía <medio>» + un hashtag del tema + la tarjeta con enlace a la noticia original. Nada de texto propio ni LLM.
-- El tema sigue `news.order` (clima, energía, ciencia, inventos…) según cuántas van hoy; si no hay noticia de ese tema, pasa al siguiente. Prefiere fuentes que aún no han salido hoy y nunca repite la misma fuente seguida.
-- Filtros (`lib/news.js`): solo noticias de las últimas 30 h; en medios generalistas el titular tiene que hablar de clima o energía; fuera opinión, titulares-cita, publicidad y ofertas, gadgets, política de partidos, guerras y sucesos con víctimas. No repite enlaces ni la misma historia contada por otro medio.
+- Una tercera tarea (`/api/cron/bluesky-news`, 3 pasadas al día) publica **una noticia por pasada, hasta 3 al día** (`news.perDay` en `data/editorial.json`), leída de los RSS de `news.sources` (medios en español: EFEverde, Climática, El País, La Vanguardia, El Periódico de la Energía, pv magazine, Energy News, The Conversation). Desde el 18-nov-2026 sin inventos ni ciencia general: diluían la cuenta y no traían interacción.
+- El post es un comentario en primera persona en clave de oportunidad + «Vía <medio>» + un hashtag del tema + la tarjeta con el titular y el enlace a la noticia original. Los comentarios son plantillas de `news.comments`, elegidas por el asunto del titular (red, almacenamiento, solar, agua, calor…) y sin repetir las recientes. Sin LLM.
+- El tema sigue `news.order` (clima, red, energía) según cuántas van hoy; si no hay noticia de ese tema, pasa al siguiente. Las noticias sobre la red eléctrica española van al tema «red» venga de la fuente que venga. Prefiere fuentes que aún no han salido hoy y nunca repite la misma fuente seguida.
+- Antigüedad (`news.ageTiers`): dentro de cada tema prueba primero noticias de 48–96 h, luego 24–120 h y luego 12–120 h, para comentar con algo de perspectiva y no pisar la actualidad. Los RSS guardan pocas noticias antiguas, así que muchas veces sale del segundo escalón.
+- Filtros (`lib/news.js`): en medios generalistas el titular tiene que hablar de clima o energía; fuera opinión, titulares-cita, publicidad y ofertas, gadgets, política de partidos, guerras y sucesos con víctimas. No repite enlaces ni la misma historia contada por otro medio.
 - Prueba sin publicar: `node scripts/post-bluesky.js --news --dry-run`, o `GET /api/cron/bluesky-news?dryRun=1` con `Authorization: Bearer <CRON_SECRET>`.
+
+### Perfil y starter pack
+
+- `profile` en `data/editorial.json` guarda el nombre, la bio y el starter pack «Clima y tiempo en español». Se aplican a mano con `node scripts/bluesky-profile.js` (necesita `BLUESKY_HANDLE` y `BLUESKY_APP_PASSWORD` en `.env`): `--dry-run` muestra los cambios, `--pin=<enlace de bsky.app>` fija un post y `--starter-pack` crea el pack si no existe y devuelve su enlace. Si el post fijado se ha borrado, lo quita.

@@ -3,6 +3,8 @@
 //       node scripts/post-bluesky.js --force                (publica ya, aunque no sean las 8:00)
 //       node scripts/post-bluesky.js --force --slug=sevilla-aeropuerto
 //       node scripts/post-bluesky.js --dry-run --today --slug=madrid-retiro   (post «para hoy» con gráfico; guarda el PNG en /tmp si es dry-run)
+//       node scripts/post-bluesky.js --dry-run --top          (capital más alejada de lo normal el último día medido)
+//       node scripts/post-bluesky.js --dry-run --week --png=/ruta.png   (resumen semanal con imagen)
 //       node scripts/post-bluesky.js --news --dry-run       (noticia que tocaría ahora; sin --dry-run la publica)
 require("dotenv").config({ quiet: true });
 const { publishDaily } = require("../lib/bluesky");
@@ -18,6 +20,7 @@ const run = args.includes("--news")
       force: args.includes("--force"),
       slug: slugArg ? slugArg.slice("--slug=".length) : undefined,
       today: args.includes("--today"),
+      kind: args.includes("--top") ? "top" : args.includes("--week") ? "week" : undefined,
     });
 
 run

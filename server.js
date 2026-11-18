@@ -222,11 +222,16 @@ app.get("/api/cron/bluesky", async (req, res) => {
       force: req.query.force === "1",
       slug: typeof req.query.slug === "string" ? req.query.slug : undefined,
       today: req.query.today === "1",
+      kind: ["top", "week"].includes(req.query.kind) ? req.query.kind : undefined,
     });
     delete result.png; // el PNG del dry-run no se devuelve por HTTP
     if (result.alert) await notifyTelegram(`⚠️ Bluesky: ${result.alert}`);
     // Solo avisa cuando de verdad se publica: las otras ejecuciones (fuera de hora o ya publicado) son normales.
-    if (result.posted) await notifyTelegram(`✅ Bluesky: publicado ${result.kind === "donate" ? "petición de ayuda" : result.slug}${manual ? " (manual)" : ""}${result.kind === "donate" ? "" : `\nhttps://secalienta.com/estacion/${result.slug}`}`);
+    if (result.posted) {
+      const what = result.kind === "donate" ? "petición de ayuda" : result.kind === "week" ? "resumen semanal" : result.slug;
+      const link = result.kind === "donate" ? "" : result.kind === "week" ? "\nhttps://secalienta.com/temperaturas" : `\nhttps://secalienta.com/estacion/${result.slug}`;
+      await notifyTelegram(`✅ Bluesky: publicado ${what}${manual ? " (manual)" : ""}${link}`);
+    }
     res.set("Cache-Control", "no-store").json(result);
   } catch (error) {
     logServerError("cron.bluesky", error);

@@ -1,65 +1,38 @@
 {
-  "_nota": "Playbook editorial de Bluesky. Lo lee lib/bluesky.js. Reglas: solo datos propios (AEMET) o reposts de cuentas oficiales; nada de opinión, nombres personales ni cifras de coste. Slots sin kind: último día medido frente a la normal 1991–2020 (post anual de reserva si AEMET se retrasa). Textos cortos, sin emojis y con varias redacciones alternas. Slots con kind «today»: post con gráfico de la ventana de ±7 días en torno a hoy (datos de Atlas), rotando capitales. likesPerRun: «me gusta» extra por pasada del cron de reposts.",
+  "_nota": "Playbook editorial de Bluesky. Lo lee lib/bluesky.js. Reglas: solo datos propios (AEMET) o reposts de cuentas oficiales; nada de opinión, nombres personales ni cifras de coste. Menos posts y más llamativos (análisis del 18-nov-2026: 0 reposts en ~100 posts automáticos; lo que mejor funciona es una anomalía grande). Slots con kind «top»: la capital más alejada de lo normal 1991–2020 el último día medido (la misma capital no repite en 48 h; minAbsDiff: diferencia mínima en °C para publicar). kind «week» (weekday: 0 = domingo): resumen semanal con imagen de ranking y enlace a /temperaturas. kind «today»: gráfico de la ventana de ±7 días en torno a hoy, rotando capitales (everyNthDay: cada cuántos días). Slots sin kind: último día medido de una capital fija. Textos cortos, sin emojis y con varias redacciones alternas. likesPerRun: «me gusta» extra por pasada del cron de reposts.",
   "baseHashtags": [
     "CambioClimático"
   ],
   "dailySlots": [
     {
       "hourMadrid": 8,
-      "slug": "madrid-retiro"
+      "kind": "top"
     },
     {
-      "hourMadrid": 10,
-      "kind": "today",
-      "rotate": [
-        "madrid-retiro",
-        "barcelona-fabra",
-        "madrid-retiro",
-        "sevilla-aeropuerto",
-        "madrid-retiro",
-        "valencia",
-        "madrid-retiro",
-        "bilbao-aeropuerto",
-        "madrid-retiro",
-        "zaragoza-aeropuerto"
-      ]
-    },
-    {
-      "hourMadrid": 12,
-      "rotate": [
-        "sevilla-aeropuerto",
-        "bilbao-aeropuerto",
-        "zaragoza-aeropuerto",
-        "malaga-aeropuerto",
-        "santander-aeropuerto",
-        "murcia",
-        "valladolid-aeropuerto",
-        "granada-base-aerea"
-      ]
+      "hourMadrid": 11,
+      "kind": "week",
+      "weekday": 1
     },
     {
       "hourMadrid": 14,
-      "slug": "barcelona-fabra"
+      "kind": "top",
+      "minAbsDiff": 1.5
     },
     {
       "hourMadrid": 17,
       "kind": "today",
+      "everyNthDay": 2,
       "rotate": [
+        "madrid-retiro",
         "valencia",
         "sevilla-aeropuerto",
-        "zaragoza-aeropuerto",
-        "valencia",
-        "malaga-aeropuerto",
+        "barcelona-fabra",
         "bilbao-aeropuerto",
-        "valencia",
+        "zaragoza-aeropuerto",
+        "malaga-aeropuerto",
         "a-coruna",
-        "santander-aeropuerto",
         "murcia"
       ]
-    },
-    {
-      "hourMadrid": 20,
-      "slug": "valencia"
     }
   ],
   "events": [
@@ -133,32 +106,145 @@
     {
       "handle": "frediotto.bsky.social",
       "why": "Climatóloga, World Weather Attribution"
+    },
+    {
+      "handle": "divulgameteo.bsky.social",
+      "why": "Meteorólogo y divulgador"
+    },
+    {
+      "handle": "metbeni.bsky.social",
+      "why": "Meteorólogo de AEMET"
+    },
+    {
+      "handle": "scnyc.bsky.social",
+      "why": "Meteorólogo de AEMET"
+    },
+    {
+      "handle": "rubdc.bsky.social",
+      "why": "Portavoz de AEMET"
+    },
+    {
+      "handle": "acam-cat.bsky.social",
+      "why": "Associació Catalana de Meteorologia"
+    },
+    {
+      "handle": "efeverde.com",
+      "why": "EFE Verde"
+    },
+    {
+      "handle": "aberron.bsky.social",
+      "why": "Periodista científico"
+    },
+    {
+      "handle": "fernadovalladares.bsky.social",
+      "why": "Ecólogo del CSIC"
+    },
+    {
+      "handle": "andreuescriva.bsky.social",
+      "why": "Divulgador sobre clima"
     }
   ],
   "followMaxPerRun": 3,
   "likesPerRun": 3,
   "news": {
-    "_nota": "Noticias de terceros (cron /api/cron/bluesky-news, 10 pasadas al día). Una por pasada como mucho, hasta perDay. El tema de cada una sigue «order» según cuántas van hoy; si no hay noticia de ese tema se toma el siguiente. Fuentes «topical»: todo lo que publican encaja (salvo exclusiones); el resto solo entra si el titular habla de clima o energía. El post es el titular literal + «Vía <medio>» + tarjeta con enlace a la noticia original: nada de texto propio ni opinión.",
+    "_nota": "Noticias de terceros (cron /api/cron/bluesky-news, 3 pasadas al día). Una por pasada como mucho, hasta perDay. Solo clima, red eléctrica española y energía (18-nov-2026: fuera inventos y ciencia general, que diluían la cuenta). El tema de cada una sigue «order» según cuántas van hoy; si no hay noticia de ese tema se toma el siguiente. Fuentes «topical»: todo lo que publican encaja (salvo exclusiones); el resto solo entra si el titular habla de clima o energía. Las noticias de la red eléctrica española pasan al tema «red» venga de la fuente que venga. Antigüedad: se prueba cada escalón de «ageTiers» ([mínimo, máximo] en horas) y se usa el primero que tenga noticia, para no pisar la actualidad. El post es un comentario en primera persona en clave de oportunidad (de «comments», elegido por el asunto del titular; sin cifras, sin datos que no estén en la noticia, sin emojis ni estructuras «no es solo X, es Y») + «Vía <medio>» + tarjeta con el titular y el enlace a la noticia original. Sobre la cumbre del clima, comentarios neutros, sin opinión.",
     "enabled": true,
-    "perDay": 10,
-    "maxAgeHours": 30,
+    "perDay": 3,
+    "ageTiers": [[48, 96], [24, 120], [12, 120]],
     "order": [
       "clima",
-      "energia",
-      "ciencia",
-      "clima",
-      "inventos",
-      "energia",
-      "clima",
-      "ciencia",
-      "energia",
-      "inventos"
+      "red",
+      "energia"
     ],
     "hashtags": {
       "clima": "CambioClimático",
-      "energia": "Energía",
-      "ciencia": "Ciencia",
-      "inventos": "Innovación"
+      "red": "RedEléctrica",
+      "energia": "Energía"
+    },
+    "comments": {
+      "red": [
+        "La red eléctrica es el cuello de botella de la transición. Quien resuelva cómo conectar más renovables y gestionar la demanda tiene mucho mercado por delante.",
+        "Cada problema de la red española es un hueco para alguien: almacenamiento, flexibilidad, digitalización de subestaciones. Ahí se va a mover mucho dinero.",
+        "Me fijo mucho en las noticias de la red. Sin red no hay renovables que valgan, y por eso es donde más oportunidades veo ahora mismo.",
+        "Más renovables piden una red más lista. Gestión de la demanda, interconexiones, baterías junto a las plantas: todo eso está por construir en España."
+      ],
+      "almacenamiento": [
+        "El almacenamiento es la pieza que falta para aprovechar el sol y el viento a cualquier hora. Quien entre pronto en este negocio va a tener ventaja.",
+        "Baterías, bombeo, almacenamiento térmico: guardar energía barata para usarla cuando hace falta es de las mejores oportunidades que veo en energía.",
+        "Cuanto más almacenamiento haya, menos renovable se desperdicia y más estable es el precio. Por aquí pasa buena parte de lo que viene."
+      ],
+      "solar": [
+        "Con el sol que tenemos en España, la solar es una ventaja que pocos países tienen. Lo interesante ahora está alrededor: almacenamiento, autoconsumo, comunidades energéticas.",
+        "Tejados, naves, aparcamientos: queda muchísima superficie por aprovechar. Cada noticia así me recuerda lo que tenemos por delante con el sol.",
+        "La pregunta ya no es si poner placas, sino qué hacer con toda esa energía a mediodía. Ahí está la siguiente oportunidad."
+      ],
+      "eolica": [
+        "El viento sopla también de noche y en invierno, justo cuando la solar flojea. Por eso la eólica sigue teniendo tanto recorrido.",
+        "Repotenciar parques antiguos, eólica marina, fabricación de componentes: hay una industria entera por desarrollar alrededor del viento.",
+        "Me gusta seguir la eólica porque mezcla energía e industria. Cada parque nuevo es empleo y conocimiento que puede quedarse aquí."
+      ],
+      "hidrogeno": [
+        "El hidrógeno verde tiene sentido donde electrificar es difícil: acero, química, fertilizantes, transporte pesado. Ahí es donde hay que mirar.",
+        "Con tanto sol y viento, España puede fabricar hidrógeno verde para usarlo aquí y para exportarlo. Es una oportunidad industrial que no conviene dejar pasar.",
+        "Todavía queda mucho por resolver en el hidrógeno, y precisamente por eso hay espacio para quien encuentre cómo abaratarlo."
+      ],
+      "movilidad": [
+        "La electrificación del transporte arrastra todo lo demás: puntos de carga, baterías, redes, talleres. Hay negocio para muchos.",
+        "Cada coche eléctrico es también una batería con ruedas. Cuando se pueda usar para apoyar la red, cambia el juego.",
+        "Lo que más me interesa del coche eléctrico es lo que viene detrás: recarga inteligente, reciclaje de baterías, nuevas formas de moverse."
+      ],
+      "edificios": [
+        "La energía más barata es la que no se gasta. Rehabilitar casas y edificios es de las inversiones con más retorno que conozco.",
+        "Bombas de calor, aislamiento, ventanas, control inteligente: hay un mercado enorme en hacer que las casas gasten menos y se vivan mejor.",
+        "Buena parte de las viviendas en España necesita una reforma energética. Para instaladores y empresas pequeñas es trabajo para años."
+      ],
+      "nuclear": [
+        "La fusión y la nueva nuclear se mueven rápido. Aunque falte para verlas en la red, la tecnología que sale por el camino ya tiene aplicaciones.",
+        "Siga el debate como siga, la investigación nuclear deja materiales, imanes y técnicas que acaban en otras industrias. Conviene no perderla de vista."
+      ],
+      "carbono": [
+        "Reducir emisiones también es ganar eficiencia. Las empresas que lo entienden antes acaban gastando menos y vendiendo mejor.",
+        "Medir, reducir y compensar emisiones se ha convertido en un sector propio. Hacen falta datos, técnicos y herramientas.",
+        "Descarbonizar es reconstruir medio sistema productivo, y eso es una oportunidad enorme para quien sepa hacerlo."
+      ],
+      "agua": [
+        "El agua va a ser uno de los grandes temas de la próxima década en España. Reutilización, riego eficiente, desalación con renovables: todo eso tiene futuro.",
+        "Cada noticia sobre sequía me recuerda lo mucho que queda por hacer en gestión del agua. Ahí hay trabajo para ingenieros, agricultores y tecnológicas.",
+        "Aprovechar mejor cada litro es la adaptación más rentable que tenemos. Quien sepa hacerlo bien va a ser muy necesario."
+      ],
+      "calor": [
+        "Con veranos más calurosos, adaptar ciudades y casas deja de ser opcional. Sombra, verde urbano, edificios frescos: todo eso es oportunidad.",
+        "El calor también es un asunto de negocio: refrigeración eficiente, materiales que reflejan el sol, horarios de trabajo distintos. Hay mucho por inventar.",
+        "En la web sigo cómo cambian las temperaturas en las estaciones de España. Entender el dato es el primer paso para adaptarse."
+      ],
+      "incendios": [
+        "Prevenir incendios pasa por cuidar el monte todo el año. Gestión forestal, ganadería extensiva, biomasa: hay economía rural esperando a que se apueste por ella.",
+        "La tecnología para detectar y prevenir incendios avanza mucho: satélites, sensores, drones. Es un campo donde se puede hacer mucho bien."
+      ],
+      "mar": [
+        "Lo que pasa en el hielo y en los océanos acaba llegando a nuestras costas. Adaptarse a tiempo es más barato que reparar después.",
+        "Medir mejor los océanos y el hielo es ciencia que sirve para decidir. Satélites, boyas, modelos: un campo que necesita más gente.",
+        "Las costas van a necesitar mucha ingeniería en las próximas décadas. Puertos, playas, infraestructuras: hay que empezar a pensarlo ya."
+      ],
+      "naturaleza": [
+        "Recuperar la naturaleza también da trabajo: restauración de ríos, bosques, suelos. Es de las inversiones que mejor envejecen.",
+        "Agricultura que cuida el suelo, ganadería que mantiene el monte, ciudades con más verde. Ahí hay mucho por hacer.",
+        "La biodiversidad parece un tema lejano hasta que falla. Cuidarla es también cuidar la economía que depende de ella."
+      ],
+      "cumbre": [
+        "Sigo de cerca lo que sale de la cumbre del clima. Aquí está el detalle.",
+        "Lo que se acuerde en la cumbre del clima marca el marco de muchas inversiones. Dejo la noticia para quien quiera seguirlo."
+      ],
+      "clima": [
+        "Detrás de cada noticia sobre el clima hay algo que adaptar, cambiar o inventar. Me quedo con eso.",
+        "El cambio climático obliga a repensar cómo vivimos y trabajamos, y en ese cambio hay mucho espacio para hacer las cosas mejor.",
+        "Me gusta leer estas noticias pensando en lo que se puede hacer. Casi siempre hay una oportunidad escondida."
+      ],
+      "energia": [
+        "La transición energética está cambiando quién produce, quién vende y quién ahorra. Merece la pena estar atento.",
+        "En energía todo se está moviendo a la vez: tecnología, precios, regulación. Quien entienda el cambio va a tener ventaja.",
+        "Cada cambio en el sistema energético abre hueco para empresas nuevas. Esta es una de esas piezas."
+      ]
     },
     "sources": [
       {
@@ -205,74 +291,37 @@
       {
         "name": "El País",
         "url": "https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/ciencia/portada",
-        "category": "ciencia"
-      },
-      {
-        "name": "El Mundo",
-        "url": "https://e00-elmundo.uecdn.es/elmundo/rss/ciencia.xml",
-        "category": "ciencia"
-      },
-      {
-        "name": "ABC",
-        "url": "https://www.abc.es/rss/2.0/ciencia/",
-        "category": "ciencia"
-      },
-      {
-        "name": "La Vanguardia",
-        "url": "https://www.lavanguardia.com/rss/ciencia.xml",
-        "category": "ciencia"
-      },
-      {
-        "name": "20minutos",
-        "url": "https://www.20minutos.es/rss/ciencia/",
-        "category": "ciencia"
-      },
-      {
-        "name": "NASA Ciencia",
-        "url": "https://ciencia.nasa.gov/feed/",
-        "category": "ciencia"
+        "category": "clima"
       },
       {
         "name": "The Conversation",
         "url": "https://theconversation.com/es/articles.atom",
-        "category": "ciencia"
-      },
-      {
-        "name": "Muy Interesante",
-        "url": "https://www.muyinteresante.com/rss/",
-        "category": "ciencia"
-      },
-      {
-        "name": "Xataka Ciencia",
-        "url": "https://www.xatakaciencia.com/index.xml",
-        "category": "ciencia"
-      },
-      {
-        "name": "Tendencias21",
-        "url": "https://www.tendencias21.es/xml/syndication.rss",
-        "category": "ciencia"
-      },
-      {
-        "name": "EcoInventos",
-        "url": "https://ecoinventos.com/feed/",
-        "category": "inventos",
-        "topical": true
-      },
-      {
-        "name": "Xataka",
-        "url": "https://www.xataka.com/index.xml",
-        "category": "inventos"
-      },
-      {
-        "name": "Hipertextual",
-        "url": "https://hipertextual.com/feed",
-        "category": "inventos"
-      },
-      {
-        "name": "El País",
-        "url": "https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/tecnologia/portada",
-        "category": "inventos"
+        "category": "clima"
       }
     ]
+  },
+  "profile": {
+    "_nota": "Lo aplica scripts/bluesky-profile.js (a mano, con las claves en .env). Nombre máx. 64 caracteres, bio máx. 256.",
+    "displayName": "Se calienta · Temperaturas de España",
+    "description": "¿Es normal este calor? Cada día, la capital más alejada de lo normal, y cada lunes, el resumen de la semana. Datos oficiales de AEMET frente a 1991–2020. Proyecto personal, gratis y no oficial: tú miras los datos y sacas tus conclusiones.\nsecalienta.com",
+    "starterPack": {
+      "name": "Clima y tiempo en español",
+      "description": "Meteorología, clima y datos en español: agencias, meteorólogos, divulgadores y medios especializados.",
+      "members": [
+        "aemet.es",
+        "copernicusecmwf.bsky.social",
+        "divulgameteo.bsky.social",
+        "metbeni.bsky.social",
+        "scnyc.bsky.social",
+        "rubdc.bsky.social",
+        "acam-cat.bsky.social",
+        "csicdivulga.bsky.social",
+        "efeverde.com",
+        "climatica.coop",
+        "aberron.bsky.social",
+        "fernadovalladares.bsky.social",
+        "andreuescriva.bsky.social"
+      ]
+    }
   }
 }
