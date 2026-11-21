@@ -8,6 +8,7 @@ const { MongoClient } = require("mongodb");
 const seoPages = require("./lib/seo-pages");
 const bluesky = require("./lib/bluesky");
 const news = require("./lib/news");
+const replies = require("./lib/replies");
 const crypto = require("crypto");
 
 const app = express();
@@ -275,6 +276,35 @@ app.get("/api/cron/bluesky-news", async (req, res) => {
     await notifyTelegram(`⚠️ Bluesky: falló la noticia programada.\n${String(error.message || error).slice(0, 200)}`);
     res.status(500).json({ error: "No se pudo publicar la noticia" });
   }
+});
+
+// Respuestas en Bluesky aprobadas por Telegram (ver lib/replies.js): el cron busca un post y manda la propuesta con
+// botones ✅/❌ al bot. ?dryRun=1 devuelve las candidatas sin mandar nada.
+app.get("/api/cron/bluesky-replies", async (req, res) => {
+  if (!isCronAuthorized(req)) return res.status(401).json({ error: "No autorizado" });
+  try {
+    const result = await replies.proposeReply({ dryRun: req.query.dryRun === "1" });
+    res.set("Cache-Control", "no-store").json(result);
+  } catch (error) {
+    logServerError("cron.bluesky-replies", error);
+    await notifyTelegram(`⚠️ Bluesky: falló la búsqueda de respuestas.\n${String(error.message || error).slice(0, 200)}`);
+    res.status(500).json({ error: "No se pudo preparar la propuesta" });
+  }
+});
+
+// Pulsación de un botón en Telegram. Telegram firma cada llamada con la cabecera secreta que se le dio al registrar el
+// webhook; sin ella, 401. Además lib/replies.js comprueba el usuario y la firma del borrador antes de publicar.
+const telegramLimiter = rateLimit({ windowMs: 60 * 1000, limit: 30, standardHeaders: true, legacyHeaders: false });
+app.post("/api/telegram/webhook", telegramLimiter, express.json({ limit: "64kb" }), async (req, res) => {
+  if (!replies.isWebhookAuthorized(req.get("x-telegram-bot-api-secret-token"))) return res.status(401).end();
+  try {
+    const result = await replies.handleUpdate(req.body);
+    if (result && result.posted) console.log(`[telegram.webhook] respuesta publicada ${result.link}`);
+  } catch (error) {
+    logServerError("telegram.webhook", error);
+  }
+  // Siempre 200 una vez autenticado: si no, Telegram reintenta la misma pulsación.
+  res.status(200).end();
 });
 
 app.use(express.static(path.join(__dirname, "public")));
