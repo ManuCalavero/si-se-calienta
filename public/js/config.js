@@ -1,11 +1,5 @@
 // Ajustes editables sin tocar la lógica de la app.
 
-// Usuario de Ko-fi: https://ko-fi.com/<usuario>
-export const KOFI_USERNAME = "secalienta";
-
-// Cifra del botón de aporte junto a «Compartir».
-export const VISIT_EUROS = 0.75;
-
 // Estaciones con más historia para empezar con un toque. Solo se muestran las ya descargadas.
 export const QUICK_PICKS = [
   { id: "3195", label: "Madrid" },

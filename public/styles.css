@@ -52,11 +52,11 @@
   --cool-soft: rgba(2, 157, 255, 0.12);
   --rain: #05e1cf;
   --rain-ink: #00796f;
-  /* Módulo de donación y botón «0,75 €». */
-  --kofi-bg: #fff3e6;
-  --kofi-bg-hover: #ffe7cc;
-  --kofi-ink: #b85208;
-  --kofi-icon: #e8711a;
+  /* Botón «Opinar» del pie (pastilla cálida). */
+  --pill-bg: #fff3e6;
+  --pill-bg-hover: #ffe7cc;
+  --pill-ink: #b85208;
+  --pill-icon: #e8711a;
   /* Las sombras de algunos elementos se multiplican por este factor. */
   --shadow-strength: 1;
   --shadow: 0 16px 40px rgba(0, 0, 0, 0.12);
@@ -78,8 +78,8 @@
 :root .panel-header h1,
 :root .panel-header h2,
 :root .share-header h2,
-:root .donate h3,
-:root #donate-title {
+:root .feedback h3,
+:root #feedback-title {
   font-weight: 600;
   line-height: 0.95;
 }
@@ -2190,8 +2190,8 @@ body.welcome-open .dock {
   gap: 6px;
 }
 
-/* Aporte: pastilla pequeña junto a «Compartir»; los colores, con .btn-coffee más abajo. */
-.donate-btn {
+/* «Opinar»: pastilla pequeña junto a «Compartir»; los colores, más abajo. */
+.feedback-btn {
   display: inline-flex;
   align-items: center;
   gap: 5px;
@@ -2207,7 +2207,7 @@ body.welcome-open .dock {
   transition: background 0.2s var(--ease), color 0.2s var(--ease);
 }
 
-.donate-btn svg {
+.feedback-btn svg {
   width: 16px;
   height: 16px;
 }
@@ -2426,19 +2426,18 @@ body.has-selection .attribution {
   color: var(--cool-ink);
 }
 
-/* ---------- Donación ---------- */
+/* ---------- Feedback ---------- */
 
 /*
- * El módulo de donación invierte los colores (fondo amarillo, texto oscuro) para destacar sobre la tarjeta negra.
- * Se redefinen los tokens dentro del módulo y todo lo de dentro los hereda.
+ * La tarjeta de feedback invierte los colores (fondo amarillo, texto oscuro) para destacar sobre la tarjeta negra.
+ * Se redefinen los tokens dentro de la tarjeta y todo lo de dentro los hereda.
  */
-.donate {
+.feedback {
   --ink: #161513;
   --ink-soft: #3d3b37;
   --muted: #6b6964;
   --tint-rgb: 22, 21, 19;
   --line: rgba(22, 21, 19, 0.1);
-  --donate-cells: #f4f2ec;
   --primary: #161513;
   --primary-hover: #000;
   --on-primary: #fff;
@@ -2449,13 +2448,13 @@ body.has-selection .attribution {
   color: var(--ink);
 }
 
-#donate-title {
+#feedback-title {
   font-size: 2rem;
   font-weight: bold;
 }
 
-/* Título del módulo como titular: serif y más grande, sin las mayúsculas de las demás tarjetas. */
-.donate h3 {
+/* Título de la tarjeta como titular: más grande, sin las mayúsculas de las demás tarjetas. */
+.feedback h3 {
   font-family: var(--font-display);
   font-size: 1.6rem;
   font-weight: 400;
@@ -2465,47 +2464,51 @@ body.has-selection .attribution {
   color: var(--ink);
 }
 
-.donate-head {
-  display: flex;
-  gap: 12px;
-  align-items: flex-start;
-}
-
-.donate-head p {
+.feedback-head p {
   margin: 4px 0 0;
   color: var(--ink-soft);
   font-size: 13px;
 }
 
-.donate-foot {
+.feedback-form {
+  display: grid;
+  gap: 10px;
+}
+
+.feedback-votes {
   display: flex;
   flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Sí / No mucho: pastillas con borde; la elegida, rellena. */
+.feedback-vote {
+  display: inline-flex;
   align-items: center;
-  gap: 8px 14px;
-}
-
-/* Botón de aporte del módulo: la acción principal (negro en claro), en pastilla y con icono de moneda. */
-.btn-coffee {
+  gap: 6px;
+  min-height: 40px;
+  padding: 0 16px;
+  border: 1.5px solid var(--ink);
   border-radius: 999px;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 14px;
   font-weight: 600;
-  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.2s var(--ease), color 0.2s var(--ease);
 }
 
-/* «0,75 €» del pie: fondo melocotón, texto naranja y moneda. */
-.donate-btn {
-  border: 0;
-  border-radius: 999px;
-  background: var(--kofi-bg);
-  color: var(--kofi-ink);
-  font-weight: 600;
+.feedback-vote:hover {
+  background: rgba(22, 21, 19, 0.08);
 }
 
-.donate-btn:hover {
-  background: var(--kofi-bg-hover);
+.feedback-vote[aria-pressed="true"] {
+  background: var(--ink);
+  color: #fff;
 }
 
-.btn-coffee svg,
-.donate-btn svg {
+.feedback-vote svg {
   width: 18px;
   height: 18px;
   fill: none;
@@ -2515,8 +2518,101 @@ body.has-selection .attribution {
   stroke-linejoin: round;
 }
 
-.donate-btn svg {
-  stroke: var(--kofi-icon);
+.feedback-more {
+  display: grid;
+  gap: 8px;
+}
+
+.feedback-more[hidden],
+.feedback-votes[hidden] {
+  display: none;
+}
+
+.feedback-more label {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.feedback-more label span {
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.feedback-more textarea {
+  width: 100%;
+  min-height: 76px;
+  padding: 10px 12px;
+  border: 1.5px solid rgba(22, 21, 19, 0.25);
+  border-radius: var(--radius-small);
+  background: rgba(255, 255, 255, 0.7);
+  color: var(--ink);
+  font: inherit;
+  font-size: 16px; /* 16px: iOS no hace zoom al escribir */
+  resize: vertical;
+}
+
+.feedback-more textarea:focus {
+  outline: 2px solid var(--ink);
+  outline-offset: 1px;
+}
+
+/* Campo trampa para bots: fuera de la vista y del lector de pantalla. */
+.feedback-trap {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.feedback-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+}
+
+.feedback-send {
+  border-radius: 999px;
+  font-weight: 600;
+}
+
+.feedback-note {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.feedback-thanks {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+/* «Opinar» del pie: fondo melocotón, texto naranja y bocadillo. */
+.feedback-btn {
+  border: 0;
+  border-radius: 999px;
+  background: var(--pill-bg);
+  color: var(--pill-ink);
+  font-weight: 600;
+}
+
+.feedback-btn:hover {
+  background: var(--pill-bg-hover);
+}
+
+.feedback-btn svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.feedback-btn svg {
+  stroke: var(--pill-icon);
 }
 
 /* Texto de cada página de estación (/estacion/<slug>): resumen con las cifras reales, bajo las gráficas. */
@@ -2598,12 +2694,12 @@ body.has-selection .attribution {
   color: var(--muted);
 }
 
-/* Al llegar desde el botón de la cantidad, el módulo se ilumina un instante. */
-.donate.is-flash {
-  animation: donate-flash 1.4s var(--ease);
+/* Al llegar desde «Opinar», la tarjeta se ilumina un instante. */
+.feedback.is-flash {
+  animation: feedback-flash 1.4s var(--ease);
 }
 
-@keyframes donate-flash {
+@keyframes feedback-flash {
   0%,
   40% {
     box-shadow: 0 0 0 3px var(--accent-soft);
@@ -3802,7 +3898,7 @@ body.welcome-open .day-nav {
     z-index: 4;
   }
 
-  .donate-btn {
+  .feedback-btn {
     flex-shrink: 0;
     white-space: nowrap;
   }
@@ -3872,7 +3968,7 @@ body.welcome-open .day-nav {
     letter-spacing: 0.02em;
   }
 
-  body.has-selection .donate-btn,
+  body.has-selection .feedback-btn,
   body.has-selection #share-btn {
     height: 26px;
     padding: 0 9px;
@@ -3880,7 +3976,7 @@ body.welcome-open .day-nav {
     font-size: 12px;
   }
 
-  body.has-selection .donate-btn svg,
+  body.has-selection .feedback-btn svg,
   body.has-selection #share-btn svg {
     width: 14px;
     height: 14px;

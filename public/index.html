@@ -321,19 +321,27 @@
 
 
             <!--station-about-->
-            <section class="card donate" aria-labelledby="donate-title">
-              <div class="donate-head">
-                <div>
-                  <h3 id="donate-title">Ayúdanos a mantener esta web</h3>
-                  <p>
-                    Es gratis y no tiene publicidad, pero necesitamos tu colaboración para seguir adelante. Cada donación nos ayuda
-                    a mantener el proyecto. ¡Gracias!
-                  </p>
+            <section class="card feedback" aria-labelledby="feedback-title">
+              <div class="feedback-head">
+                <h3 id="feedback-title">¿Te ha resultado útil?</h3>
+                <p>Es un proyecto personal. Tu opinión me ayuda a decidir qué mejorar.</p>
+              </div>
+              <form id="feedback-form" class="feedback-form" novalidate>
+                <div class="feedback-votes" role="group" aria-label="¿Te ha resultado útil?">
+                  <button type="button" class="feedback-vote" data-vote="up" aria-pressed="false"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M6.5 9v7.5M6.5 9l3-5.5c1.2 0 2 .9 1.8 2.1L10.8 8h4c1 0 1.7.9 1.5 1.9l-1 5c-.2.9-1 1.6-1.9 1.6H6.5M3.5 9h3v7.5h-3z" /></svg>Sí</button>
+                  <button type="button" class="feedback-vote" data-vote="down" aria-pressed="false"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M13.5 11V3.5M13.5 11l-3 5.5c-1.2 0-2-.9-1.8-2.1l.5-2.4h-4c-1 0-1.7-.9-1.5-1.9l1-5c.2-.9 1-1.6 1.9-1.6h6.9M16.5 11h-3V3.5h3z" /></svg>No mucho</button>
                 </div>
-              </div>
-              <div class="donate-foot">
-                <a id="kofi-link" class="btn btn-primary btn-coffee" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7.5" /><path d="M12.6 7.4a3.3 3.3 0 1 0 0 5.2M6.4 9.2h4.4M6.4 10.9h4.4" /></svg>Quiero ayudar</a>
-              </div>
+                <div id="feedback-more" class="feedback-more" hidden>
+                  <label for="feedback-text">¿Qué mejorarías? <span>(opcional)</span></label>
+                  <textarea id="feedback-text" maxlength="500" rows="3" placeholder="Una ciudad que falta, algo que no se entiende, una idea…"></textarea>
+                  <input id="feedback-website" class="feedback-trap" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" />
+                  <div class="feedback-foot">
+                    <button type="submit" class="btn btn-primary feedback-send">Enviar</button>
+                    <span class="feedback-note">Es anónimo: no incluyas datos personales.</span>
+                  </div>
+                </div>
+                <p id="feedback-thanks" class="feedback-thanks" role="status" hidden>¡Gracias! Lo leo todo.</p>
+              </form>
             </section>
           </section>
 
@@ -367,9 +375,9 @@
         <footer class="panel-foot">
           <a class="foot-attribution" data-link="aemetOpenData" target="_blank" rel="noopener noreferrer">Datos: © AEMET OpenData</a>
           <div class="foot-actions">
-            <button id="donate-btn" class="donate-btn" type="button" aria-label="Aportar 0,75 €: ver cómo ayudar a mantener la web">
-              <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7.5" /><path d="M12.6 7.4a3.3 3.3 0 1 0 0 5.2M6.4 9.2h4.4M6.4 10.9h4.4" /></svg>
-              <span id="donate-btn-amount">0,75 €</span>
+            <button id="feedback-btn" class="feedback-btn" type="button" aria-label="Opinar: dime qué te parece la web">
+              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 4.5h12a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1H9l-3.5 3v-3H4a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1z" /></svg>
+              <span>Opinar</span>
             </button>
             <button id="share-btn" class="btn btn-primary btn-small" type="button">
               <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 13V3M6 7l4-4 4 4M4 11v5h12v-5" /></svg>

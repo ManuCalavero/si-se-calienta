@@ -3,7 +3,7 @@ import { anomalyColor, formatDuration, formatNumber, formatSigned, monthName, pr
 import { anomalyScale, highlightYear, onChartHover, renderTemperatureChart, resizeCharts, setSeriesVisibility } from "./charts.js";
 import { clearSelection, createMap, focusStation, resetView, setStations, updateCached } from "./map.js";
 import { canvasToBlob, drawShareCard, shareCaption, shareFileName } from "./share.js";
-import { KOFI_USERNAME, LINKS, QUICK_PICKS, VISIT_EUROS } from "./config.js";
+import { LINKS, QUICK_PICKS } from "./config.js";
 
 const $ = (id) => document.getElementById(id);
 
@@ -73,10 +73,13 @@ const els = {
   shareNative: $("share-native"),
   shareDownload: $("share-download"),
   shareCopy: $("share-copy"),
-  kofiLink: $("kofi-link"),
-  donateBtn: $("donate-btn"),
-  donateBtnAmount: $("donate-btn-amount"),
-  donateCard: document.querySelector(".donate"),
+  feedbackBtn: $("feedback-btn"),
+  feedbackCard: document.querySelector(".feedback"),
+  feedbackForm: $("feedback-form"),
+  feedbackMore: $("feedback-more"),
+  feedbackText: $("feedback-text"),
+  feedbackTrap: $("feedback-website"),
+  feedbackThanks: $("feedback-thanks"),
   toast: $("toast"),
 };
 
@@ -416,20 +419,59 @@ function applyLinks() {
   }
 }
 
-function renderDonate() {
-  const visit = `${formatNumber(VISIT_EUROS, 2)} €`;
-  els.donateBtnAmount.textContent = visit;
-  els.donateBtn.setAttribute("aria-label", `Aportar ${visit}: ver cómo ayudar a mantener la web`);
-  els.kofiLink.href = `https://ko-fi.com/${encodeURIComponent(KOFI_USERNAME)}`;
+// ---------- Feedback ----------
+// Un clic (Sí / No mucho) ya se envía; el texto es opcional y va en un segundo envío. Llega al Telegram del autor.
+
+const feedback = { vote: null, voteSent: false, done: false };
+
+function sendFeedback(payload) {
+  return fetch("/api/feedback", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ...payload, station: state.selectedId || "", website: els.feedbackTrap.value }),
+    keepalive: true,
+  });
 }
 
-// El botón de la cantidad lleva al módulo de donación del resumen y lo resalta un momento.
-function goToDonate() {
+function onFeedbackVote(event) {
+  const button = event.target.closest(".feedback-vote");
+  if (!button || feedback.done) return;
+  feedback.vote = button.dataset.vote;
+  for (const other of els.feedbackForm.querySelectorAll(".feedback-vote")) other.setAttribute("aria-pressed", String(other === button));
+  if (!feedback.voteSent) {
+    feedback.voteSent = true;
+    sendFeedback({ vote: feedback.vote }).catch(() => {});
+  }
+  els.feedbackMore.hidden = false;
+  els.feedbackText.focus({ preventScroll: true });
+}
+
+async function onFeedbackSubmit(event) {
+  event.preventDefault();
+  if (feedback.done) return;
+  const text = els.feedbackText.value.trim();
+  if (text) {
+    try {
+      const response = await sendFeedback({ vote: feedback.vote, text });
+      if (!response.ok) throw new Error();
+    } catch {
+      showToast("No se ha podido enviar. Prueba de nuevo en un momento.", true);
+      return;
+    }
+  }
+  feedback.done = true;
+  els.feedbackForm.querySelector(".feedback-votes").hidden = true;
+  els.feedbackMore.hidden = true;
+  els.feedbackThanks.hidden = false;
+}
+
+// El botón «Opinar» del pie lleva a la tarjeta de feedback del resumen y la resalta un momento.
+function goToFeedback() {
   if (state.tab !== "summary") setTab("summary");
-  els.donateCard.scrollIntoView({ behavior: reducedMotion() ? "auto" : "smooth", block: "center" });
-  els.donateCard.classList.remove("is-flash");
-  void els.donateCard.offsetWidth;
-  els.donateCard.classList.add("is-flash");
+  els.feedbackCard.scrollIntoView({ behavior: reducedMotion() ? "auto" : "smooth", block: "center" });
+  els.feedbackCard.classList.remove("is-flash");
+  void els.feedbackCard.offsetWidth;
+  els.feedbackCard.classList.add("is-flash");
 }
 
 // ---------- Panel ----------
@@ -1251,7 +1293,7 @@ function selectStation(stationId, { userGesture = true } = {}) {
   // Evento para GTM/GA4: cada estación consultada. Solo llega a Google si el visitante aceptó (ver js/analytics.js).
   window.dataLayer = window.dataLayer || [];
   window.dataLayer.push({ event: "station_view", station: station.idema, station_name: station.nombreVisible, origin: userGesture ? "mapa" : "enlace" });
-  fetch("/api/notify", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ station: station.idema, name: station.nombreVisible }), keepalive: true }).catch(() => {});
+  fetch("/api/notify", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ station: station.idema }), keepalive: true }).catch(() => {});
   requestAnimationFrame(() => focusStation(station, panelOffset()));
   runQuery();
 }
@@ -1722,7 +1764,9 @@ function bindEvents() {
   onChartHover((year) => markStripe(year));
 
   els.shareBtn.addEventListener("click", openShare);
-  els.donateBtn.addEventListener("click", goToDonate);
+  els.feedbackBtn.addEventListener("click", goToFeedback);
+  els.feedbackForm.addEventListener("click", onFeedbackVote);
+  els.feedbackForm.addEventListener("submit", onFeedbackSubmit);
   els.shareClose.addEventListener("click", closeShare);
   els.shareDialog.addEventListener("click", (event) => {
     if (event.target === els.shareDialog) closeShare();
@@ -1763,7 +1807,6 @@ function setupHeroVideo() {
 async function init() {
   const initialStation = readInitialState();
   applyLinks();
-  renderDonate();
   bindEvents();
   setupHeroVideo();
   // La tarjeta sale abierta en cada carga, salvo si se llega con una estación en el enlace.

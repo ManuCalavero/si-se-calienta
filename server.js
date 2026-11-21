@@ -210,7 +210,7 @@ async function notifyTelegram(text) {
     await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ chat_id: chatId, text }),
+      body: JSON.stringify({ chat_id: chatId, text, link_preview_options: { is_disabled: true } }),
       signal: AbortSignal.timeout(5000),
     });
   } catch (_error) {
@@ -233,8 +233,8 @@ app.get("/api/cron/bluesky", async (req, res) => {
     if (result.alert) await notifyTelegram(`⚠️ Bluesky: ${result.alert}`);
     // Solo avisa cuando de verdad se publica: las otras ejecuciones (fuera de hora o ya publicado) son normales.
     if (result.posted) {
-      const what = result.kind === "donate" ? "petición de ayuda" : result.kind === "week" ? "resumen semanal" : result.slug;
-      const link = result.kind === "donate" ? "" : result.kind === "week" ? "\nhttps://secalienta.com/temperaturas" : `\nhttps://secalienta.com/estacion/${result.slug}`;
+      const what = result.kind === "week" ? "resumen semanal" : result.slug;
+      const link = result.kind === "week" ? "\nhttps://secalienta.com/temperaturas" : `\nhttps://secalienta.com/estacion/${result.slug}`;
       await notifyTelegram(`✅ Bluesky: publicado ${what}${manual ? " (manual)" : ""}${link}`);
     }
     res.set("Cache-Control", "no-store").json(result);
@@ -1071,7 +1071,12 @@ function parseEvolutionQuery(req) {
 // Indicativos del inventario, para no lanzar descargas a AEMET con estaciones inventadas (gastarían la cuota).
 // Si el inventario no está disponible, no se bloquea nada.
 const KNOWN_STATIONS_TTL_MS = 60 * 60 * 1000;
-let knownStations = { ids: null, loadedAt: 0 };
+let knownStations = { ids: null, names: new Map(), loadedAt: 0 };
+
+const titleCase = (text) =>
+  String(text || "")
+    .toLowerCase()
+    .replace(/(^|[\s,.\-/(])(\p{L})/gu, (_match, sep, letter) => sep + letter.toUpperCase());
 
 async function loadKnownStationIds() {
   if (knownStations.ids && Date.now() - knownStations.loadedAt < KNOWN_STATIONS_TTL_MS) return knownStations.ids;
@@ -1081,8 +1086,16 @@ async function loadKnownStationIds() {
       ? stored.payload
       : ((await readStationsCache({ allowExpired: true })) || {}).payload;
   if (!Array.isArray(payload) || payload.length === 0) return null;
-  knownStations = { ids: new Set(payload.map((station) => String(station.idema).toUpperCase())), loadedAt: Date.now() };
+  const names = new Map(payload.map((station) => [String(station.idema).toUpperCase(), titleCase(station.nombre)]));
+  knownStations = { ids: new Set(names.keys()), names, loadedAt: Date.now() };
   return knownStations.ids;
+}
+
+// Nombre de la estación según el inventario del servidor (nunca el que manda el navegador), o null si no existe.
+async function stationName(station) {
+  const ids = await loadKnownStationIds().catch(() => null);
+  if (!ids || !ids.has(station)) return null;
+  return knownStations.names.get(station) || station;
 }
 
 async function assertKnownStation(station) {
@@ -1117,8 +1130,23 @@ const notifyLimiter = rateLimit({
 // Rastreadores y herramientas de medición: cargan la app como un navegador y no deben avisar «alguien está consultando…».
 const AUTOMATED_AGENT = /bot\b|bot\/|crawl|spider|slurp|googlebot|bingbot|duckduckgo|yandex|baidu|facebookexternalhit|embedly|headless|lighthouse|pagespeed|gtmetrix|pingdom|uptime|monitor|preview|curl|wget|python-requests|node-fetch|undici|^node$/i;
 
+// Topes por instancia para que nadie pueda inundar el Telegram: avisos por hora en total y una vez por estación y hora.
+// (Cada instancia de Vercel cuenta por su lado: es un freno, no un límite exacto.)
+const NOTIFY_MAX_PER_HOUR = 20;
+const FEEDBACK_MAX_PER_HOUR = 30;
+const recentNotices = { notify: [], feedback: [], stations: new Map() };
+
+function underHourlyCap(kind, max) {
+  const now = Date.now();
+  recentNotices[kind] = recentNotices[kind].filter((t) => now - t < 60 * 60 * 1000);
+  if (recentNotices[kind].length >= max) return false;
+  recentNotices[kind].push(now);
+  return true;
+}
+
 // En Vercel la funcion puede congelarse en cuanto responde: el aviso se envia antes de contestar o se pierde.
 // El navegador no espera esta respuesta (keepalive), asi que la demora no se nota.
+// El texto del aviso sale entero del servidor (nombre del inventario): el navegador solo dice qué estación es.
 app.post("/api/notify", notifyLimiter, async (req, res) => {
   try {
     if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) return;
@@ -1126,10 +1154,39 @@ app.post("/api/notify", notifyLimiter, async (req, res) => {
     if (!agent || AUTOMATED_AGENT.test(agent)) return;
     const station = String(req.body?.station || "");
     if (!isValidStationId(station)) return;
-    const name = String(req.body?.name || station).replace(/[\r\n]+/g, " ").trim().slice(0, 80) || station;
+    const name = await stationName(station);
+    if (!name) return;
+    const last = recentNotices.stations.get(station) || 0;
+    if (Date.now() - last < 60 * 60 * 1000) return;
+    if (!underHourlyCap("notify", NOTIFY_MAX_PER_HOUR)) return;
+    recentNotices.stations.set(station, Date.now());
     // Si la estacion no tiene datos, el aviso lleva su indicativo para cargarla con scripts/load-stations.js.
     const hasData = Boolean(await readStationMeta(station).catch(() => null));
     await notifyTelegram(`Alguien está consultando "${name}"${hasData ? "" : ` · sin datos (${station})`}`);
+  } finally {
+    res.status(204).end();
+  }
+});
+
+// Feedback de la web (tarjeta «¿Te ha resultado útil?»): llega al Telegram con una etiqueta fija para no confundirlo
+// nunca con un aviso del sistema, y con los enlaces desactivados («ejemplo[.]com»), porque el texto lo escribe cualquiera.
+const feedbackLimiter = rateLimit({ windowMs: 10 * 60 * 1000, limit: 6, standardHeaders: true, legacyHeaders: false, message: { ok: false } });
+
+const defang = (text) => text.replace(/:\/\//g, "[://]").replace(/([\p{L}\p{N}])\.(?=[\p{L}]{2,})/gu, "$1[.]").replace(/@/g, "(at)");
+
+app.post("/api/feedback", feedbackLimiter, async (req, res) => {
+  try {
+    const body = req.body || {};
+    // Campo trampa invisible: solo lo rellenan los bots. Se responde como si nada.
+    if (body.website) return;
+    const vote = body.vote === "up" || body.vote === "down" ? body.vote : null;
+    const text = String(body.text || "").replace(/\s+/g, " ").trim().slice(0, 500);
+    if (!vote && !text) return;
+    const station = String(body.station || "");
+    const name = isValidStationId(station) ? await stationName(station) : null;
+    if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID || !underHourlyCap("feedback", FEEDBACK_MAX_PER_HOUR)) return;
+    const head = ["📝 Feedback de la web", vote === "up" ? "👍" : vote === "down" ? "👎" : null, name].filter(Boolean).join(" · ");
+    await notifyTelegram(text ? `${head}\n«${defang(text)}»` : head);
   } finally {
     res.status(204).end();
   }

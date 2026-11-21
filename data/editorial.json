@@ -49,11 +49,6 @@
       "keywords": "cop31|cop 31|cop-31|antalya|cumbre del clima|conferencia de las partes|climate summit|climate conference"
     }
   ],
-  "donate": {
-    "enabled": true,
-    "everyNDays": 14,
-    "hourMadrid": 12
-  },
   "follow": [
     {
       "handle": "aemet.es",
