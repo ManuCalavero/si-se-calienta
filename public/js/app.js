@@ -1157,6 +1157,18 @@ function scheduleLoad() {
   loadTimer = setTimeout(() => runQuery({ mode: "transition" }), 220);
 }
 
+// Estación sin datos cargados: se dice al momento en vez de dejar el panel cargando.
+function renderUnavailable(station) {
+  setProgress(null);
+  setRefreshing(false);
+  els.panelBody.classList.remove("is-loading");
+  els.panelBody.classList.add("is-empty");
+  els.headline._delta = null;
+  els.headline.textContent = `Todavía no tenemos datos de ${station.nombreVisible}.`;
+  els.subline.textContent = "Prueba con una estación cercana de las marcadas en morado en el mapa: esas sí tienen datos.";
+  els.shareBtn.disabled = true;
+}
+
 async function runQuery({ mode = "fresh" } = {}) {
   const station = state.byId.get(state.selectedId);
   if (!station) return null;
@@ -1166,6 +1178,7 @@ async function runQuery({ mode = "fresh" } = {}) {
   if (mode === "fresh") {
     state.result = null;
     state.analysis = null;
+    els.panelBody.classList.remove("is-empty");
     renderHeader(station, null);
     renderSkeleton();
     els.shareBtn.disabled = true;
@@ -1175,6 +1188,10 @@ async function runQuery({ mode = "fresh" } = {}) {
 
   try {
     const payload = await enqueue(station.idema);
+    if (payload.status === "unavailable") {
+      if (state.jobToken === token) renderUnavailable(station);
+      return null;
+    }
     let result = payload.status === "done" ? payload.result : null;
     if (!result) {
       showSnapshot(payload);

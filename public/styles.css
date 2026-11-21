@@ -886,6 +886,13 @@ input {
   opacity: 0.45;
 }
 
+/* Estación sin datos: solo queda el mensaje, sin indicadores, gráfica ni franjas vacíos. */
+.panel-body.is-empty #kpis,
+.panel-body.is-empty .chart-card,
+.panel-body.is-empty .stripes-card {
+  display: none;
+}
+
 .panel-body.is-loading .kpi-value {
   color: transparent;
   border-radius: 6px;

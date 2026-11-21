@@ -45,6 +45,10 @@ const AEMET_REQUEST_DELAY_MS = Math.max(300, Number(process.env.AEMET_REQUEST_DE
 const AEMET_MAX_BACKOFF_MS = 30000;
 const EVOLUTION_ENQUEUE_LIMIT_PER_MIN = Math.max(10, Number(process.env.EVOLUTION_ENQUEUE_LIMIT_PER_MIN || "40"));
 const EVOLUTION_STATUS_LIMIT_PER_MIN = Math.max(60, Number(process.env.EVOLUTION_STATUS_LIMIT_PER_MIN || "240"));
+// En Vercel no se descarga de AEMET al vuelo: el disco es de solo lectura y cada instancia tiene su propia memoria,
+// asi que la descarga no se guarda y el trabajo se pierde al cambiar de instancia (la web se quedaba cargando sin fin).
+// Alli solo se sirven las estaciones de Atlas. LIVE_DOWNLOADS=1 o =0 fuerza el comportamiento.
+const LIVE_DOWNLOADS = process.env.LIVE_DOWNLOADS ? process.env.LIVE_DOWNLOADS === "1" : !process.env.VERCEL;
 
 const evolutionJobs = new Map();
 let evolutionJobSequence = 0;
@@ -1083,7 +1087,7 @@ const notifyLimiter = rateLimit({
 // Rastreadores y herramientas de medición: cargan la app como un navegador y no deben avisar «alguien está consultando…».
 const AUTOMATED_AGENT = /bot\b|bot\/|crawl|spider|slurp|googlebot|bingbot|duckduckgo|yandex|baidu|facebookexternalhit|embedly|headless|lighthouse|pagespeed|gtmetrix|pingdom|uptime|monitor|preview|curl|wget|python-requests|node-fetch|undici|^node$/i;
 
-app.post("/api/notify", notifyLimiter, (req, res) => {
+app.post("/api/notify", notifyLimiter, async (req, res) => {
   res.status(204).end();
   if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) return;
   const agent = String(req.get("user-agent") || "");
@@ -1091,10 +1095,13 @@ app.post("/api/notify", notifyLimiter, (req, res) => {
   const station = String(req.body?.station || "");
   if (!isValidStationId(station)) return;
   const name = String(req.body?.name || station).replace(/[\r\n]+/g, " ").trim().slice(0, 80) || station;
+  // Si la estacion no tiene datos, el aviso lleva su indicativo para cargarla con scripts/load-stations.js.
+  const hasData = Boolean(await readStationMeta(station).catch(() => null));
+  const text = `Alguien está consultando "${name}"${hasData ? "" : ` · sin datos (${station})`}`;
   fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: `Alguien está consultando "${name}"`, disable_notification: false }),
+    body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text, disable_notification: false }),
     signal: AbortSignal.timeout(5000),
   }).catch(() => {});
 });
@@ -1171,6 +1178,14 @@ app.get("/api/evolution/jobs/enqueue", evolutionEnqueueLimiter, async (req, res)
     const { plan, result } = await buildCachedResultIfComplete(params);
     if (result) {
       return res.json({ status: "done", fromCache: true, result });
+    }
+
+    if (!LIVE_DOWNLOADS) {
+      // Sin historial en Atlas la estacion no tiene datos aqui: se dice al momento en vez de abrir una descarga.
+      if (!plan.meta) return res.json({ status: "unavailable" });
+      // Atlas no guarda los medios anos vacios (huecos, estaciones cerradas): lo que falta es que no hay datos.
+      const job = { ...params, meta: plan.meta, startYear: plan.startYear, endYear: plan.endYear, chunkMap: plan.chunkMap, failedChunks: [] };
+      return res.json({ status: "done", fromCache: true, result: buildEvolutionResult(job, true) });
     }
 
     const job = startEvolutionJob(params, plan);
