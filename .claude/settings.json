@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -s http://localhost:3000/api/stations/cached)",
+      "Bash(sed -i '' 's/localStorage.setItem\\(\"consent\", \"declined\"\\)/localStorage.setItem\\(\"secalienta-consent\", \"declined\"\\)/' shot.js)",
+      "Bash(node shot.js before)",
+      "Bash(node search.js s)",
+      "Bash(node search.js s2)",
+      "Bash(node shot.js v2)",
+      "Bash(node shot.js se2 375 667)",
+      "Bash(node welcome.js w320 320 568)",
+      "Bash(node welcome.js w375 375 667)",
+      "Bash(node welcome.js w390 390 844)",
+      "Bash(node shot.js v3)",
+      "Bash(node shot.js n320 320 568)",
+      "Bash(git -C /Users/manuelmarquezclavero/Documents/Workspace/si-se-calienta diff --stat)",
+      "Bash(git add *)",
+      "Bash(git commit -q -m ' *)",
+      "Bash(git push *)",
+      "Bash(lsof -ti tcp:3000 -sTCP:LISTEN)",
+      "Bash(xargs -r ps -o pid,command -p)",
+      "Bash(kill 97074)",
+      "Bash(node shot.js after 390 844)",
+      "Bash(node search.js s2 390 844)",
+      "Bash(node desk.js)"
+    ]
+  }
+}

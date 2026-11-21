@@ -1087,23 +1087,22 @@ const notifyLimiter = rateLimit({
 // Rastreadores y herramientas de medición: cargan la app como un navegador y no deben avisar «alguien está consultando…».
 const AUTOMATED_AGENT = /bot\b|bot\/|crawl|spider|slurp|googlebot|bingbot|duckduckgo|yandex|baidu|facebookexternalhit|embedly|headless|lighthouse|pagespeed|gtmetrix|pingdom|uptime|monitor|preview|curl|wget|python-requests|node-fetch|undici|^node$/i;
 
+// En Vercel la funcion puede congelarse en cuanto responde: el aviso se envia antes de contestar o se pierde.
+// El navegador no espera esta respuesta (keepalive), asi que la demora no se nota.
 app.post("/api/notify", notifyLimiter, async (req, res) => {
-  res.status(204).end();
-  if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) return;
-  const agent = String(req.get("user-agent") || "");
-  if (!agent || AUTOMATED_AGENT.test(agent)) return;
-  const station = String(req.body?.station || "");
-  if (!isValidStationId(station)) return;
-  const name = String(req.body?.name || station).replace(/[\r\n]+/g, " ").trim().slice(0, 80) || station;
-  // Si la estacion no tiene datos, el aviso lleva su indicativo para cargarla con scripts/load-stations.js.
-  const hasData = Boolean(await readStationMeta(station).catch(() => null));
-  const text = `Alguien está consultando "${name}"${hasData ? "" : ` · sin datos (${station})`}`;
-  fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text, disable_notification: false }),
-    signal: AbortSignal.timeout(5000),
-  }).catch(() => {});
+  try {
+    if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) return;
+    const agent = String(req.get("user-agent") || "");
+    if (!agent || AUTOMATED_AGENT.test(agent)) return;
+    const station = String(req.body?.station || "");
+    if (!isValidStationId(station)) return;
+    const name = String(req.body?.name || station).replace(/[\r\n]+/g, " ").trim().slice(0, 80) || station;
+    // Si la estacion no tiene datos, el aviso lleva su indicativo para cargarla con scripts/load-stations.js.
+    const hasData = Boolean(await readStationMeta(station).catch(() => null));
+    await notifyTelegram(`Alguien está consultando "${name}"${hasData ? "" : ` · sin datos (${station})`}`);
+  } finally {
+    res.status(204).end();
+  }
 });
 
 app.get("/api/stations", async (_req, res) => {
