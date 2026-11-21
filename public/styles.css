@@ -2484,33 +2484,39 @@ body.has-selection .attribution {
   gap: 14px;
 }
 
-/* Escala de cinco caras dibujadas a línea. */
+/* Dos respuestas, Sí y No, como botones grandes con una cara dibujada a línea. */
 .feedback-scale {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 4px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
 }
 
 .feedback-face {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 6px;
+  justify-content: center;
+  gap: 10px;
   min-width: 0;
-  padding: 8px 2px 6px;
-  border: 0;
-  border-radius: 16px;
-  background: transparent;
+  min-height: 60px;
+  padding: 8px 16px;
+  border: 1.5px solid var(--line);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.3);
   color: var(--ink);
   font: inherit;
   cursor: pointer;
-  transition: background 0.2s var(--ease), opacity 0.2s var(--ease), transform 0.2s var(--ease);
+  transition: background 0.2s var(--ease), border-color 0.2s var(--ease), opacity 0.2s var(--ease), transform 0.2s var(--ease);
   -webkit-tap-highlight-color: transparent;
 }
 
+.feedback-face:active {
+  transform: scale(0.97);
+}
+
 .feedback-face svg {
-  width: 46px;
-  height: 46px;
+  flex: none;
+  width: 38px;
+  height: 38px;
   fill: none;
   stroke: currentColor;
   stroke-width: 2;
@@ -2536,10 +2542,11 @@ body.has-selection .attribution {
 
 .feedback-face span {
   overflow: hidden;
-  max-width: 100%;
-  color: var(--ink-soft);
-  font-size: 12px;
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: 1.15rem;
   font-weight: 600;
+  letter-spacing: -0.01em;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -2547,7 +2554,8 @@ body.has-selection .attribution {
 /* Solo con ratón: en táctil el :hover se queda pegado tras tocar. */
 @media (hover: hover) {
   .feedback-face:hover {
-    background: rgba(255, 255, 255, 0.35);
+    border-color: rgba(38, 48, 13, 0.3);
+    background: rgba(255, 255, 255, 0.5);
   }
 }
 
@@ -2556,18 +2564,19 @@ body.has-selection .attribution {
   outline-offset: 2px;
 }
 
-/* Elegida: cara rellena en oliva con los rasgos en lima. El resto se apaga un poco. */
+/* Elegida: botón en oliva con la cara en lima. La otra se apaga un poco. */
 .feedback-face[aria-checked="true"] {
+  border-color: var(--ink);
+  background: var(--ink);
   color: var(--lime);
 }
 
 .feedback-face[aria-checked="true"] .face-bg {
   fill: var(--ink);
-  stroke: var(--ink);
 }
 
 .feedback-face[aria-checked="true"] span {
-  color: var(--ink);
+  color: var(--lime);
 }
 
 .feedback-face[aria-checked="true"] svg {
@@ -2742,17 +2751,6 @@ body.has-selection .attribution {
   color: rgba(255, 255, 255, 0.72);
   font-size: 13px;
   line-height: 1.4;
-}
-
-@media (max-width: 380px) {
-  .feedback-face svg {
-    width: 40px;
-    height: 40px;
-  }
-
-  .feedback-face span {
-    font-size: 11px;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {

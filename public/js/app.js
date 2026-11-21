@@ -420,11 +420,11 @@ function applyLinks() {
 }
 
 // ---------- Feedback ----------
-// Un clic en la escala de caras (1–5) ya se envía; el texto es opcional y va en un segundo envío. Llega al Telegram del autor.
+// Un clic en Sí/No ya se envía; el texto es opcional y va en un segundo envío. Llega al Telegram del autor.
 
-const feedback = { rating: null, ratingSent: false, done: false };
-// La pregunta del cuadro de texto cambia según la nota.
-const FEEDBACK_PROMPTS = { 1: "¿Qué ha fallado?", 2: "¿Qué ha fallado?", 3: "¿Qué le falta para serte útil?", 4: "¿Qué mejorarías?", 5: "¿Qué es lo que más te ha gustado?" };
+const feedback = { useful: null, voteSent: false, done: false };
+// La pregunta del cuadro de texto cambia según la respuesta.
+const FEEDBACK_PROMPTS = { true: "¿Qué es lo que más te ha gustado?", false: "¿Qué ha fallado o qué le falta?" };
 
 function sendFeedback(payload) {
   return fetch("/api/feedback", {
@@ -438,14 +438,14 @@ function sendFeedback(payload) {
 function onFeedbackVote(event) {
   const button = event.target.closest(".feedback-face");
   if (!button || feedback.done) return;
-  feedback.rating = Number(button.dataset.rating);
+  feedback.useful = button.dataset.useful === "true";
   els.feedbackForm.classList.add("has-rating");
   for (const other of els.feedbackForm.querySelectorAll(".feedback-face")) other.setAttribute("aria-checked", String(other === button));
-  if (!feedback.ratingSent) {
-    feedback.ratingSent = true;
-    sendFeedback({ rating: feedback.rating }).catch(() => {});
+  if (!feedback.voteSent) {
+    feedback.voteSent = true;
+    sendFeedback({ useful: feedback.useful }).catch(() => {});
   }
-  $("feedback-label").textContent = FEEDBACK_PROMPTS[feedback.rating];
+  $("feedback-label").textContent = FEEDBACK_PROMPTS[feedback.useful];
   const firstOpen = els.feedbackMore.hidden;
   els.feedbackMore.hidden = false;
   // En móvil, abrir el teclado de golpe tapa la tarjeta: solo se enfoca con ratón.
@@ -458,7 +458,7 @@ async function onFeedbackSubmit(event) {
   const text = els.feedbackText.value.trim();
   if (text) {
     try {
-      const response = await sendFeedback({ rating: feedback.rating, text });
+      const response = await sendFeedback({ useful: feedback.useful, text });
       if (!response.ok) throw new Error();
     } catch {
       showToast("No se ha podido enviar. Prueba de nuevo en un momento.", true);
