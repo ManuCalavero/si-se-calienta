@@ -420,9 +420,11 @@ function applyLinks() {
 }
 
 // ---------- Feedback ----------
-// Un clic (Sí / No mucho) ya se envía; el texto es opcional y va en un segundo envío. Llega al Telegram del autor.
+// Un clic en la escala de caras (1–5) ya se envía; el texto es opcional y va en un segundo envío. Llega al Telegram del autor.
 
-const feedback = { vote: null, voteSent: false, done: false };
+const feedback = { rating: null, ratingSent: false, done: false };
+// La pregunta del cuadro de texto cambia según la nota.
+const FEEDBACK_PROMPTS = { 1: "¿Qué ha fallado?", 2: "¿Qué ha fallado?", 3: "¿Qué le falta para serte útil?", 4: "¿Qué mejorarías?", 5: "¿Qué es lo que más te ha gustado?" };
 
 function sendFeedback(payload) {
   return fetch("/api/feedback", {
@@ -434,16 +436,20 @@ function sendFeedback(payload) {
 }
 
 function onFeedbackVote(event) {
-  const button = event.target.closest(".feedback-vote");
+  const button = event.target.closest(".feedback-face");
   if (!button || feedback.done) return;
-  feedback.vote = button.dataset.vote;
-  for (const other of els.feedbackForm.querySelectorAll(".feedback-vote")) other.setAttribute("aria-pressed", String(other === button));
-  if (!feedback.voteSent) {
-    feedback.voteSent = true;
-    sendFeedback({ vote: feedback.vote }).catch(() => {});
+  feedback.rating = Number(button.dataset.rating);
+  els.feedbackForm.classList.add("has-rating");
+  for (const other of els.feedbackForm.querySelectorAll(".feedback-face")) other.setAttribute("aria-checked", String(other === button));
+  if (!feedback.ratingSent) {
+    feedback.ratingSent = true;
+    sendFeedback({ rating: feedback.rating }).catch(() => {});
   }
+  $("feedback-label").textContent = FEEDBACK_PROMPTS[feedback.rating];
+  const firstOpen = els.feedbackMore.hidden;
   els.feedbackMore.hidden = false;
-  els.feedbackText.focus({ preventScroll: true });
+  // En móvil, abrir el teclado de golpe tapa la tarjeta: solo se enfoca con ratón.
+  if (firstOpen && window.matchMedia("(hover: hover)").matches) els.feedbackText.focus({ preventScroll: true });
 }
 
 async function onFeedbackSubmit(event) {
@@ -452,7 +458,7 @@ async function onFeedbackSubmit(event) {
   const text = els.feedbackText.value.trim();
   if (text) {
     try {
-      const response = await sendFeedback({ vote: feedback.vote, text });
+      const response = await sendFeedback({ rating: feedback.rating, text });
       if (!response.ok) throw new Error();
     } catch {
       showToast("No se ha podido enviar. Prueba de nuevo en un momento.", true);
@@ -460,7 +466,7 @@ async function onFeedbackSubmit(event) {
     }
   }
   feedback.done = true;
-  els.feedbackForm.querySelector(".feedback-votes").hidden = true;
+  els.feedbackForm.querySelector(".feedback-scale").hidden = true;
   els.feedbackMore.hidden = true;
   els.feedbackThanks.hidden = false;
 }

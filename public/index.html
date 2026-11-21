@@ -323,24 +323,53 @@
             <!--station-about-->
             <section class="card feedback" aria-labelledby="feedback-title">
               <div class="feedback-head">
-                <h3 id="feedback-title">¿Te ha resultado útil?</h3>
-                <p>Es un proyecto personal. Tu opinión me ayuda a decidir qué mejorar.</p>
+                <span class="feedback-eyebrow">Tu opinión</span>
+                <h3 id="feedback-title">¿Te ha sido útil?</h3>
+                <p>Es un proyecto personal: me ayuda a saber qué mejorar.</p>
               </div>
               <form id="feedback-form" class="feedback-form" novalidate>
-                <div class="feedback-votes" role="group" aria-label="¿Te ha resultado útil?">
-                  <button type="button" class="feedback-vote" data-vote="up" aria-pressed="false"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M6.5 9v7.5M6.5 9l3-5.5c1.2 0 2 .9 1.8 2.1L10.8 8h4c1 0 1.7.9 1.5 1.9l-1 5c-.2.9-1 1.6-1.9 1.6H6.5M3.5 9h3v7.5h-3z" /></svg>Sí</button>
-                  <button type="button" class="feedback-vote" data-vote="down" aria-pressed="false"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M13.5 11V3.5M13.5 11l-3 5.5c-1.2 0-2-.9-1.8-2.1l.5-2.4h-4c-1 0-1.7-.9-1.5-1.9l1-5c.2-.9 1-1.6 1.9-1.6h6.9M16.5 11h-3V3.5h3z" /></svg>No mucho</button>
+                <div class="feedback-scale" role="radiogroup" aria-labelledby="feedback-title">
+                  <button type="button" class="feedback-face" data-rating="1" role="radio" aria-checked="false">
+                    <svg viewBox="0 0 40 40" aria-hidden="true"><circle class="face-bg" cx="20" cy="20" r="17" /><path d="M11.5 13.5l5 1.8M28.5 13.5l-5 1.8" /><circle class="face-eye" cx="15" cy="19" r="1.9" /><circle class="face-eye" cx="25" cy="19" r="1.9" /><path d="M13 29c3.8-4.6 10.2-4.6 14 0" /></svg>
+                    <span>Nada</span>
+                  </button>
+                  <button type="button" class="feedback-face" data-rating="2" role="radio" aria-checked="false">
+                    <svg viewBox="0 0 40 40" aria-hidden="true"><circle class="face-bg" cx="20" cy="20" r="17" /><circle class="face-eye" cx="15" cy="17.5" r="1.9" /><circle class="face-eye" cx="25" cy="17.5" r="1.9" /><path d="M14 27.5c3.6-2.6 8.4-2.6 12 0" /></svg>
+                    <span>Poco</span>
+                  </button>
+                  <button type="button" class="feedback-face" data-rating="3" role="radio" aria-checked="false">
+                    <svg viewBox="0 0 40 40" aria-hidden="true"><circle class="face-bg" cx="20" cy="20" r="17" /><circle class="face-eye" cx="15" cy="17.5" r="1.9" /><circle class="face-eye" cx="25" cy="17.5" r="1.9" /><path d="M14 26h12" /></svg>
+                    <span>Normal</span>
+                  </button>
+                  <button type="button" class="feedback-face" data-rating="4" role="radio" aria-checked="false">
+                    <svg viewBox="0 0 40 40" aria-hidden="true"><circle class="face-bg" cx="20" cy="20" r="17" /><circle class="face-eye" cx="15" cy="17.5" r="1.9" /><circle class="face-eye" cx="25" cy="17.5" r="1.9" /><path d="M13.5 24.5c3.8 4 9.2 4 13 0" /></svg>
+                    <span>Útil</span>
+                  </button>
+                  <button type="button" class="feedback-face" data-rating="5" role="radio" aria-checked="false">
+                    <svg viewBox="0 0 40 40" aria-hidden="true"><circle class="face-bg" cx="20" cy="20" r="17" /><path d="M12.5 18.5c1.4-2.4 4.6-2.4 6 0M21.5 18.5c1.4-2.4 4.6-2.4 6 0" /><path class="face-mouth" d="M12.5 23.5h15c0 4.6-3.4 7.5-7.5 7.5s-7.5-2.9-7.5-7.5z" /></svg>
+                    <span>¡Mucho!</span>
+                  </button>
                 </div>
                 <div id="feedback-more" class="feedback-more" hidden>
-                  <label for="feedback-text">¿Qué mejorarías? <span>(opcional)</span></label>
-                  <textarea id="feedback-text" maxlength="500" rows="3" placeholder="Una ciudad que falta, algo que no se entiende, una idea…"></textarea>
+                  <label id="feedback-label" for="feedback-text">¿Qué mejorarías?</label>
+                  <div class="feedback-field">
+                    <textarea id="feedback-text" maxlength="500" rows="3" placeholder="Una ciudad que falta, algo que no se entiende, una idea…"></textarea>
+                    <button type="submit" class="feedback-send" aria-label="Enviar">
+                      <span>Enviar</span>
+                      <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h11M11 5.5l4.5 4.5-4.5 4.5" /></svg>
+                    </button>
+                  </div>
                   <input id="feedback-website" class="feedback-trap" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" />
-                  <div class="feedback-foot">
-                    <button type="submit" class="btn btn-primary feedback-send">Enviar</button>
-                    <span class="feedback-note">Es anónimo: no incluyas datos personales.</span>
+                </div>
+                <div id="feedback-thanks" class="feedback-thanks" role="status" hidden>
+                  <span class="feedback-thanks-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24"><path d="M12 20.5s-7.5-4.6-7.5-10.1A4.2 4.2 0 0 1 12 7.9a4.2 4.2 0 0 1 7.5 2.5c0 5.5-7.5 10.1-7.5 10.1z" /></svg>
+                  </span>
+                  <div>
+                    <strong>¡Gracias por contármelo!</strong>
+                    <p>Lo leo todo y me ayuda a decidir qué hacer después.</p>
                   </div>
                 </div>
-                <p id="feedback-thanks" class="feedback-thanks" role="status" hidden>¡Gracias! Lo leo todo.</p>
               </form>
             </section>
           </section>

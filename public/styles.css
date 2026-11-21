@@ -52,11 +52,11 @@
   --cool-soft: rgba(2, 157, 255, 0.12);
   --rain: #05e1cf;
   --rain-ink: #00796f;
-  /* Botón «Opinar» del pie (pastilla cálida). */
-  --pill-bg: #fff3e6;
-  --pill-bg-hover: #ffe7cc;
-  --pill-ink: #b85208;
-  --pill-icon: #e8711a;
+  /* Botón «Opinar» del pie (pastilla lima). */
+  --pill-bg: #e6f7ad;
+  --pill-bg-hover: #d6f06e;
+  --pill-ink: #3a4a0f;
+  --pill-icon: #5a7a00;
   /* Las sombras de algunos elementos se multiplican por este factor. */
   --shadow-strength: 1;
   --shadow: 0 16px 40px rgba(0, 0, 0, 0.12);
@@ -2429,93 +2429,183 @@ body.has-selection .attribution {
 /* ---------- Feedback ---------- */
 
 /*
- * La tarjeta de feedback invierte los colores (fondo amarillo, texto oscuro) para destacar sobre la tarjeta negra.
+ * Tarjeta lima con tinta verde oliva: destaca sobre el resto del panel sin gritar.
  * Se redefinen los tokens dentro de la tarjeta y todo lo de dentro los hereda.
  */
 .feedback {
-  --ink: #161513;
-  --ink-soft: #3d3b37;
-  --muted: #6b6964;
-  --tint-rgb: 22, 21, 19;
-  --line: rgba(22, 21, 19, 0.1);
-  --primary: #161513;
-  --primary-hover: #000;
-  --on-primary: #fff;
+  --lime: #d6f06e;
+  --lime-soft: #e7f8a6;
+  --ink: #26300d;
+  --ink-soft: #46551f;
+  --muted: #66753a;
+  --line: rgba(38, 48, 13, 0.14);
+  --face-fill: rgba(255, 255, 255, 0.4);
   display: grid;
-  gap: 12px;
+  gap: 16px;
   border-color: transparent;
-  background: #f6be33;
+  background: radial-gradient(120% 90% at 100% 0%, var(--lime-soft) 0%, rgba(231, 248, 166, 0) 60%), var(--lime);
   color: var(--ink);
 }
 
-#feedback-title {
-  font-size: 2rem;
-  font-weight: bold;
+.feedback-head {
+  display: grid;
+  gap: 4px;
 }
 
-/* Título de la tarjeta como titular: más grande, sin las mayúsculas de las demás tarjetas. */
-.feedback h3 {
+:root .feedback-eyebrow {
+  color: var(--ink-soft);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Titular amable: sin las mayúsculas mono de las demás tarjetas. */
+:root .feedback h3 {
+  margin: 0;
+  color: var(--ink);
   font-family: var(--font-display);
-  font-size: 1.6rem;
-  font-weight: 400;
-  letter-spacing: -0.01em;
-  line-height: 1.1;
+  font-size: 1.75rem;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
   text-transform: none;
-  color: var(--ink);
 }
 
 .feedback-head p {
-  margin: 4px 0 0;
+  margin: 2px 0 0;
   color: var(--ink-soft);
-  font-size: 13px;
+  font-size: 13.5px;
+  line-height: 1.45;
 }
 
 .feedback-form {
   display: grid;
-  gap: 10px;
+  gap: 14px;
 }
 
-.feedback-votes {
+/* Escala de cinco caras dibujadas a línea. */
+.feedback-scale {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.feedback-face {
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-/* Sí / No mucho: pastillas con borde; la elegida, rellena. */
-.feedback-vote {
-  display: inline-flex;
+  flex-direction: column;
   align-items: center;
   gap: 6px;
-  min-height: 40px;
-  padding: 0 16px;
-  border: 1.5px solid var(--ink);
-  border-radius: 999px;
+  min-width: 0;
+  padding: 8px 2px 6px;
+  border: 0;
+  border-radius: 16px;
   background: transparent;
   color: var(--ink);
   font: inherit;
-  font-size: 14px;
-  font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s var(--ease), color 0.2s var(--ease);
+  transition: background 0.2s var(--ease), opacity 0.2s var(--ease), transform 0.2s var(--ease);
+  -webkit-tap-highlight-color: transparent;
 }
 
-.feedback-vote:hover {
-  background: rgba(22, 21, 19, 0.08);
-}
-
-.feedback-vote[aria-pressed="true"] {
-  background: var(--ink);
-  color: #fff;
-}
-
-.feedback-vote svg {
-  width: 18px;
-  height: 18px;
+.feedback-face svg {
+  width: 46px;
+  height: 46px;
   fill: none;
   stroke: currentColor;
-  stroke-width: 1.6;
+  stroke-width: 2;
   stroke-linecap: round;
   stroke-linejoin: round;
+  overflow: visible;
+}
+
+.feedback-face .face-bg {
+  fill: var(--face-fill);
+  transition: fill 0.2s var(--ease);
+}
+
+.feedback-face .face-eye,
+.feedback-face .face-mouth {
+  fill: currentColor;
+  stroke: none;
+}
+
+.feedback-face .face-mouth {
+  stroke: currentColor;
+}
+
+.feedback-face span {
+  overflow: hidden;
+  max-width: 100%;
+  color: var(--ink-soft);
+  font-size: 12px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Solo con ratón: en táctil el :hover se queda pegado tras tocar. */
+@media (hover: hover) {
+  .feedback-face:hover {
+    background: rgba(255, 255, 255, 0.35);
+  }
+}
+
+.feedback-face:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+/* Elegida: cara rellena en oliva con los rasgos en lima. El resto se apaga un poco. */
+.feedback-face[aria-checked="true"] {
+  color: var(--lime);
+}
+
+.feedback-face[aria-checked="true"] .face-bg {
+  fill: var(--ink);
+  stroke: var(--ink);
+}
+
+.feedback-face[aria-checked="true"] span {
+  color: var(--ink);
+}
+
+.feedback-face[aria-checked="true"] svg {
+  animation: face-pop 0.45s var(--ease);
+}
+
+.has-rating .feedback-face[aria-checked="false"] {
+  opacity: 0.55;
+}
+
+@media (hover: hover) {
+  .has-rating .feedback-face[aria-checked="false"]:hover {
+    opacity: 1;
+  }
+}
+
+@keyframes face-pop {
+  0% {
+    transform: scale(1);
+  }
+  45% {
+    transform: scale(1.18) rotate(-4deg);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.feedback-more,
+.feedback-thanks {
+  animation: feedback-in 0.3s var(--ease);
+}
+
+@keyframes feedback-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
 }
 
 .feedback-more {
@@ -2523,37 +2613,86 @@ body.has-selection .attribution {
   gap: 8px;
 }
 
+.feedback-scale[hidden],
 .feedback-more[hidden],
-.feedback-votes[hidden] {
+.feedback-thanks[hidden] {
   display: none;
 }
 
 .feedback-more label {
-  font-size: 13px;
+  color: var(--ink);
+  font-size: 14px;
   font-weight: 600;
 }
 
-.feedback-more label span {
-  color: var(--muted);
-  font-weight: 400;
+/* Cuadro de texto con el botón de enviar dentro, como un chat. */
+.feedback-field {
+  position: relative;
 }
 
-.feedback-more textarea {
+.feedback-field textarea {
+  display: block;
   width: 100%;
-  min-height: 76px;
-  padding: 10px 12px;
-  border: 1.5px solid rgba(22, 21, 19, 0.25);
-  border-radius: var(--radius-small);
-  background: rgba(255, 255, 255, 0.7);
+  min-height: 104px;
+  padding: 12px 14px 52px;
+  border: 0;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: inset 0 0 0 1.5px var(--line);
   color: var(--ink);
   font: inherit;
   font-size: 16px; /* 16px: iOS no hace zoom al escribir */
-  resize: vertical;
+  line-height: 1.45;
+  resize: none;
+  transition: box-shadow 0.2s var(--ease), background 0.2s var(--ease);
 }
 
-.feedback-more textarea:focus {
-  outline: 2px solid var(--ink);
-  outline-offset: 1px;
+.feedback-field textarea::placeholder {
+  color: var(--muted);
+}
+
+.feedback-field textarea:focus {
+  outline: none;
+  background: #fff;
+  box-shadow: inset 0 0 0 2px var(--ink);
+}
+
+.feedback-send {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 12px 0 16px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--lime);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.15s var(--ease), background 0.2s var(--ease);
+}
+
+.feedback-send:hover {
+  background: #11170a;
+}
+
+.feedback-send:active {
+  transform: scale(0.96);
+}
+
+.feedback-send svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 /* Campo trampa para bots: fuera de la vista y del lector de pantalla. */
@@ -2565,30 +2704,67 @@ body.has-selection .attribution {
   opacity: 0;
 }
 
-.feedback-foot {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px 14px;
-}
-
-.feedback-send {
-  border-radius: 999px;
-  font-weight: 600;
-}
-
-.feedback-note {
-  color: var(--muted);
-  font-size: 12px;
-}
-
+/* Agradecimiento: icono redondo + titular + línea, como un aviso. */
 .feedback-thanks {
-  margin: 0;
-  font-size: 15px;
-  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: var(--ink);
+  color: #fff;
 }
 
-/* «Opinar» del pie: fondo melocotón, texto naranja y bocadillo. */
+.feedback-thanks-icon {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(214, 240, 110, 0.16);
+}
+
+.feedback-thanks-icon svg {
+  width: 24px;
+  height: 24px;
+  fill: var(--lime);
+  animation: face-pop 0.6s var(--ease);
+}
+
+.feedback-thanks strong {
+  display: block;
+  font-size: 15px;
+}
+
+.feedback-thanks p {
+  margin: 2px 0 0;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+@media (max-width: 380px) {
+  .feedback-face svg {
+    width: 40px;
+    height: 40px;
+  }
+
+  .feedback-face span {
+    font-size: 11px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .feedback-face[aria-checked="true"] svg,
+  .feedback-thanks-icon svg,
+  .feedback-more,
+  .feedback-thanks {
+    animation: none;
+  }
+}
+
+/* «Opinar» del pie: pastilla lima, como la tarjeta. */
 .feedback-btn {
   border: 0;
   border-radius: 999px;

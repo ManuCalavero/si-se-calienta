@@ -1172,6 +1172,8 @@ app.post("/api/notify", notifyLimiter, async (req, res) => {
 // nunca con un aviso del sistema, y con los enlaces desactivados («ejemplo[.]com»), porque el texto lo escribe cualquiera.
 const feedbackLimiter = rateLimit({ windowMs: 10 * 60 * 1000, limit: 6, standardHeaders: true, legacyHeaders: false, message: { ok: false } });
 
+const FEEDBACK_FACES = { 1: "😣", 2: "🙁", 3: "😐", 4: "🙂", 5: "😍" };
+
 const defang = (text) => text.replace(/:\/\//g, "[://]").replace(/([\p{L}\p{N}])\.(?=[\p{L}]{2,})/gu, "$1[.]").replace(/@/g, "(at)");
 
 app.post("/api/feedback", feedbackLimiter, async (req, res) => {
@@ -1179,13 +1181,14 @@ app.post("/api/feedback", feedbackLimiter, async (req, res) => {
     const body = req.body || {};
     // Campo trampa invisible: solo lo rellenan los bots. Se responde como si nada.
     if (body.website) return;
-    const vote = body.vote === "up" || body.vote === "down" ? body.vote : null;
+    const rating = Number.isInteger(body.rating) && body.rating >= 1 && body.rating <= 5 ? body.rating : null;
     const text = String(body.text || "").replace(/\s+/g, " ").trim().slice(0, 500);
-    if (!vote && !text) return;
+    if (!rating && !text) return;
     const station = String(body.station || "");
     const name = isValidStationId(station) ? await stationName(station) : null;
     if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID || !underHourlyCap("feedback", FEEDBACK_MAX_PER_HOUR)) return;
-    const head = ["📝 Feedback de la web", vote === "up" ? "👍" : vote === "down" ? "👎" : null, name].filter(Boolean).join(" · ");
+    const face = rating ? `${FEEDBACK_FACES[rating]} ${rating}/5` : null;
+    const head = ["📝 Feedback de la web", face, name].filter(Boolean).join(" · ");
     await notifyTelegram(text ? `${head}\n«${defang(text)}»` : head);
   } finally {
     res.status(204).end();
