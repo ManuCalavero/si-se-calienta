@@ -315,3 +315,129 @@ h1 {
 .sources a {
   overflow-wrap: anywhere;
 }
+
+/* ---------- Tópicos por ciudad: gráficos, veredicto y tablas ---------- */
+.chart {
+  --bar: #d41f33;
+  margin: 24px 0;
+  padding: 16px 16px 12px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+}
+
+.chart-cold,
+.chart-rain {
+  --bar: #1574c2;
+}
+
+.chart figcaption {
+  margin-bottom: 14px;
+  color: var(--ink);
+  font-size: 14.5px;
+  font-weight: 600;
+}
+
+.chart-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 170px;
+}
+
+.chart-col {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  min-width: 0;
+  height: 100%;
+}
+
+.chart-bar {
+  display: block;
+  width: 100%;
+  max-width: 40px;
+  border-radius: 4px 4px 0 0;
+  background: var(--bar);
+}
+
+.chart-col:hover .chart-bar {
+  opacity: 0.75;
+}
+
+.chart-val {
+  margin-bottom: 4px;
+  color: var(--ink-soft);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.chart-labels {
+  display: flex;
+  gap: 2px;
+  padding-top: 6px;
+  border-top: 1px solid var(--line);
+}
+
+.chart-labels span {
+  flex: 1;
+  min-width: 0;
+  color: var(--muted);
+  font-size: 11.5px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.chart-note {
+  margin: 10px 0 0;
+  color: var(--muted) !important;
+  font-size: 12.5px;
+}
+
+/* Con muchas barras (lluvia año a año) las etiquetas de año se desbordan hacia la derecha en vez de centrarse. */
+.chart-bars:has(.chart-col:nth-child(30)) + .chart-labels span {
+  overflow: visible;
+  text-align: left;
+}
+
+.verdict {
+  margin: 28px 0 8px;
+  padding: 16px 18px;
+  border-left: 4px solid var(--accent-ink);
+  border-radius: 0 14px 14px 0;
+  background: var(--surface);
+  color: var(--ink) !important;
+  font-size: 1.05rem;
+}
+
+.months td small {
+  display: block;
+  color: var(--muted);
+  font-size: 11.5px;
+  white-space: nowrap;
+}
+
+.more ul,
+.topic-list {
+  padding-left: 1.25em;
+}
+
+.more {
+  margin-top: 32px;
+}
+
+.section-title {
+  margin: 32px 0 8px;
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.topic-list li + li {
+  margin-top: 6px;
+}

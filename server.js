@@ -164,7 +164,7 @@ app.get("/robots.txt", (_req, res) => {
 app.get("/sitemap.xml", (_req, res) => {
   const body = seoPages
     .sitemapUrls(SITE_URL)
-    .map((u) => `  <url><loc>${u.loc}</loc><priority>${u.priority}</priority></url>`)
+    .map((u) => `  <url><loc>${u.loc}</loc>${u.lastmod ? `<lastmod>${u.lastmod}</lastmod>` : ""}<priority>${u.priority}</priority></url>`)
     .join("\n");
   res
     .type("application/xml")
