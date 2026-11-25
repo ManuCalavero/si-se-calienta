@@ -181,6 +181,15 @@ app.get("/temperaturas", (_req, res) => {
 
 app.get("/estacion", (_req, res) => res.redirect(301, "/temperaturas"));
 
+// Artículos de texto (lib/articles.js), cada uno en la raíz: /cambio-climatico-hay-esperanza.
+for (const slug of seoPages.articleSlugs) {
+  app.get(`/${slug}`, (_req, res) => {
+    const html = seoPages.renderArticlePage(slug, SITE_URL);
+    if (!html) return res.status(404).type("html").send(seoPages.renderNotFoundPage());
+    res.set("Cache-Control", PAGE_CACHE).type("html").send(html);
+  });
+}
+
 app.get("/estacion/:slug", (req, res) => {
   const capital = seoPages.getCapital(req.params.slug);
   if (!capital) return res.status(404).type("html").send(seoPages.renderNotFoundPage());

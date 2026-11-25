@@ -195,3 +195,123 @@ h1 {
     padding: 10px 12px;
   }
 }
+
+/* ---------- Artículos (/cambio-climatico-hay-esperanza…) ---------- */
+.page-article {
+  max-width: 720px;
+}
+
+.article .byline {
+  margin: 0 0 20px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.article p,
+.article li {
+  color: var(--ink-soft);
+}
+
+.article h2 {
+  margin: 40px 0 10px;
+  font-family: var(--font-display);
+  font-size: 1.55rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+
+.article h3 {
+  margin: 28px 0 6px;
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.article ul,
+.article ol {
+  padding-left: 1.25em;
+}
+
+.article li + li {
+  margin-top: 8px;
+}
+
+.article li strong,
+.article p strong {
+  color: var(--ink);
+}
+
+.key-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+  margin: 0 0 8px;
+  padding: 0 !important;
+  list-style: none;
+}
+
+.key-facts li {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0 !important;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+}
+
+.key-facts strong {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.key-facts span {
+  color: var(--muted);
+  font-size: 13.5px;
+  line-height: 1.4;
+}
+
+.cta {
+  margin: 40px 0 0;
+  padding: 4px 20px 20px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+}
+
+.cta h2 {
+  margin-top: 16px;
+}
+
+.cta-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+}
+
+.page a.button {
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: var(--ink);
+  color: #fff;
+  text-decoration: none;
+}
+
+.sources ol {
+  font-size: 14px;
+}
+
+.sources li {
+  color: var(--muted);
+}
+
+.sources a {
+  overflow-wrap: anywhere;
+}
